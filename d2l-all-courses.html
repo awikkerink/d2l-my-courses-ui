@@ -232,7 +232,7 @@
 				<d2l-course-tile-grid
 					id="all-courses-pinned"
 					enrollments="[[filteredPinnedEnrollments]]"
-					enrollments-queue="[[filteredPinnedEnrollmentsQueue]]"
+					enrollments-to-animate="[[_pinnedEnrollmentsToAnimate]]"
 					delay-load="[[delayLoad]]"
 					tile-sizes="[[_tileSizes]]"
 					locale="[[locale]]"
@@ -245,7 +245,7 @@
 				<d2l-course-tile-grid
 					id="all-courses-unpinned"
 					enrollments="[[filteredUnpinnedEnrollments]]"
-					enrollments-queue="[[filteredUnpinnedEnrollmentsQueue]]"
+					enrollments-to-animate="[[_unpinnedEnrollmentsToAnimate]]"
 					delay-load="[[delayLoad]]"
 					tile-sizes="[[_tileSizes]]"
 					locale="[[locale]]"
@@ -298,32 +298,6 @@
 					observer: '_unpinnedEnrollmentsChanged'
 				},
 				filteredUnpinnedEnrollments: {
-					type: Array,
-					value: function() {
-						return [];
-					}
-				},
-				// Set of enrollments Entities that are being transferred from unpinned to pinned state
-				pinnedEnrollmentsQueue: {
-					type: Array,
-					value: function() {
-						return [];
-					}
-				},
-				filteredPinnedEnrollmentsQueue: {
-					type: Array,
-					value: function() {
-						return [];
-					}
-				},
-				// Set of enrollments that are being transferred from pinned to unpinned state
-				unpinnedEnrollmentsQueue: {
-					type: Array,
-					value: function() {
-						return [];
-					}
-				},
-				filteredUnpinnedEnrollmentsQueue: {
 					type: Array,
 					value: function() {
 						return [];
@@ -400,7 +374,19 @@
 					value: 20
 				},
 				// Determines if the filter menu can be shown (The number of enrollments >= enrollments required)
-				_hasManyEnrollments: false
+				_hasManyEnrollments: false,
+				_pinnedEnrollmentsToAnimate: {
+					type: Array,
+					value: function() {
+						return [];
+					}
+				},
+				_unpinnedEnrollmentsToAnimate: {
+					type: Array,
+					value: function() {
+						return [];
+					}
+				}
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
@@ -418,11 +404,8 @@
 			},
 			observers: [
 				'_updateEnrollmentAlerts(_hasFilteredPinnedEnrollments)',
-				'_enrollmentsChanged(filteredPinnedEnrollments.length, filteredPinnedEnrollmentsQueue.length, filteredUnpinnedEnrollments.length, filteredUnpinnedEnrollmentsQueue.length)'
+				'_enrollmentsChanged(filteredPinnedEnrollments.length, filteredUnpinnedEnrollments.length)'
 			],
-			created: function() {
-				this._tilesInPinStateTransition = [];
-			},
 			_loadNextEnrollmentsPage: function() {
 				if (this.$['all-courses'].opened && this.lastEnrollmentsSearchResponse) {
 					var parser = document.createElement('d2l-siren-parser');
@@ -437,15 +420,8 @@
 				}
 			},
 			_enrollmentsChanged: function() {
-				this._hasFilteredPinnedEnrollments =
-					this.filteredPinnedEnrollments.length > 0 ||
-					this.filteredPinnedEnrollmentsQueue.length > 0;
-				// Need to factor in queues here - if user has 1 enrollment, it will briefly
-				// disappear from both enrollments arrays when pinned/unpinned
-				this._hasFilteredEnrollments =
-					this._hasFilteredPinnedEnrollments ||
-					this.filteredUnpinnedEnrollments.length > 0 ||
-					this.filteredUnpinnedEnrollmentsQueue.length > 0;
+				this._hasFilteredPinnedEnrollments = this.filteredPinnedEnrollments.length > 0;
+				this._hasFilteredEnrollments = this._hasFilteredPinnedEnrollments || this._hasFilteredUnpinnedEnrollments;
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
@@ -457,7 +433,8 @@
 					if (pinnedEnrollmentId === enrollmentId) {
 						var foundEnrollment = this.filteredUnpinnedEnrollments[index];
 						this._setEnrollmentPinData(foundEnrollment, true);
-						this.push('filteredPinnedEnrollmentsQueue', foundEnrollment);
+						this._pinnedEnrollmentsToAnimate.push(enrollmentId);
+						this.unshift('filteredPinnedEnrollments', foundEnrollment);
 						this.splice('filteredUnpinnedEnrollments', index, 1);
 						break;
 					}
@@ -472,7 +449,8 @@
 					if (unpinnedEnrollmentId === enrollmentId) {
 						var foundEnrollment = this.filteredPinnedEnrollments[index];
 						this._setEnrollmentPinData(foundEnrollment, false);
-						this.push('filteredUnpinnedEnrollmentsQueue', foundEnrollment);
+						this._unpinnedEnrollmentsToAnimate.push(enrollmentId);
+						this.unshift('filteredUnpinnedEnrollments', foundEnrollment);
 						this.splice('filteredPinnedEnrollments', index, 1);
 						break;
 					}

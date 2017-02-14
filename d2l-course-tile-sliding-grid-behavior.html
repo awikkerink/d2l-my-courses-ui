@@ -1,0 +1,266 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<script>
+	'use strict';
+
+	(function() {
+		window.D2L = window.D2L || {};
+		window.D2L.MyCourses = window.D2L.MyCourses || {};
+
+		/**
+		 * this method, given an index in the grid, and a count of inserted
+		 * or removed tiles, will describe the visual position change of the tile.
+		 */
+		function calculatePositionChange(columns, i, insert, count) {
+			// "current" position
+			var col = i % columns;
+			var row = Math.floor(i / columns);
+
+			// position after change
+			var newCol = insert
+				? (col + count) % columns
+				: (((col - count) % columns) + columns) % columns;
+			var newRow = insert
+				? row + Math.floor((col + count) / columns)
+				: row + Math.floor((col - count) / columns);
+
+			// difference in position
+			var colChange = newCol - col;
+			var rowChange = newRow - row;
+
+			return {
+				col: colChange,
+				row: rowChange
+			};
+		}
+
+		function findDifferenceInLists(largerList, smallerList) {
+			var count = largerList.length - smallerList.length;
+
+			for (var i = 0; i < smallerList.length; ++i) {
+				if (smallerList[i] !== largerList[i]) {
+					return {
+						pos: i,
+						count: count
+					};
+				}
+			}
+
+			return {
+				pos: smallerList.length,
+				count: count
+			};
+		}
+
+		/* @this */
+		function verifyFunctionPresent(name) {
+			if (!this[name]) {
+				throw new TypeError('CourseTileSlidingGridBehavior requires "' + name + '" be implemented to function.');
+			}
+		}
+
+		/*
+		* Behavior for sliding grid tiles on insertion/removal
+		*
+		* @polymerBehavior window.D2L.MyCourses.CourseTileSlidingGridBehavior
+		*/
+		window.D2L.MyCourses.CourseTileSlidingGridBehavior = {
+			observers: [
+				'__slide_onEnrollmentsChanged(enrollments.*)'
+			],
+
+			__slide_knownGridTileElements: null,
+			__slide_rowChange: 0,
+
+			created: function slideBehaviorReady() {
+				verifyFunctionPresent.call(this, '_getGridColumnCount');
+				verifyFunctionPresent.call(this, '_getGridContainerElement');
+				verifyFunctionPresent.call(this, '_getGridTileElements');
+				verifyFunctionPresent.call(this, '_getGridTileRepeat');
+			},
+
+			attached: function slideBehaviorAttached() {
+				Polymer.RenderStatus.afterNextRender(this, /* @this */ function slideBehaviourAfterRender() {
+					if (!this.isAttached) {
+						return;
+					}
+
+					this.__slide_knownGridTileElements = this._getGridTileElements();
+					this.listen(this._getGridTileRepeat(), 'dom-change', '__slide_onDomChange');
+				});
+			},
+
+			detached: function slideBehaviorDetached() {
+				this.__slide_knownGridTileElements = null;
+				this.unlisten(this._getGridTileRepeat(), 'dom-change', '__slide_onDomChange');
+			},
+
+			__slide_onEnrollmentsChanged: function slideOnEnrolmmentsChanged() {
+				// dom is about to change. preemptively set current container height
+				// so we can animate it later
+				var container = this._getGridContainerElement();
+				container.style.height = container.scrollHeight + 'px';
+			},
+
+			__slide_onDomChange: function slideOnDomChange() {
+				var oldTiles = this.__slide_knownGridTileElements;
+				var newTiles = this.__slide_knownGridTileElements = this._getGridTileElements();
+
+				if (oldTiles.length < newTiles.length) {
+					this.__slide_onTilesAdded(oldTiles, newTiles);
+				} else {
+					this.__slide_onTilesRemoved(oldTiles, newTiles);
+				}
+			},
+
+			__slide_onTilesAdded: function slideOnTilesAdded(oldTiles, newTiles) {
+				var diff = findDifferenceInLists(newTiles, oldTiles);
+
+				this.__slide_rowChange = calculatePositionChange(
+					this._getGridColumnCount(),
+					oldTiles.length - 1,
+					true,
+					diff.count
+				).row;
+
+				if (diff.pos === oldTiles.length) {
+					// tiles were added on the end, so only container needs to
+					// be resized
+					this.__slide_resizeContainer(0);
+					return;
+				}
+
+				this.__slide_repositionTiles(oldTiles, diff.pos, true, diff.count);
+			},
+
+			__slide_onTilesRemoved: function slideOnTilesRemoved(oldTiles, newTiles) {
+				var diff = findDifferenceInLists(oldTiles, newTiles);
+
+				this.__slide_rowChange = calculatePositionChange(
+					this._getGridColumnCount(),
+					oldTiles.length - 1,
+					false,
+					diff.count
+				).row;
+
+				if (diff.pos === newTiles.length) {
+					// tiles were removed from the end, so only container needs
+					// to be resized
+					this.__slide_resizeContainer(0);
+					return;
+				}
+
+				this.__slide_repositionTiles(oldTiles, diff.pos, false, diff.count);
+			},
+
+			__slide_repositionTiles: function slideRepositionTiles(tiles, pos, insert, count) {
+				var n = tiles.length;
+
+				var i = insert
+					? n - 1
+					: pos + count;
+				var next = insert
+					? function() { --i; }
+					: function() { ++i; };
+				var done = insert
+					? function() { return i === pos - 1; }
+					: function() { return i === n; };
+
+				var delayPerTile = Math.min(50, 200 / (n - pos - count));
+				var delay = 0;
+
+				if (insert) {
+					this.__slide_resizeContainer(0);
+					delay += delayPerTile;
+				}
+
+				for (;;) {
+					this.__slide_translateTile(
+						tiles[i],
+						calculatePositionChange(this._getGridColumnCount(), i, insert, count),
+						delay
+					);
+					delay += delayPerTile;
+
+					next();
+					if (done()) {
+						break;
+					}
+				}
+
+				if (!insert) {
+					this.__slide_resizeContainer(delay + 100);
+				} else {
+					this.customStyle['--insertion-delay'] = (delay + 300) + 'ms';
+					this.updateStyles();
+				}
+			},
+
+			__slide_resizeContainer: function slideResizeContainer(delay) {
+				var container = this._getGridContainerElement();
+
+				if (this.__slide_rowChange === 0
+					&& container.offsetHeight !== 0
+				) {
+					container.style.height = '';
+					return;
+				}
+
+				var targetHeight = 0;
+
+				if (this.__slide_rowChange < 0) {
+					var tiles = this.__slide_knownGridTileElements;
+					if (tiles.length > 0) {
+						var lastTile = tiles[tiles.length - 1];
+						targetHeight = lastTile.offsetTop;
+					}
+				} else {
+					targetHeight = container.scrollHeight;
+				}
+
+				if (targetHeight === container.offsetHeight) {
+					container.style.height = '';
+					return;
+				}
+
+				container.style.transition = '200ms height linear ' + delay + 'ms';
+				container.style.height = targetHeight + 'px';
+
+				container.addEventListener('transitionend', function resized(e) {
+					if (e.target !== container) {
+						return;
+					}
+
+					container.removeEventListener('transitionend', resized);
+
+					container.style.transition = '';
+					container.style.height = '';
+				});
+			},
+
+			__slide_translateTile: function slideTranslateTile(tile, change, delay) {
+				tile.style.transform =
+					'translate3d('
+					+ (-change.col * 101) + '%,'
+					+ (-change.row * 102) + '%,'
+					+ '0)';
+
+				Polymer.RenderStatus.afterNextRender(tile, function slideTileAfterNextRender() {
+					tile.style.transition = 'transform 300ms cubic-bezier(0.91, 0.03, 0.85, 0.36) ' + delay + 'ms';
+					tile.style.transform = 'translate3d(0, 0, 0)';
+
+					tile.addEventListener('transitionend', function translated(e) {
+						if (e.target !== tile) {
+							return;
+						}
+
+						tile.removeEventListener('transitionend', translated);
+
+						tile.style.transition = '';
+						tile.style.transform = '';
+					});
+				});
+			}
+		};
+	})();
+</script>

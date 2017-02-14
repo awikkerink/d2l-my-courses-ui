@@ -14,7 +14,6 @@
 				margin-bottom: 0px;
 				--scale-fade-max-scale: 1.5;
 				--scale-fade-min-scale: 1.05;
-				--insertion-delay: 0.01s;
 			}
 			.d2l-course-tile-hidden {
 				display: none;
@@ -53,19 +52,15 @@
 				transform: scale(1.05);
 				box-shadow: 3px 2px 10px rgba(0, 0, 0, 0.3);
 			}
-			:host(.animate-insertion-pre) {
-				position: absolute;
-			}
-			:host(.animate-insertion-pre) > .tile-container {
-				animation: var(--insertion-delay) forwards tile-pre-insertion;
+			:host([animate-insertion]:not(.animate-insertion):not(.animation-complete)) > .tile-container {
+				animation: var(--insertion-delay, 10ms) forwards tile-pre-insertion;
+				animation-iteration-count: 1;
 				pointer-events: none;
-			}
-			:host(.animate-insertion) {
-				position: absolute;
 			}
 			:host(.animate-insertion) > .tile-container {
 				animation: 0.6s forwards scale-and-fade-in;
 				animation-direction: normal;
+				animation-iteration-count: 1;
 				pointer-events: none;
 			}
 			:host(.unpin) {
@@ -246,13 +241,7 @@
 				}
 			}
 
-			:host-context(.animate) {
-				position: absolute;
-				width: 100%;
-			}
-
 			:host(.animate-insertion) {
-				position: absolute;
 				z-index: 100;
 			}
 
