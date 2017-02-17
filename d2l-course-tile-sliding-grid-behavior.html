@@ -34,7 +34,14 @@
 			};
 		}
 
-		function findDifferenceInLists(largerList, smallerList) {
+		function findDifferenceInLists(a, b) {
+			var largerList = a;
+			var smallerList = b;
+			if (a.length < b.length) {
+				largerList = b;
+				smallerList = a;
+			}
+
 			var count = largerList.length - smallerList.length;
 
 			for (var i = 0; i < smallerList.length; ++i) {
@@ -106,51 +113,24 @@
 				var oldTiles = this.__slide_knownGridTileElements;
 				var newTiles = this.__slide_knownGridTileElements = this._getGridTileElements();
 
-				if (oldTiles.length < newTiles.length) {
-					this.__slide_onTilesAdded(oldTiles, newTiles);
-				} else {
-					this.__slide_onTilesRemoved(oldTiles, newTiles);
-				}
-			},
-
-			__slide_onTilesAdded: function slideOnTilesAdded(oldTiles, newTiles) {
+				var insert = oldTiles.length < newTiles.length;
 				var diff = findDifferenceInLists(newTiles, oldTiles);
 
 				this.__slide_rowChange = calculatePositionChange(
 					this._getGridColumnCount(),
 					oldTiles.length - 1,
-					true,
+					insert,
 					diff.count
 				).row;
 
 				if (diff.pos === oldTiles.length) {
-					// tiles were added on the end, so only container needs to
-					// be resized
+					// tiles were added/removed at the end, so only container
+					// needs to be resized
 					this.__slide_resizeContainer(0);
 					return;
 				}
 
-				this.__slide_repositionTiles(oldTiles, diff.pos, true, diff.count);
-			},
-
-			__slide_onTilesRemoved: function slideOnTilesRemoved(oldTiles, newTiles) {
-				var diff = findDifferenceInLists(oldTiles, newTiles);
-
-				this.__slide_rowChange = calculatePositionChange(
-					this._getGridColumnCount(),
-					oldTiles.length - 1,
-					false,
-					diff.count
-				).row;
-
-				if (diff.pos === newTiles.length) {
-					// tiles were removed from the end, so only container needs
-					// to be resized
-					this.__slide_resizeContainer(0);
-					return;
-				}
-
-				this.__slide_repositionTiles(oldTiles, diff.pos, false, diff.count);
+				this.__slide_repositionTiles(oldTiles, diff.pos, insert, diff.count);
 			},
 
 			__slide_repositionTiles: function slideRepositionTiles(tiles, pos, insert, count) {
