@@ -65,9 +65,9 @@
 				diff.count
 			).row;
 
-			if (diff.pos === oldTiles.length) {
-				// tiles were added/removed at the end, so only container
-				// needs to be resized
+			if (diff.pos === oldTiles.length || diff.count > 1) {
+				// tiles were added/removed at the end, so only container needs to be resized
+				// also, don't animate anything other than pin/unpin
 				this.__slide_resizeContainer(0);
 				return;
 			}
