@@ -1,12 +1,13 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
+<link rel="import" href="d2l-course-tile-sliding-grid-behavior.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-interaction-detection-behavior.html">
 <link rel="import" href="d2l-course-tile-grid-styles.html">
-<link rel="import" href="d2l-utility-behavior.html">
 <link rel="import" href="d2l-touch-menu.html">
 <link rel="import" href="d2l-touch-menu-item.html">
+<link rel="import" href="d2l-utility-behavior.html">
 
 <dom-module id="d2l-course-tile-grid">
 	<template>
@@ -17,7 +18,7 @@
 				<d2l-course-tile
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
-					animate-insertion="[[_removeEnrollmentFromTransitionList(item)]]"
+					animate-insertion="[[_grid_shouldAnimateEnrollmentInsertion(item)]]"
 					class="grid-child"
 					enrollment-id="[[getEntityIdentifier(item)]]"
 					delay-load="[[delayLoad]]"
@@ -59,13 +60,9 @@
 						return [];
 					}
 				},
-				// Queue for incoming enrollment Entities
-				enrollmentsQueue: {
-					type: Array,
-					notify: true,
-					value: function() {
-						return [];
-					}
+				// Set of enrollments which should be animated when being inserted
+				enrollmentsToAnimate: {
+					type: Array
 				},
 				// Size the tile should render with respect to vw
 				tileSizes: Object,
@@ -75,31 +72,20 @@
 				locale: String
 			},
 			behaviors: [
+				window.D2L.MyCourses.CourseTileSlidingGridBehavior,
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				window.D2L.MyCourses.InteractionDetectionBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
-				'tile-insert-complete': '_onTileInsertionComplete',
-				'tile-remove-complete': '_onTileRemoveComplete',
 				'enrollment-pinned': '_onEnrollmentPinAction',
 				'enrollment-unpinned': '_onEnrollmentPinAction',
 				'touch-pin-hover': '_onUnpinHover',
 				'touch-pin-select': '_onTouchPinSelect',
 				'touch-menu-open': '_onTouchMenuOpen',
 				'touch-menu-close': '_onTouchMenuClose',
-				'slide-animation-finished': '_onSlideAnimationComplete',
 				'dom-change': '_onCourseTilesChanged'
-			},
-			observers: [
-				'_onEnrollmentsQueueChanged(enrollmentsQueue.*)'
-			],
-			created: function() {
-				this._tilesInPinStateTransition = [];
-				this._animations = [];
-				this._courseTileBoundingRects = [];
-				this._clearAnimationState();
 			},
 			getCourseTileItemCount: function() {
 				return this.enrollments.length;
@@ -131,232 +117,30 @@
 					selectedTile.setCourseImage(detail.detail);
 				}
 			},
-			_animationState: null,
-			_tilesInPinStateTransition: null,
-			_animations: null,
-			_domChangeListener: null,
-			_containerBoundingRect: null,
-			_courseTileBoundingRects: null,
-			_containerWidth: 0,
-			_animateContainer: function(container, newHeight, containerAnimationDelay) {
-				// Expand/contract container
-				var containerAnimation = container.animate([{
-					width: this._containerBoundingRect.width + 'px',
-					height: this._containerBoundingRect.height + 'px'
-				}, {
-					width: this._containerBoundingRect.width + 'px',
-					height: newHeight + 'px'
-				}], {
-					fill: 'both',
-					delay: containerAnimationDelay,
-					duration: 200,
-					easing: 'linear'
-				});
-
-				this._animations.push(containerAnimation);
-			},
-			_animateCourseTile: function(courseTile, fromPos, toPos, delayTime) {
-				// Use Web Animations API directly as neon-animation doesn't (effectively) support animation-fill-mode
-				var animation = courseTile.animate([
-					{transform: 'translate3d(' + fromPos.left + 'px,' + fromPos.top + 'px, 0)'},
-					{transform: 'translate3d(' + toPos.left + 'px,' + toPos.top + 'px, 0)'}
-				], {
-					fill: 'both',
-					delay: delayTime * 1000,
-					duration: 300,
-					easing: 'cubic-bezier(0.91, 0.03, 0.85, 0.36)'
-				});
-
-				animation.finished.then(function(animation, enrollmentId) {
-					this.fire('slide-animation-finished', {id: enrollmentId});
-				}.bind(this, animation, courseTile.enrollmentId));
-
-				this._animations.push(animation);
-			},
-			_animateTileSlide: function(isInsertion, enrollmentIndex, enrollment) {
-				var container = this.$$('.course-tile-container');
-				var lastAnimatedCourseIndex = isInsertion ? 0 : (this.enrollments.length - 1);
-
-				this._animationState.isAnimating = true;
-				this._animationState.isInsertion = isInsertion;
-
-				if (this.enrollments.length > 0) {
-					this._animationState.lastAnimatedCourseTileId = this.getEntityIdentifier(this.enrollments[lastAnimatedCourseIndex]);
-				} else {
-					this._animationState.slideAnimationComplete = true;
+			_grid_shouldAnimateEnrollmentInsertion: function gridShouldAnimateEnrollmentInsertion(enrollment) {
+				if (!this.enrollmentsToAnimate) {
+					return false;
 				}
 
-				this._updateCourseTileGridInfo();
-
-				if (isInsertion) {
-					// If inserting, set tile as in transition, and listen for DOM change to know when new course tile is added and tiles can be animated
-					this._tilesInPinStateTransition.push(this.getEntityIdentifier(enrollment));
-					this.unshift('enrollments', enrollment);
-
-					var gridTemplate = this.$.enrollmentsTemplate;
-					this._domChangeListener = this._doTileSlideAnimation.bind(this, true, enrollmentIndex, container, this._numCols);
-					gridTemplate.addEventListener('dom-change', this._domChangeListener);
-				} else {
-					this._doTileSlideAnimation(false, enrollmentIndex, container, this._numCols);
-				}
-			},
-			_cancelAnimations: function() {
-				// Cancel all animations regardless of play state - if this is called, then the layout is ready
-				// to be switched to relative positioning
-				for (var i = 0; i < this._animations.length; i++) {
-					this._animations[i].cancel();
-				}
-
-				this._animations.length = 0;
-			},
-			_checkAnimationComplete: function() {
-				if (this._animationState.isAnimating) {
-					if (this._animationState.scaleAnimationComplete &&
-						this._animationState.slideAnimationComplete) {
-
-						if (this._animationState.isInsertion) {
-							this.toggleClass('animate-insertion', false, this._animationState.newCourseTile);
-						}
-
-						var container = this.$$('.course-tile-container');
-						this.toggleClass('animate', false, container);
-
-						this._cancelAnimations();
-						this._clearAnimationState();
-
-						return true;
-					}
+				var index = this.enrollmentsToAnimate.indexOf(this.getEntityIdentifier(enrollment));
+				if (index !== -1) {
+					this.enrollmentsToAnimate.splice(index, 1);
+					return true;
 				}
 
 				return false;
-			},
-			_clearAnimationState: function() {
-				this._animationState = this._animationState || {};
-
-				this._animationState.isAnimating = false;
-				this._animationState.isInsertion = false;
-				this._animationState.scaleAnimationComplete = false;
-				this._animationState.slideAnimationComplete = false;
-				this._animationState.lastAnimatedCourseTileId = null;
-				this._animationState.newCourseTile = null;
-			},
-			_doTileSlideAnimation: function(isInsertion, tileIndex, container, columns) {
-				var courseTiles = container.querySelectorAll('d2l-course-tile');
-				var containerAnimationDelay = 0;
-
-				if (this._domChangeListener) {
-					this.$.enrollmentsTemplate.removeEventListener('dom-change', this._domChangeListener);
-					this._domChangeListener = null;
-				}
-
-				if (isInsertion) {
-					// If inserting a tile, we need to insert offset data for it.
-					var newTileBoundingRect = {
-						width: courseTiles[0].offsetWidth,
-						height: courseTiles[0].offsetHeight,
-						left: courseTiles[0].offsetLeft,
-						top: courseTiles[0].offsetTop
-					};
-
-					this._courseTileBoundingRects.unshift(newTileBoundingRect);
-				}
-
-				var newLayoutInfo = this._getNewTileLayout(this._courseTileBoundingRects, columns, isInsertion, tileIndex, this._containerWidth);
-				var delayPerTile = 0.05;
-
-				if (this._courseTileBoundingRects.length > 0) {
-					delayPerTile = Math.min(delayPerTile, 0.2 / this._courseTileBoundingRects.length);
-				}
-
-				if (isInsertion) {
-					courseTiles[0].customStyle['--insertion-delay'] = (delayPerTile * (courseTiles.length + 0.25)) + 's';
-					this.updateStyles();
-				} else {
-					containerAnimationDelay =  ((courseTiles.length - 1 - tileIndex) * delayPerTile * 1000) + 300;
-				}
-
-				this.toggleClass('animate', true, container);
-				this._animateContainer(container, newLayoutInfo.newContainerHeight, containerAnimationDelay);
-
-				// Animate each course tile to its new position
-				for (var i = 0; i < courseTiles.length; i++) {
-					var delayTime = 0;
-
-					if (isInsertion) {
-						delayTime = ((courseTiles.length - 1) - i) * delayPerTile;
-					} else {
-						delayTime = 0.1 + ((i - tileIndex) * delayPerTile);
-					}
-
-					this._animateCourseTile(courseTiles[i], this._courseTileBoundingRects[i], newLayoutInfo.newPositions[i], delayTime);
-				}
-			},
-			// Calculates layout data after a tile insertion/removal operation will be completed, including tile positions and container height.
-			_getNewTileLayout: function(currPositions, columns, isInsertion, tileIndex, containerWidth) {
-				var currIndex = 0;
-				var newIndex = 0;
-				var currYPx = 0;
-				var maxYPx = 0;
-				var newPositions = [];
-
-				for (currIndex = 0; currIndex < currPositions.length; currIndex++) {
-					if (newIndex % columns === 0) {
-						currYPx = maxYPx;
-					}
-
-					if (currIndex <= tileIndex) {
-						// Tile will stay in place
-						newPositions.push(currPositions[currIndex]);
-					} else {
-						// Tile will shift into new position
-						var newCol = newIndex % columns;
-						var newXPx = currPositions[currIndex].width * newCol;
-						var leftMarginPct = 0.01 * (newCol);
-
-						newXPx = newXPx + (leftMarginPct * containerWidth);
-
-						newPositions.push({
-							width: currPositions[currIndex].width,
-							height: currPositions[currIndex].height,
-							left: newXPx,
-							top: currYPx
-						});
-					}
-
-					if (!(currIndex === tileIndex && !isInsertion)) {
-						// Tile will take up space in new layout
-						maxYPx = Math.max(maxYPx, currYPx + currPositions[currIndex].height);
-						newIndex++;
-					}
-				}
-
-				return {
-					newPositions: newPositions,
-					newContainerHeight: maxYPx
-				};
 			},
 			_onCourseTilesChanged: function() {
 				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
 				this.$$('d2l-touch-menu').touchTargets = Array.prototype.slice.call(courseTiles);
 			},
 			_onEnrollmentPinAction: function(e) {
-				// If an enrollment was (un)pinned from this grid (ie. a course tile had a pin action invoked on it, such that it (should) leave
-				// this grid), then we need to slide other tiles in to fill its place
 				var modifiedEnrollmentId = this.getEntityIdentifier(e.detail.enrollment);
-
-				var enrollmentId;
-				for (var i = 0; i < this.enrollments.length; i++) {
-					enrollmentId = this.getEntityIdentifier(this.enrollments[i]);
-					if (enrollmentId === modifiedEnrollmentId) {
-						this._animateTileSlide(false, i);
-						break;
-					}
-				}
 
 				// When a tile is pinned/unpinned, set focus to the next (or previous, if last) course tile
 				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
-				for (i = 0; i < courseTiles.length; i++) {
-					enrollmentId = this.getEntityIdentifier(courseTiles[i].enrollment);
+				for (var i = 0; i < courseTiles.length; i++) {
+					var enrollmentId = this.getEntityIdentifier(courseTiles[i].enrollment);
 					if (enrollmentId === modifiedEnrollmentId) {
 						if (i < courseTiles.length - 1) {
 							courseTiles[i + 1].focus();
@@ -365,33 +149,6 @@
 						}
 						break;
 					}
-				}
-			},
-			_onEnrollmentsQueueChanged: function(enrollments) {
-				if (enrollments.base && enrollments.base.length > 0) {
-					var newEnrollments = this.splice('enrollmentsQueue', 0, 1);
-					this._animateTileSlide(true, 0, newEnrollments[0]);
-				}
-			},
-			_onSlideAnimationComplete: function(e) {
-				if (this._animationState.isAnimating) {
-					if (this._animationState.lastAnimatedCourseTileId === e.detail.id) {
-						this._animationState.slideAnimationComplete = true;
-						this._checkAnimationComplete(e);
-					}
-				}
-			},
-			_onTileInsertionComplete: function(e) {
-				if (this._animationState.isAnimating) {
-					this._animationState.scaleAnimationComplete = true;
-					this._animationState.newCourseTile = Polymer.dom(e).rootTarget;
-					this._checkAnimationComplete(e);
-				}
-			},
-			_onTileRemoveComplete: function(e) {
-				if (this._animationState.isAnimating) {
-					this._animationState.scaleAnimationComplete = true;
-					this._checkAnimationComplete(e);
 				}
 			},
 			_onTouchPinSelect: function(e) {
@@ -420,34 +177,6 @@
 
 				e.detail.element._onUnpinHover(e);
 			},
-			_removeEnrollmentFromTransitionList: function(enrollment) {
-				var enrollmentId = this.getEntityIdentifier(enrollment);
-				var index = this._tilesInPinStateTransition.indexOf(enrollmentId);
-
-				if (index !== -1) {
-					this._tilesInPinStateTransition.splice(index, 1);
-					return true;
-				}
-
-				return false;
-			},
-			// Caches information position/size information
-			_updateCourseTileGridInfo: function() {
-				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
-				this._courseTileBoundingRects.length = 0;
-				this._containerBoundingRect = this.$$('.course-tile-container').getBoundingClientRect();
-
-				Array.prototype.forEach.call(courseTiles, function(element) {
-					var offsetData = {
-						width: element.offsetWidth,
-						height: element.offsetHeight,
-						top: element.offsetTop,
-						left: element.offsetLeft
-					};
-
-					this._courseTileBoundingRects.push(offsetData);
-				}.bind(this));
-			},
 			checkForStartedInactive: function(type) {
 				var courseTiles = this.$$('.course-tile-container').querySelectorAll('d2l-course-tile');
 				// When this runs, the removed tile won't be gone yet, so we have to check for an additional tile
@@ -460,6 +189,19 @@
 				}
 
 				return false;
+			},
+
+			_getGridColumnCount: function() {
+				return this._numCols;
+			},
+			_getGridContainerElement: function() {
+				return this.$$('.course-tile-container');
+			},
+			_getGridTileElements: function() {
+				return this._getGridContainerElement().querySelectorAll('d2l-course-tile');
+			},
+			_getGridTileRepeat: function() {
+				return this.$.enrollmentsTemplate;
 			}
 		});
 	</script>
