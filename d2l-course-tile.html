@@ -111,7 +111,8 @@ the user has in that organization - student, teacher, TA, etc.
 
 			properties: {
 				animateInsertion: {
-					type: Boolean
+					type: Boolean,
+					reflectToAttribute: true
 				},
 				// Delays initial loading of the organization until explicitly triggered by `loadOrganization`
 				delayLoad: {
@@ -207,9 +208,6 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
-					if (this.animateInsertion) {
-						this.toggleClass('animate-insertion-pre', true, this);
-					}
 					var tileContainerEl = this.$$('.tile-container');
 					document.body.addEventListener('focus', this._onFocus, true);
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
@@ -422,18 +420,17 @@ the user has in that organization - student, teacher, TA, etc.
 				this._hoverCourseTile();
 			},
 			_onAnimationComplete: function(e) {
-				var tileContainer = this.$$('.tile-container');
+				if (e.target !== this.$$('.tile-container')) {
+					return;
+				}
 
 				if (e.animationName.indexOf('scale-and-fade-out') > -1) {
 					this.fire('tile-remove-complete', {enrollment: this.enrollment, pinned: this._pendingPinAction});
 				} else if (e.animationName.indexOf('scale-and-fade-in') > -1) {
-					this.toggleClass('animate-insertion', false, tileContainer);
 					this.toggleClass('animate-insertion', false, this);
-					this.toggleClass('animate-insertion', false, this.$$('.tile-container'));
+					this.toggleClass('animation-complete', true, this);
 					this.fire('tile-insert-complete', {enrollment: this.enrollment, pinned: this._pendingPinAction});
 				} else if (e.animationName.indexOf('tile-pre-insertion') > -1) {
-					this.toggleClass('animate-insertion-pre', false, this);
-					this.toggleClass('animate-insertion', true, tileContainer);
 					this.toggleClass('animate-insertion', true, this);
 				}
 			},
