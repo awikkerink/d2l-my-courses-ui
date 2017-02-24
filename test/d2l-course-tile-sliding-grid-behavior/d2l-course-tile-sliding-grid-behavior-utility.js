@@ -48,7 +48,8 @@ describe('d2l-course-tile-sliding-grid-behavior-utility', function() {
 				[[], [], 0, 0],
 				[[0], [0], 1, 0],
 				[[0], [0, 1, 2, 3], 1, 3],
-				[[0, 1, 2, 3], [0], 1, 3]
+				[[0, 1, 2, 3], [0], 1, 3],
+				[[], [1], 0, 1]
 			].forEach(function(test, i) {
 				it('should work [' + i + ']', function() {
 					expect(utility.findDifferenceInLists(
