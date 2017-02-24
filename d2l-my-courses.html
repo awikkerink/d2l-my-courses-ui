@@ -53,6 +53,7 @@
 			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			on-iron-ajax-response="_onEnrollmentsRootResponse">
+
 		</d2l-ajax>
 
 		<d2l-ajax
@@ -116,7 +117,7 @@
 			with-backdrop>
 			<iron-scroll-threshold
 				id="image-selector-threshold"
-				on-lower-threshold="_changeImageLoadMore">
+				on-lower-threshold="_onChangeImageLowerThreshold">
 			</iron-scroll-threshold>
 			<d2l-basic-image-selector
 				image-catalog-location="[[imageCatalogLocation]]"
@@ -136,24 +137,35 @@
 			is: 'd2l-my-courses',
 
 			properties: {
+				/*
+				* Public Polymer properties
+				*/
+
+				// URL that directs to the advanced search page
+				advancedSearchUrl: String,
 				// URL that is called by the widget to fetch enrollments
 				enrollmentsUrl: String,
 				// URL that is called by the widget to fetch results from the course image catalog
 				imageCatalogLocation: String,
-				// hashed userid to send to telemetry
-				userId: String,
 				// Configuration value passed in to toggle course code
 				showCourseCode: Boolean,
-				// hashed tenantid to send to telemetry
-				tenantId: String,
-				// URL to send telemetry to
-				telemetryEndpoint: String,
-				// URL that directs to the advanced search page
-				advancedSearchUrl: String,
 				// Standard Semester OU Type name to be displayed in the all-courses filter dropdown
 				standardDepartmentName: String,
 				// Standard Department OU Type name to be displayed in the all-courses filter dropdown
 				standardSemesterName: String,
+				// URL to send telemetry to
+				telemetryEndpoint: String,
+				// hashed tenantid to send to telemetry
+				tenantId: String,
+				// hashed userid to send to telemetry
+				userId: String,
+
+				/*
+				* Private Polymer properties
+				*/
+
+				// URL used by the search widget to fetch department-type organizations
+				_departmentsUrl: String,
 				// URL constructed to fetch a user's enrollments with the enrollments search Action
 				_enrollmentsSearchUrl: String,
 				// Object containing the last response from an enrollments search request
@@ -161,26 +173,20 @@
 				// Object containing the IDs of previously loaded pinned enrollments, to avoid duplicates
 				_pinnedCoursesMap: {
 					type: Object,
-					value: function() {
-						return {};
-					}
-				},
-				// Object containing the IDs of previously loaded unpinned enrollments, to avoid duplicates
-				_unpinnedCoursesMap: {
-					type: Object,
-					value: function() {
-						return {};
-					}
+					value: function() { return {}; }
 				},
 				// URL used by the search widget to fetch semester-type organizations
 				_semestersUrl: String,
 				// The organization which the user is selecting the image of
 				_setImageOrg: Object,
-				// URL used by the search widget to fetch department-type organizations
-				_departmentsUrl: String,
+				_startedInactive: Boolean,
 				// Size the tile should render with respect to vw
 				_tileSizes: Object,
-				_startedInactive: Boolean
+				// Object containing the IDs of previously loaded unpinned enrollments, to avoid duplicates
+				_unpinnedCoursesMap: {
+					type: Object,
+					value: function() { return {}; }
+				}
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
@@ -192,9 +198,9 @@
 				window.D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
-				'open-change-image-view': '_openChangeImageView',
-				'set-course-image': '_setCourseImageEvent',
-				'clear-image-scroll-threshold': '_clearImageScrollThreshold',
+				'open-change-image-view': '_onOpenChangeImageView',
+				'set-course-image': '_onSetCourseImage',
+				'clear-image-scroll-threshold': '_onClearImageScrollThreshold',
 				'd2l-simple-overlay-closed': '_onSimpleOverlayClosed',
 				'enrollment-pinned': '_onEnrollmentPinAction',
 				'enrollment-unpinned': '_onEnrollmentPinAction'
@@ -212,33 +218,64 @@
 				this._rootEnrollmentRequest();
 
 				document.body.addEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
-				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._setStartedInactive.bind(this));
+				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._onStartedInactiveAlert.bind(this));
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
 			},
 			detached: function() {
 				document.body.removeEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 			},
-			_allCoursesCreated: false,
+
+			/*
+			* Public API functions
+			*/
+
 			getCourseTileItemCount: function() {
 				return this.pinnedEnrollments.length;
 			},
-			_createAllCourses: function() {
-				if (!this._allCoursesCreated) {
-					var allCourses = document.createElement('d2l-all-courses');
-					this.$.allCoursesPlaceholder.appendChild(allCourses);
-					this._allCoursesCreated = true;
+
+			/*
+			* Non-Polymer properties
+			*/
+
+			_allCoursesCreated: false,
+
+			/*
+			* Listeners
+			*/
+
+			_onChangeImageLowerThreshold: function() {
+				this.$$('d2l-basic-image-selector').loadMore(this.$['image-selector-threshold']);
+			},
+			_onClearImageScrollThreshold: function() {
+				this.$['image-selector-threshold'].clearTriggers();
+			},
+			_onEnrollmentPinAction: function(e) {
+				var isPinned = e.type === 'enrollment-pinned';
+				var orgUnitId = /organizations\/([0-9]+)/
+					.exec(this.getEntityIdentifier(e.detail.enrollment))[1];
+
+				this.fire(
+					'd2l-course-pinned-change', {
+						orgUnitId: orgUnitId,
+						isPinned: isPinned
+					}
+				);
+			},
+			_onEnrollmentPinnedMessage: function(e) {
+				if (e.target !== this) {
+					var enrollmentId = this._enrollmentIdMap[e.detail.orgUnitId];
+
+					if (enrollmentId) {
+						if (e.detail.isPinned) {
+							this._moveEnrollmentToPinnedList(enrollmentId);
+						} else {
+							this._moveEnrollmentToUnpinnedList(enrollmentId);
+						}
+						setTimeout(this._onStartedInactiveAlert.bind(this), 50);
+					} else {
+						this._fetchEnrollmentEntity(e.detail.orgUnitId, e.detail.isPinned);
+					}
 				}
-			},
-			_rootEnrollmentRequest: function() {
-				this._pinnedCoursesMap = {};
-				this._unpinnedCoursesMap = {};
-				this.unpinnedEnrollments = [];
-				this.pinnedEnrollments = [];
-				this.debounce('d2l-root-request', this._rootRequest, 1000);
-			},
-			//encapsulates root enrollment request, the debounce method loses context when directly using this
-			_rootRequest: function() {
-				this.$.enrollmentsRootRequest.generateRequest();
 			},
 			_onEnrollmentsRootResponse: function(response) {
 				if (response.detail.status === 200) {
@@ -302,12 +339,67 @@
 
 				this._showContent();
 			},
-			_openChangeImageView: function(e) {
+			_onOpenChangeImageView: function(e) {
 				if (e.detail.organization) {
 					this._setImageOrg = e.detail.organization;
 				}
 
 				this.$['basic-image-selector-overlay'].open();
+			},
+			_onSetCourseImage: function(e) {
+				this._removeAlert('setCourseImageFailure');
+				if (e && e.detail) {
+					if (e.detail.status === 'failure') {
+						setTimeout(function() {
+							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
+					}
+				}
+				if (this._allCoursesCreated) {
+					this.$$('d2l-all-courses').setCourseImage(e);
+				}
+				this.$$('d2l-course-tile-grid').setCourseImage(e);
+			},
+			_onSimpleOverlayClosed: function() {
+				this._removeAlert('setCourseImageFailure');
+				// update the startedInactive alert in case the user changed the pinned states in the overlay
+				this._onStartedInactiveAlert();
+			},
+			_onStartedInactiveAlert: function(e) {
+				var type = e && e.detail && e.detail.type;
+
+				this._removeAlert('startedInactiveCourses');
+				if (this.$$('d2l-course-tile-grid').checkForStartedInactive(type)) {
+					this._addAlert('warning', 'startedInactiveCourses', this.localize('startedInactiveAlert'));
+				}
+			},
+
+			/*
+			* Observers
+			*/
+
+			_updateEnrollmentAlerts: function(hasEnrollments, hasPinnedEnrollments) {
+				this._clearAlerts();
+
+				if (hasEnrollments) {
+					if (!hasPinnedEnrollments) {
+						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
+					}
+				} else {
+					this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
+				}
+			},
+
+			/*
+			* Utility/helper functions
+			*/
+
+			_createAllCourses: function() {
+				if (!this._allCoursesCreated) {
+					var allCourses = document.createElement('d2l-all-courses');
+					this.$.allCoursesPlaceholder.appendChild(allCourses);
+					this._allCoursesCreated = true;
+				}
 			},
 			_openAllCoursesView: function(e) {
 				this._createAllCourses();
@@ -348,81 +440,20 @@
 			_refreshPage: function() {
 				document.location.reload(true);
 			},
+			_rootEnrollmentRequest: function() {
+				this._pinnedCoursesMap = {};
+				this._unpinnedCoursesMap = {};
+				this.unpinnedEnrollments = [];
+				this.pinnedEnrollments = [];
+				this.debounce('d2l-root-request', this._rootRequest, 1000);
+			},
+			//encapsulates root enrollment request, the debounce method loses context when directly using this
+			_rootRequest: function() {
+				this.$.enrollmentsRootRequest.generateRequest();
+			},
 			_showContent: function() {
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.initialLoadingSpinner);
 				this.toggleClass('d2l-my-courses-hidden', false, this.$$('.my-courses-content'));
-			},
-			_setCourseImageEvent: function(e) {
-				this._removeAlert('setCourseImageFailure');
-				if (e && e.detail) {
-					if (e.detail.status === 'failure') {
-						setTimeout(function() {
-							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
-						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
-					}
-				}
-				if (this._allCoursesCreated) {
-					this.$$('d2l-all-courses').setCourseImage(e);
-				}
-				this.$$('d2l-course-tile-grid').setCourseImage(e);
-			},
-			_changeImageLoadMore: function() {
-				this.$$('d2l-basic-image-selector').loadMore(this.$['image-selector-threshold']);
-			},
-			_clearImageScrollThreshold: function() {
-				this.$['image-selector-threshold'].clearTriggers();
-			},
-			_onEnrollmentPinAction: function(e) {
-				var isPinned = e.type === 'enrollment-pinned';
-				var orgUnitId = /organizations\/([0-9]+)/
-					.exec(this.getEntityIdentifier(e.detail.enrollment))[1];
-
-				this.fire(
-					'd2l-course-pinned-change', {
-						orgUnitId: orgUnitId,
-						isPinned: isPinned
-					}
-				);
-			},
-			_onEnrollmentPinnedMessage: function(e) {
-				if (e.target !== this) {
-					var enrollmentId = this._enrollmentIdMap[e.detail.orgUnitId];
-
-					if (enrollmentId) {
-						if (e.detail.isPinned) {
-							this._moveEnrollmentToPinnedList(enrollmentId);
-						} else {
-							this._moveEnrollmentToUnpinnedList(enrollmentId);
-						}
-						setTimeout(this._setStartedInactive.bind(this), 50);
-					} else {
-						this._fetchEnrollmentEntity(e.detail.orgUnitId, e.detail.isPinned);
-					}
-				}
-			},
-			_updateEnrollmentAlerts: function(hasEnrollments, hasPinnedEnrollments) {
-				this._clearAlerts();
-
-				if (hasEnrollments) {
-					if (!hasPinnedEnrollments) {
-						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
-					}
-				} else {
-					this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
-				}
-			},
-			_setStartedInactive: function(e) {
-				var type = e && e.detail && e.detail.type;
-
-				this._removeAlert('startedInactiveCourses');
-				if (this.$$('d2l-course-tile-grid').checkForStartedInactive(type)) {
-					this._addAlert('warning', 'startedInactiveCourses', this.localize('startedInactiveAlert'));
-				}
-			},
-			_onSimpleOverlayClosed: function() {
-				this._removeAlert('setCourseImageFailure');
-				// update the startedInactive alert in case the user changed the pinned states in the overlay
-				this._setStartedInactive();
 			}
 		});
 	</script>
