@@ -101,17 +101,17 @@
 				update-count-map="[[updateCountMap]]">
 			</d2l-course-tile-grid>
 			<div class="my-courses-footer">
-				<a
+				<h3 class="d2l-body-standard"><a
 					is="d2l-link"
 					id="viewAllCourses"
-					hidden$="{{!_hasEnrollments}}"
+					hidden$="[[!_hasEnrollments]]"
 					on-tap="_openAllCoursesView"
 					on-keypress="_keypressOpenAllCoursesView"
 					on-mouseover="_createAllCourses"
 					on-focus="_createAllCourses"
 					tabindex="0" >
-					{{localize('viewAllCourses')}}
-				</a>
+					[[localize('viewAllCourses')]]
+				</a></h3>
 			</div>
 			<div class="my-courses-footer-end"></div>
 		</div>
