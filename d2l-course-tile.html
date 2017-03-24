@@ -35,7 +35,7 @@ the user has in that organization - student, teacher, TA, etc.
 				class="no-tap-interaction"
 				on-focus="_hoverCourseTile"
 				role="link">
-				<div class="course-image-container">
+				<div class="course-image-container" aria-hidden="true">
 					<div class="course-image">
 						<div class="image-overlay">
 							<d2l-loading-spinner id="tileImageLoading" size="85"></d2l-loading-spinner>
@@ -43,14 +43,14 @@ the user has in that organization - student, teacher, TA, etc.
 								<d2l-icon class$="[[_iconDetails.className]]" icon="[[_iconDetails.iconName]]"></d2l-icon>
 							</div>
 						</div>
-						<div class="notification-overlay" aria-hidden="true">
+						<div class="notification-overlay">
 							<div class="overlay-date-container">
 								<div class="overlay-text">{{_notificationTitle}}</div>
 								<div class="overlay-date">{{_notificationDate}}</div>
 								<div class="overlay-inactive">{{_notificationInactive}}</div>
 							</div>
 						</div>
-						<d2l-course-image aria-hidden="true" image="[[_image]]" sizes="[[tileSizes]]" type="tile"></d2l-course-image>
+						<d2l-course-image image="[[_image]]" sizes="[[tileSizes]]" type="tile"></d2l-course-image>
 					</div>
 				</div>
 
