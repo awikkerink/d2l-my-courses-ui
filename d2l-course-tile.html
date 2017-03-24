@@ -316,7 +316,7 @@ the user has in that organization - student, teacher, TA, etc.
 					this.toggleClass('d2l-updates-hidden', true, this.$.courseUpdates);
 				}
 
-				this.$$('#courseUpdates').setAttribute( 'aria-hidden', updates == 0 ? 'true' : 'false' );
+				this.$$('#courseUpdates').setAttribute( 'aria-hidden', updates === 0 ? 'true' : 'false' );
 			},
 			_enrollmentPinRequest: null,
 			_organizationRequest: null,
