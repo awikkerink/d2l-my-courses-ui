@@ -145,7 +145,7 @@ describe('<d2l-course-tile>', function() {
 		});
 
 		it('should hide image from screen readers', function() {
-			var courseImage = widget.$$('.course-image d2l-course-image');
+			var courseImage = widget.$$('.course-image-container');
 			expect(courseImage.getAttribute('aria-hidden')).to.equal('true');
 		});
 

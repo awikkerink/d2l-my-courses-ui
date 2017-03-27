@@ -33,8 +33,9 @@ the user has in that organization - student, teacher, TA, etc.
 			<a href$="[[_organizationHomepageUrl]]"
 				id="d2l-course-tile-anchor"
 				class="no-tap-interaction"
-				on-focus="_hoverCourseTile">
-				<div class="course-image-container">
+				on-focus="_hoverCourseTile"
+				role="link">
+				<div class="course-image-container" aria-hidden="true">
 					<div class="course-image">
 						<div class="image-overlay">
 							<d2l-loading-spinner id="tileImageLoading" size="85"></d2l-loading-spinner>
@@ -42,28 +43,28 @@ the user has in that organization - student, teacher, TA, etc.
 								<d2l-icon class$="[[_iconDetails.className]]" icon="[[_iconDetails.iconName]]"></d2l-icon>
 							</div>
 						</div>
-						<div class="notification-overlay" aria-hidden="true">
+						<div class="notification-overlay">
 							<div class="overlay-date-container">
 								<div class="overlay-text">{{_notificationTitle}}</div>
 								<div class="overlay-date">{{_notificationDate}}</div>
 								<div class="overlay-inactive">{{_notificationInactive}}</div>
 							</div>
 						</div>
-						<d2l-course-image aria-hidden="true" image="[[_image]]" sizes="[[tileSizes]]" type="tile"></d2l-course-image>
+						<d2l-course-image image="[[_image]]" sizes="[[tileSizes]]" type="tile"></d2l-course-image>
 					</div>
 				</div>
 
 				<div class="course-info">
 					<div class="course-text">
-						{{_organization.properties.name}}
+						[[_organization.properties.name]]
 						<template id="courseCodeTemplate" is="dom-if" if="[[showCourseCode]]">
-							<span class="course-code-text">{{_organization.properties.code}}</span>
+							<span class="course-code-text">[[_organization.properties.code]]</span>
 						</template>
-						<d2l-offscreen>[[_courseNotificationLabel]]</d2l-offscreen>
+						<d2l-offscreen id="courseNotificationLabel" aria-hidden="true">[[_courseNotificationLabel]]</d2l-offscreen>
 					</div>
-					<div id="courseUpdates" class="d2l-updates-hidden">
+					<div id="courseUpdates" class="d2l-updates-hidden" aria-hidden="true">
 						<d2l-offscreen>{{localize('courseTile.updates')}}</d2l-offscreen>
-						<div class="update-text-box">{{_courseUpdates}}</div>
+						<span class="update-text-box">{{_courseUpdates}}</span>
 					</div>
 				</div>
 			</a>
@@ -314,6 +315,8 @@ the user has in that organization - student, teacher, TA, etc.
 					this._courseUpdates = 0;
 					this.toggleClass('d2l-updates-hidden', true, this.$.courseUpdates);
 				}
+
+				this.$$('#courseUpdates').setAttribute( 'aria-hidden', updates === 0 ? 'true' : 'false' );
 			},
 			_enrollmentPinRequest: null,
 			_organizationRequest: null,
@@ -518,6 +521,7 @@ the user has in that organization - student, teacher, TA, etc.
 						this._fullDateFormatter.format(dateObj)
 					);
 					this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
+					this.$$('#courseNotificationLabel').setAttribute( 'aria-hidden', 'false');
 					this._notificationTitle = this.localize(
 						(type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting'
 					);
@@ -529,6 +533,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._clearOverlayContent();
 				this._notificationTitle = this.localize('overlay.inactive');
 				this._courseNotificationLabel = this.localize('overlay.inactive');
+				this.$$('#courseNotificationLabel').setAttribute( 'aria-hidden', 'false');
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
 			},
 			_setOverlayStartedInactive: function() {
@@ -536,6 +541,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._notificationTitle = this.localize('overlay.courseStarted');
 				this._notificationInactive = this.localize('brackets', 'content', this.localize('overlay.inactive'));
 				this._courseNotificationLabel = this._notificationTitle + ' ' + this._notificationInactive;
+				this.$$('#courseNotificationLabel').setAttribute( 'aria-hidden', 'false');
 				this.isStartedInactive = true;
 				this.fire('startedInactiveAlert', { type: 'add' });
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
@@ -544,6 +550,7 @@ the user has in that organization - student, teacher, TA, etc.
 			_clearOverlayContent: function() {
 				this._notificationDate = null;
 				this._courseNotificationLabel = null;
+				this.$$('#courseNotificationLabel').setAttribute( 'aria-hidden', 'true');
 				this._notificationTitle = null;
 				this._notificationInactive = null;
 				this.isStartedInactive = false;
