@@ -261,6 +261,14 @@
 					}
 				);
 			},
+			_onStartedInactiveAlert: function(e) {
+				var type = e && e.detail && e.detail.type;
+
+				this._removeAlert('startedInactiveCourses');
+				if (this.$$('d2l-course-tile-grid').checkForStartedInactive(type)) {
+					this._addAlert('warning', 'startedInactiveCourses', this.localize('startedInactiveAlert'));
+				}
+			},
 			_onEnrollmentPinnedMessage: function(e) {
 				if (e.target !== this) {
 					var enrollmentId = this._enrollmentIdMap[e.detail.orgUnitId];
@@ -276,6 +284,11 @@
 						this._fetchEnrollmentEntity(e.detail.orgUnitId, e.detail.isPinned);
 					}
 				}
+			},
+			_onSimpleOverlayClosed: function() {
+				this._removeAlert('setCourseImageFailure');
+				// update the startedInactive alert in case the user changed the pinned states in the overlay
+				this._onStartedInactiveAlert();
 			},
 			_onEnrollmentsRootResponse: function(response) {
 				if (response.detail.status === 200) {
@@ -360,19 +373,6 @@
 				}
 				this.$$('d2l-course-tile-grid').setCourseImage(e);
 			},
-			_onSimpleOverlayClosed: function() {
-				this._removeAlert('setCourseImageFailure');
-				// update the startedInactive alert in case the user changed the pinned states in the overlay
-				this._onStartedInactiveAlert();
-			},
-			_onStartedInactiveAlert: function(e) {
-				var type = e && e.detail && e.detail.type;
-
-				this._removeAlert('startedInactiveCourses');
-				if (this.$$('d2l-course-tile-grid').checkForStartedInactive(type)) {
-					this._addAlert('warning', 'startedInactiveCourses', this.localize('startedInactiveAlert'));
-				}
-			},
 
 			/*
 			* Observers
@@ -399,6 +399,11 @@
 					var allCourses = document.createElement('d2l-all-courses');
 					this.$.allCoursesPlaceholder.appendChild(allCourses);
 					this._allCoursesCreated = true;
+				}
+			},
+			_keypressOpenAllCoursesView: function(e) {
+				if ( e.code === 'Space' || e.code === 'Enter' ) {
+					return this._openAllCoursesView(e);
 				}
 			},
 			_openAllCoursesView: function(e) {
@@ -431,11 +436,6 @@
 
 					this.$$('d2l-all-courses').load();
 				}.bind(this), 600);
-			},
-			_keypressOpenAllCoursesView: function(e) {
-				if ( e.code === 'Space' || e.code === 'Enter' ) {
-					return this._openAllCoursesView(e);
-				}
 			},
 			_refreshPage: function() {
 				document.location.reload(true);
