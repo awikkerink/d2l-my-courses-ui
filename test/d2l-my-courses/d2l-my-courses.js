@@ -377,13 +377,11 @@ describe('d2l-my-courses', function() {
 
 	describe('With enrollments', function() {
 		var pinnedEnrollmentEntity,
-			unpinnedEnrollmentEntity,
-			parser;
+			unpinnedEnrollmentEntity;
 
 		beforeEach(function(done) {
-			parser = document.createElement('d2l-siren-parser');
-			pinnedEnrollmentEntity = parser.parse(enrollmentsSearchResponse.entities[0]);
-			unpinnedEnrollmentEntity = parser.parse(noPinnedEnrollmentsResponse.entities[0]);
+			pinnedEnrollmentEntity = window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse.entities[0]);
+			unpinnedEnrollmentEntity = window.D2L.Hypermedia.Siren.Parse(noPinnedEnrollmentsResponse.entities[0]);
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,

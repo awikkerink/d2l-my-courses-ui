@@ -3,11 +3,9 @@
 'use strict';
 
 var listItem,
-	enrollment,
-	parser;
+	enrollment;
 
 beforeEach(function() {
-	parser = document.createElement('d2l-siren-parser');
 	enrollment = {
 		rel: ['enrollment'],
 		links: [{
@@ -33,7 +31,7 @@ describe('d2l-list-item-filter', function() {
 	it('should fetch the organization when the enrollment changes', function() {
 		var stub = sinon.stub(listItem.$$('d2l-ajax'), 'generateRequest');
 
-		listItem.set('enrollmentEntity', parser.parse(enrollment));
+		listItem.set('enrollmentEntity', window.D2L.Hypermedia.Siren.Parse(enrollment));
 
 		expect(stub.called).to.be.true;
 		expect(listItem._organizationUrl).to.equal('/organizations/1');
@@ -55,7 +53,7 @@ describe('d2l-list-item-filter', function() {
 				}]
 			})]);
 
-		listItem.set('enrollmentEntity', parser.parse(enrollment));
+		listItem.set('enrollmentEntity', window.D2L.Hypermedia.Siren.Parse(enrollment));
 
 		setTimeout(function() {
 			expect(listItem.text).to.equal('foo');

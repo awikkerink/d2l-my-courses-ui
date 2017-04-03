@@ -29,8 +29,7 @@ describe('d2l-utility-behavior', function() {
 		enrollmentEntity;
 
 	before(function() {
-		var parser = document.createElement('d2l-siren-parser');
-		enrollmentEntity = parser.parse(enrollment);
+		enrollmentEntity = window.D2L.Hypermedia.Siren.Parse(enrollment);
 	});
 
 	beforeEach(function() {

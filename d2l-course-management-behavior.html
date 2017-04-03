@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="d2l-utility-behavior.html">
 
 <script>
@@ -156,8 +155,7 @@
 			},
 			_onFetchEnrollmentEntityResponse: function(pinned, response) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
-					this._sirenParser = this._sirenParser || document.createElement('d2l-siren-parser');
-					var enrollmentEntity = this._sirenParser.parse(response.detail.xhr.response);
+					var enrollmentEntity = this.parseEntity(response.detail.xhr.response);
 
 					// Enforce specific pin state
 					this._setEnrollmentPinData(enrollmentEntity, pinned);

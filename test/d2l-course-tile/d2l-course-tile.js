@@ -60,9 +60,8 @@ describe('<d2l-course-tile>', function() {
 		organizationEntity;
 
 	before(function() {
-		var parser = document.createElement('d2l-siren-parser');
-		enrollmentEntity = parser.parse(enrollment);
-		organizationEntity = parser.parse(organization);
+		enrollmentEntity = window.D2L.Hypermedia.Siren.Parse(enrollment);
+		organizationEntity = window.D2L.Hypermedia.Siren.Parse(organization);
 	});
 
 	beforeEach(function() {
@@ -321,9 +320,8 @@ describe('<d2l-course-tile>', function() {
 				method: 'POST',
 				href: ''
 			}];
-			var parser = document.createElement('d2l-siren-parser');
 
-			var result = widget._getCanChangeCourseImage(parser.parse(orgWithSetCatalogImageAction));
+			var result = widget._getCanChangeCourseImage(window.D2L.Hypermedia.Siren.Parse(orgWithSetCatalogImageAction));
 			expect(result).to.be.ok;
 		});
 

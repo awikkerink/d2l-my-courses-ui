@@ -10,8 +10,7 @@ describe('d2l-all-courses', function() {
 		clock;
 
 	beforeEach(function() {
-		var parser = document.createElement('d2l-siren-parser');
-		pinnedEnrollmentEntity = parser.parse({
+		pinnedEnrollmentEntity = window.D2L.Hypermedia.Siren.Parse({
 			class: ['pinned', 'enrollment'],
 			rel: ['https://api.brightspace.com/rels/user-enrollment'],
 			links: [{
@@ -22,7 +21,7 @@ describe('d2l-all-courses', function() {
 				href: '/organizations/123'
 			}]
 		});
-		unpinnedEnrollmentEntity = parser.parse({
+		unpinnedEnrollmentEntity = window.D2L.Hypermedia.Siren.Parse({
 			class: ['unpinned', 'enrollment'],
 			rel: ['https://api.brightspace.com/rels/user-enrollment'],
 			links: [{

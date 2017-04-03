@@ -9,7 +9,6 @@
 <link rel="import" href="../d2l-menu/d2l-menu-item-link.html">
 <link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
-<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../iron-a11y-announcer/iron-a11y-announcer.html">
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
@@ -321,7 +320,6 @@ the user has in that organization - student, teacher, TA, etc.
 			_enrollmentPinRequest: null,
 			_organizationRequest: null,
 			_organizationUrl: null,
-			_parser: null,
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
 			_telemetryRequest: null,
@@ -444,15 +442,13 @@ the user has in that organization - student, teacher, TA, etc.
 				if (response.detail.status === 200) {
 					// The pin action returns the updated enrollment, so update
 					// this.enrollment with the modified one
-					this._parser = this._parser ||  document.createElement('d2l-siren-parser');
-					this.enrollment = this._parser.parse(response.detail.xhr.response);
+					this.enrollment = this.parseEntity(response.detail.xhr.response);
 					this.pinned = this.enrollment.hasClass('pinned');
 				}
 			},
 			_onOrganizationResponse: function(response) {
 				if (response.detail.status === 200) {
-					this._parser = this._parser || document.createElement('d2l-siren-parser');
-					var organization = this._parser.parse(response.detail.xhr.response);
+					var organization = this.parseEntity(response.detail.xhr.response);
 
 					this._organization = organization;
 					this._checkDateBounds(organization, response);

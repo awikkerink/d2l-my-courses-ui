@@ -3,8 +3,8 @@
 <link rel="import" href="../../d2l-colors/d2l-colors.html">
 <link rel="import" href="../../d2l-menu/d2l-menu.html">
 <link rel="import" href="../../d2l-search-widget/d2l-search-widget.html">
-<link rel="import" href="../../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../../d2l-typography/d2l-typography-shared-styles.html">
+<link rel="import" href="../d2l-utility-behavior.html">
 <link rel="import" href="../localize-behavior.html">
 <link rel="import" href="d2l-list-item-filter.html">
 
@@ -195,7 +195,8 @@
 				filterStandardDepartmentName: String
 			},
 			behaviors: [
-				window.D2L.MyCourses.LocalizeBehavior
+				window.D2L.MyCourses.LocalizeBehavior,
+				window.D2L.MyCourses.UtilityBehavior
 			],
 			observers: [
 				'_updateSemesterFilterLabel(_numSemesterFilters, filterStandardSemesterName)',
@@ -237,7 +238,6 @@
 					this._selectDepartmentList();
 				}
 			},
-			_parser: null,
 			_checkSelected: function(entity) {
 				// Checks if the given entity should be "selected" - used when semester/department search results change mostly
 				var id = entity.getLinkByRel(/\/organization$/).href;
@@ -271,8 +271,7 @@
 			_myEnrollmentsEntityChanged: function(entity) {
 				// Set up search URLs and search Actions for filter dropdown
 				if (entity) {
-					this._parser = this._parser || document.createElement('d2l-siren-parser');
-					var myEnrollmentsEntity = this._parser.parse(entity);
+					var myEnrollmentsEntity = this.parseEntity(entity);
 
 					this._searchSemestersAction = myEnrollmentsEntity.hasAction('add-semester-filter') ? myEnrollmentsEntity.getActionByName('add-semester-filter') : undefined;
 					this._searchDepartmentsAction = myEnrollmentsEntity.hasAction('add-department-filter') ? myEnrollmentsEntity.getActionByName('add-department-filter') : undefined;
@@ -305,8 +304,7 @@
 			},
 			__onSearchResults: function(entity, moreUrlPath, hasMorePath) {
 				if (!entity.hasLinkByRel) {
-					this._parser = this._parser || document.createElement('d2l-siren-parser');
-					entity = this._parser.parse(entity);
+					entity = this.parseEntity(entity);
 				}
 
 				this.set(hasMorePath, entity.hasLinkByRel('next'));
@@ -334,8 +332,7 @@
 			},
 			__onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
-					this._parser = this._parser || document.createElement('d2l-siren-parser');
-					var responseEntity = this._parser.parse(response.detail.xhr.response);
+					var responseEntity = this.parseEntity(response.detail.xhr.response);
 
 					responseEntity.entities.forEach(function(entity) {
 						this.push(organizationsPath, entity);
