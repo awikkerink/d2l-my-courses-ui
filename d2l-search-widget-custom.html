@@ -5,7 +5,6 @@
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
-<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget-behavior.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget-styles.html">
 <link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
@@ -365,21 +364,20 @@
 			},
 			_onLiveSearchResponse: function(response) {
 				if (response.detail.status === 200 && this._searchInput) {
-					this._parser = this._parser || document.createElement('d2l-siren-parser');
-					var searchResponse = this._parser.parse(response.detail.xhr.response);
+					var searchResponse = this.parseEntity(response.detail.xhr.response);
 					var enrollmentEntities = searchResponse.entities;
 					this.$$('iron-pages').select(enrollmentEntities.length > 0 ? 'search-results-page' : 'no-results-page');
 
 					this._liveSearchResults = [];
 					for (var i = 0; i < enrollmentEntities.length; i++) {
 						// Fetch each search result's organization's information
-						(function(enrollment, index, numEntities, self, parser) {
+						(function(enrollment, index, numEntities, self) {
 							var ajax = document.createElement('d2l-ajax');
 							ajax.url = enrollment.getLinkByRel(/\/organization$/).href;
 							ajax.method = 'GET';
 							ajax.onResponse = function(response) {
 								if (response.detail.status === 200 || response.detail.status === 304) {
-									var organization = parser.parse(response.detail.response);
+									var organization = self.parseEntity(response.detail.response);
 									// Polymer's splice method causes empty results to show up for an
 									// unknown reason, so use a normal Array.prototype.splice...
 									self._liveSearchResults.splice(index, 0, {
@@ -401,7 +399,7 @@
 							};
 							ajax.generateRequest();
 							self.push('_organizationRequests', ajax);
-						})(enrollmentEntities[i], i, enrollmentEntities.length, this, this._parser);
+						})(enrollmentEntities[i], i, enrollmentEntities.length, this);
 					}
 				}
 			},

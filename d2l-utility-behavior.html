@@ -1,6 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 
+<script src="https://s.brightspace.com/lib/siren-parser/6.0.0/siren-parser.js"></script>
 <script>
 	'use strict';
 
@@ -43,6 +43,9 @@
 				return /organizations.*?\/([0-9]+)/
 							.exec(enrollmentId)[1];
 			}
+		},
+		parseEntity: function(entity) {
+			return window.D2L.Hypermedia.Siren.Parse(entity);
 		}
 	};
 </script>

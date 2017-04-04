@@ -10,7 +10,6 @@
 <link rel="import" href="../d2l-menu/d2l-menu-item-radio.html">
 <link rel="import" href="../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
 <link rel="import" href="../d2l-simple-overlay/d2l-simple-overlay.html">
-<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-all-courses-styles.html">
 <link rel="import" href="d2l-course-tile-grid.html">
@@ -409,7 +408,6 @@
 			* Non-Polymer properties
 			*/
 
-			_parser: null,
 			_sortOptions: {
 				OrgUnitCode: {
 					text: 'sorting.sortCourseCode',
@@ -436,8 +434,7 @@
 
 			_onAllCoursesLowerThreshold: function() {
 				if (this.$['all-courses'].opened && this.lastEnrollmentsSearchResponse) {
-					var parser = document.createElement('d2l-siren-parser');
-					var lastResponseEntity = parser.parse(this.lastEnrollmentsSearchResponse);
+					var lastResponseEntity = this.parseEntity(this.lastEnrollmentsSearchResponse);
 
 					if (lastResponseEntity && lastResponseEntity.hasLink('next')) {
 						this._enrollmentsSearchUrl = lastResponseEntity.getLinkByRel('next').href;
@@ -449,8 +446,7 @@
 			},
 			_onEnrollmentsSearchResponse: function(response) {
 				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var enrollments = parser.parse(response.detail.xhr.response);
+					var enrollments = this.parseEntity(response.detail.xhr.response);
 					this._updateFilteredEnrollments(enrollments, true);
 				}
 			},
@@ -526,8 +522,7 @@
 			},
 			_myEnrollmentsEntityChanged: function(entity) {
 				if (entity) {
-					this._parser = this._parser || document.createElement('d2l-siren-parser');
-					var enrollmentsRoot = this._parser.parse(entity);
+					var enrollmentsRoot = this.parseEntity(entity);
 
 					if (!enrollmentsRoot.hasAction('search-my-enrollments')) {
 						return;

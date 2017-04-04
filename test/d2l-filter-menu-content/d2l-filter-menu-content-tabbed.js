@@ -5,12 +5,10 @@
 describe('d2l-filter-menu-content-tabbed', function() {
 	var component,
 		sandbox,
-		myEnrollmentsEntity,
-		parser;
+		myEnrollmentsEntity;
 
 	beforeEach(function() {
-		parser = document.createElement('d2l-siren-parser');
-		myEnrollmentsEntity = parser.parse({
+		myEnrollmentsEntity = window.D2L.Hypermedia.Siren.Parse({
 			actions: [{
 				name: 'add-semester-filter',
 				href: '/enrollments'
