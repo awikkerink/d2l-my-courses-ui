@@ -181,7 +181,7 @@
 			__onResponse: function(response, path) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
 					var entity = this.parseEntity(response.detail.xhr.response);
-					this.set(path, entity.entities);
+					this.set(path, entity.entities || []);
 
 					if ( (this._semestersUrl && !this._semesters) || (this._departmentsUrl && !this._departments) ) {
 						return;
@@ -189,18 +189,14 @@
 					this._semesters = this._semesters || [];
 					this._departments = this._departments || [];
 
-					this._hideLoadingSpinner();
 					this.set('_hasManyFilters', this._semesters.length + this._departments.length > 7);
 					if (this._hasManyFilters) {
 						this.$.tabbedContent.load();
 					} else {
 						this.$.simpleContent.filterItems = this._departments.concat(this._semesters);
 					}
-
-					this.fire('d2l-filter-menu-content-hide', {
-						hide: this._semesters.length + this._departments.length <= 1
-					});
 				}
+				this._hideLoadingSpinner();
 			},
 			_onDepartmentsResponse: function(response) {
 				this.__onResponse(response, '_departments');

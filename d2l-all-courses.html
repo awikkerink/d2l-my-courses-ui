@@ -62,8 +62,8 @@
 							sort="[[_sortParameter]]">
 						</d2l-search-widget-custom>
 
-						<div id="filterAndSort" class="d2l-all-courses-hidden">
-							<d2l-dropdown id="filterDropdown" class="d2l-all-courses-hidden">
+						<div id="filterAndSort">
+							<d2l-dropdown id="filterDropdown">
 								<button
 									class="d2l-dropdown-opener dropdown-button"
 									aria-labelledby="filterText">
@@ -268,12 +268,6 @@
 				_noUnpinnedCoursesInSearch: Boolean,
 				_noUnpinnedCoursesInSelection: Boolean,
 				_noUnpinnedCourses: Boolean,
-				// The number of Enrollments required to show the filter menu
-				_numEnrollmentsRequiredToShowFilters: {
-					type: Number,
-					readonly: true,
-					value: 20
-				},
 				_parentOrganizations: {
 					type: Array,
 					value: function() { return []; }
@@ -337,7 +331,6 @@
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
 				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-change', '_onFilterChanged');
-				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 				this.listen(this.$['search-widget'], 'd2l-search-widget-results-changed', '_onSearchResultsChanged');
 
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
@@ -349,7 +342,6 @@
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
 				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-change', '_onFilterChanged');
-				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 				this.unlisten(this.$['search-widget'], 'd2l-search-widget-results-changed', '_onSearchResultsChanged');
 			},
 
@@ -373,23 +365,14 @@
 					this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 				}, this);
 				this.set('delayLoad', false);
-				// Only make the call to load the filter menu contents if user has many enrollments
-				this._hasManyEnrollments = this.pinnedEnrollments.length + this.unpinnedEnrollments.length >= this._numEnrollmentsRequiredToShowFilters;
-				if (this._hasManyEnrollments) {
-					this.$.filterMenuContent.load();
-				}
 				this.set('updateCountMap', this.updateCountMap);
+				this.$.filterMenuContent.load();
 				setTimeout(function() {
 					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
 					this.fire('recalculate-columns');
 
 					this.toggleClass('d2l-all-courses-hidden', false, this.$.overlayContent);
 					this.toggleClass('d2l-all-courses-hidden', true, this.$.overlayLoadingSpinner);
-
-					// Show filter menu after content is shown if user has many enrollments
-					if (this._hasManyEnrollments) {
-						this.toggleClass('d2l-all-courses-hidden', false, this.$.filterAndSort);
-					}
 				}.bind(this), 50);
 			},
 			open: function() {
@@ -473,9 +456,6 @@
 			_onFilterDropdownOpen: function() {
 				this.set('_filterText', this.localize('filtering.filter'));
 				this.$.filterMenuContent.open();
-			},
-			_onFilterHideChanged: function(e) {
-				this.toggleClass('d2l-all-courses-hidden', e.detail.hide, this.$.filterDropdown);
 			},
 			_onFilterMenuLowerThreshold: function() {
 				this.$.scrollThreshold.clearTriggers();

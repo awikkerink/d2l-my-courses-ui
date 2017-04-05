@@ -60,6 +60,10 @@
 				--d2l-search-widget-height: 45px;
 				margin: 10px 20px;
 			}
+			.no-items-text {
+				@apply --d2l-body-compact-text;
+				margin: 10px;
+			}
 		</style>
 
 		<d2l-ajax
@@ -114,7 +118,10 @@
 						selected="[[_checkSelected(item)]]">
 					</d2l-list-item-filter>
 				</template>
-			</d2l-menu>
+
+			<span class="no-items-text" hidden$="[[_hasSemesters]]">
+				{{localize('filtering.noSemesters')}}
+			</span>
 		</div>
 		<div id="departmentList" aria-labelledby="departmentListButton" role="tabpanel">
 			<d2l-search-widget
@@ -133,6 +140,9 @@
 					</d2l-list-item-filter>
 				</template>
 			</d2l-menu>
+			<span class="no-items-text" hidden$="[[_hasDepartments]]">
+				{{localize('filtering.noDepartments')}}
+			</span>
 		</div>
 	</template>
 
@@ -154,6 +164,14 @@
 				_departments: {
 					type: Array,
 					value: function() { return []; }
+				},
+				_hasDepartments: {
+					type: Boolean,
+					value: false
+				},
+				_hasSemesters: {
+					type: Boolean,
+					value: false
 				},
 				_hasMoreDepartments: {
 					type: Boolean,
@@ -302,17 +320,18 @@
 					filters: this._currentFilters
 				});
 			},
-			__onSearchResults: function(entity, moreUrlPath, hasMorePath) {
+			__onSearchResults: function(entity, moreUrlPath, hasMorePath, hasPath) {
 				if (!entity.hasLinkByRel) {
 					entity = this.parseEntity(entity);
 				}
 
+				this.set(hasPath, (entity.entities || []).length > 0);
 				this.set(hasMorePath, entity.hasLinkByRel('next'));
 				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
 			},
 			_onDepartmentSearchResults: function(e) {
 				this.set('_departments', e.detail.entities);
-				this.__onSearchResults(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
+				this.__onSearchResults(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments', '_hasDepartments');
 				this.$.departmentList.querySelector('d2l-menu').resize();
 
 				setTimeout(function() {
@@ -322,7 +341,7 @@
 			},
 			_onSemesterSearchResults: function(e) {
 				this.set('_semesters', e.detail.entities);
-				this.__onSearchResults(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
+				this.__onSearchResults(e.detail, '_moreSemestersUrl', '_hasMoreSemesters', '_hasSemesters');
 				this.$.semesterList.querySelector('d2l-menu').resize();
 
 				setTimeout(function() {
