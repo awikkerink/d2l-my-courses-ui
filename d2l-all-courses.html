@@ -143,11 +143,14 @@
 
 				<h2>{{localize('unpinnedCourses')}}</h2>
 
-				<span hidden$="[[!_noUnpinnedCoursesInSearch]]">
+				<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSearch]]">
 					{{localize('noUnpinnedCoursesInSearch')}}
 				</span>
-				<span hidden$="[[!_noUnpinnedCoursesInSelection]]">
+				<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSelection]]">
 					{{localize('noUnpinnedCoursesInSelection')}}
+				</span>
+				<span class="bottom-pad" hidden$="[[!_noUnpinnedCourses]]">
+					{{localize('noUnpinnedCoursesMessage')}}
 				</span>
 
 				<d2l-course-tile-grid
@@ -264,6 +267,7 @@
 				_noPinnedCoursesInSelection: Boolean,
 				_noUnpinnedCoursesInSearch: Boolean,
 				_noUnpinnedCoursesInSelection: Boolean,
+				_noUnpinnedCourses: Boolean,
 				// The number of Enrollments required to show the filter menu
 				_numEnrollmentsRequiredToShowFilters: {
 					type: Number,
@@ -546,6 +550,7 @@
 				this._noPinnedCoursesInSelection = false;
 				this._noUnpinnedCoursesInSearch = false;
 				this._noUnpinnedCoursesInSelection = false;
+				this._noUnpinnedCourses = false;
 				var isSearched = this.$['search-widget']._showClearIcon,
 					hasAlert = this._hasAlert('noPinnedCourses'),
 					isFiltered = this._parentOrganizations ? this._parentOrganizations.length > 0 : false;
@@ -563,6 +568,9 @@
 					this._noUnpinnedCoursesInSearch = true;
 				} else if (!hasUnpinnedEnrollments && isFiltered) {
 					this._noUnpinnedCoursesInSelection = true;
+				}
+				if (!hasUnpinnedEnrollments && !isSearched && !isFiltered) {
+					this._noUnpinnedCourses = true;
 				}
 			},
 
