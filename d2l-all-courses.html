@@ -143,13 +143,13 @@
 
 				<h2>{{localize('unpinnedCourses')}}</h2>
 
-				<span hidden$="[[!_noUnpinnedCoursesInSearch]]">
+				<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSearch]]">
 					{{localize('noUnpinnedCoursesInSearch')}}
 				</span>
-				<span hidden$="[[!_noUnpinnedCoursesInSelection]]">
+				<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSelection]]">
 					{{localize('noUnpinnedCoursesInSelection')}}
 				</span>
-				<span hidden$="[[!_noUnpinnedCourses]]">
+				<span class="bottom-pad" hidden$="[[!_noUnpinnedCourses]]">
 					{{localize('noUnpinnedCoursesMessage')}}
 				</span>
 
@@ -569,7 +569,7 @@
 				} else if (!hasUnpinnedEnrollments && isFiltered) {
 					this._noUnpinnedCoursesInSelection = true;
 				}
-				if (!hasUnpinnedEnrollments) {
+				if (!hasUnpinnedEnrollments && !isSearched && !isFiltered) {
 					this._noUnpinnedCourses = true;
 				}
 			},
