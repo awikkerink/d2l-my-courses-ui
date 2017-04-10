@@ -80,9 +80,9 @@ describe('d2l-all-courses', function() {
 		}
 	});
 
-	it('should load filter menu content', function() {
+	it('should load filter menu content when filter menu is opened', function() {
 		var stub = sinon.stub(widget.$.filterMenuContent, 'load');
-		widget.load();
+		widget._onFilterDropdownOpen();
 		expect(stub.called).to.be.true;
 	});
 

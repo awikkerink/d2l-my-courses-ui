@@ -245,9 +245,11 @@
 				this.filterStandardSemesterName = this.localize('filtering.semesterDefault');
 				this.filterStandardDepartmentName = this.localize('filtering.departmentDefault');
 			},
-			load: function() {
+			load: function(callback) {
 				this.$.departmentSearchWidget.search();
 				this.$.semesterSearchWidget.search();
+
+				this._loadCompleteCallback = callback;
 			},
 			loadMore: function() {
 				// Called from d2l-all-courses, as that's where the iron-scroll-threshold is
@@ -265,6 +267,9 @@
 					this._selectDepartmentList();
 				}
 			},
+			_departmentsLoaded: false,
+			_semestersLoaded: false,
+			_loadCompleteCallback: null,
 			_checkSelected: function(entity) {
 				// Checks if the given entity should be "selected" - used when semester/department search results change mostly
 				var id = entity.href || entity.getLinkByRel(/\/organization$/).href;
@@ -355,6 +360,16 @@
 				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
 			},
 			_onDepartmentSearchResults: function(e) {
+				if (!this._departmentsLoaded) {
+					// If this is the first load, select the semester list after we've fetched the contents
+					this._selectSemesterList();
+					this._departmentsLoaded = true;
+
+					// Hide loading spinner
+					if (this._semestersLoaded) {
+						this._loadCompleteCallback();
+					}
+				}
 				this.set('_departments', e.detail.entities);
 				this.__onSearchResults(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments', '_hasDepartments');
 				this.$.departmentList.querySelector('d2l-menu').resize();
@@ -365,6 +380,16 @@
 				}.bind(this), 200);
 			},
 			_onSemesterSearchResults: function(e) {
+				if (!this._semestersLoaded) {
+					// If this is the first load, select the semester list after we've fetched the contents
+					this._selectSemesterList();
+					this._semestersLoaded = true;
+
+					// Hide loading spinner
+					if (this._departmentsLoaded) {
+						this._loadCompleteCallback();
+					}
+				}
 				this.set('_semesters', e.detail.entities);
 				this.__onSearchResults(e.detail, '_moreSemestersUrl', '_hasMoreSemesters', '_hasSemesters');
 				this.$.semesterList.querySelector('d2l-menu').resize();

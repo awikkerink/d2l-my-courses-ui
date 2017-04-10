@@ -146,12 +146,11 @@
 
 					this.set('_hasManyFilters', this._semesters.length + this._departments.length > 7);
 					if (this._hasManyFilters) {
-						this.$.tabbedContent.load();
+						this.$.tabbedContent.load(this._hideLoadingSpinner.bind(this));
 					} else {
 						this.$.simpleContent.filterItems = this._departments.concat(this._semesters);
+						this._hideLoadingSpinner();
 					}
-
-					this._hideLoadingSpinner();
 				}.bind(this)).catch(this._hideLoadingSpinner.bind(this));
 			},
 			loadMore: function() {

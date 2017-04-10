@@ -366,7 +366,7 @@
 				}, this);
 				this.set('delayLoad', false);
 				this.set('updateCountMap', this.updateCountMap);
-				this.$.filterMenuContent.load();
+
 				setTimeout(function() {
 					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
 					this.fire('recalculate-columns');
@@ -455,6 +455,7 @@
 			},
 			_onFilterDropdownOpen: function() {
 				this.set('_filterText', this.localize('filtering.filter'));
+				this.$.filterMenuContent.load();
 				this.$.filterMenuContent.open();
 			},
 			_onFilterMenuLowerThreshold: function() {
