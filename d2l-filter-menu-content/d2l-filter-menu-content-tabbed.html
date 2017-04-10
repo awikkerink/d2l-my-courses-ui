@@ -105,34 +105,41 @@
 		<div id="semesterList" aria-labelledby="semesterListButton" role="tabpanel">
 			<d2l-search-widget
 				id="semesterSearchWidget"
+				hidden$="[[!_hasSemesters]]"
 				placeholder-text="{{localize('filtering.searchSemesters')}}"
 				search-button-label="{{localize('search')}}"
 				clear-button-label="{{localize('search.clearSearch')}}"
 				search-action="[[_searchSemestersAction]]"
 				search-field-name="search"
 				cache-responses></d2l-search-widget>
-			<d2l-menu label="{{localize('filtering.semesterDefault')}}">
+			<d2l-menu
+				label="{{localize('filtering.semesterDefault')}}"
+				hidden$="[[!_hasSemesters]]">
 				<template is="dom-repeat" items="[[_semesters]]">
 					<d2l-list-item-filter
 						enrollment-entity="[[item]]"
 						selected="[[_checkSelected(item)]]">
 					</d2l-list-item-filter>
 				</template>
+			</d2l-menu>
 
-			<span id="noSemestersText" class="no-items-text" hidden$="[[_hasSemesters]]">
+			<div id="noSemestersText" class="no-items-text" hidden$="[[_hasSemesters]]">
 				{{localize('filtering.noFilterItemsDefault')}}
-			</span>
+			</div>
 		</div>
 		<div id="departmentList" aria-labelledby="departmentListButton" role="tabpanel">
 			<d2l-search-widget
 				id="departmentSearchWidget"
+				hidden$="[[!_hasDepartments]]"
 				placeholder-text="{{localize('filtering.searchDepartments')}}"
 				search-button-label="{{localize('search')}}"
 				clear-button-label="{{localize('search.clearSearch')}}"
 				search-action="[[_searchDepartmentsAction]]"
 				search-field-name="search"
 				cache-responses></d2l-search-widget>
-			<d2l-menu label="{{localize('filtering.departmentDefault')}}">
+			<d2l-menu
+				label="{{localize('filtering.departmentDefault')}}"
+				hidden$="[[!_hasDepartments]]">
 				<template is="dom-repeat" items="[[_departments]]">
 					<d2l-list-item-filter
 						enrollment-entity="[[item]]"
@@ -141,9 +148,9 @@
 				</template>
 			</d2l-menu>
 
-			<span id="noDepartmentsText" class="no-items-text" hidden$="[[_hasDepartments]]">
+			<div id="noDepartmentsText" class="no-items-text" hidden$="[[_hasDepartments]]">
 				{{localize('filtering.noFilterItemsDefault')}}
-			</span>
+			</div>
 		</div>
 	</template>
 
@@ -218,7 +225,7 @@
 				window.D2L.MyCourses.UtilityBehavior
 			],
 			observers: [
-				'_updateEmptyStateMessages(departmentName, semesterName)',
+				'_updateEmptyStateMessages(filterStandardDepartmentName, filterStandardSemesterName)',
 				'_updateSemesterFilterLabel(_numSemesterFilters, filterStandardSemesterName)',
 				'_updateDepartmentFilterLabel(_numDepartmentFilters, filterStandardDepartmentName)'
 			],
@@ -260,7 +267,7 @@
 			},
 			_checkSelected: function(entity) {
 				// Checks if the given entity should be "selected" - used when semester/department search results change mostly
-				var id = entity.getLinkByRel(/\/organization$/).href;
+				var id = entity.href || entity.getLinkByRel(/\/organization$/).href;
 				return this._currentFilters.indexOf(id) > -1;
 			},
 			_clearFilters: function() {
@@ -293,8 +300,20 @@
 				if (entity) {
 					var myEnrollmentsEntity = this.parseEntity(entity);
 
-					this._searchSemestersAction = myEnrollmentsEntity.hasAction('add-semester-filter') ? myEnrollmentsEntity.getActionByName('add-semester-filter') : undefined;
-					this._searchDepartmentsAction = myEnrollmentsEntity.hasAction('add-department-filter') ? myEnrollmentsEntity.getActionByName('add-department-filter') : undefined;
+					this._searchSemestersAction = undefined;
+					if (myEnrollmentsEntity.hasActionByName('search-my-semesters')) {
+						this._searchSemestersAction = myEnrollmentsEntity.getActionByName('search-my-semesters');
+					} else if (myEnrollmentsEntity.hasActionByName('add-semester-filter')) {
+						this._searchSemestersAction = myEnrollmentsEntity.getActionByName('add-semester-filter');
+					}
+
+					this._searchDepartmentsAction = undefined;
+					if (myEnrollmentsEntity.hasActionByName('search-my-departments')) {
+						this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName('search-my-departments');
+					} else if (myEnrollmentsEntity.hasActionByName('add-department-filter')) {
+						this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName('add-department-filter');
+					}
+
 					this._oneTab = !this._searchDepartmentsAction || !this._searchSemestersAction;
 				}
 			},

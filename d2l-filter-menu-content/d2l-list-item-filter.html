@@ -59,6 +59,10 @@
 				}.bind(this));
 			},
 			_onEnrollmentEntityChanged: function(entity) {
+				if (entity.href) {
+					this.set('_organizationUrl', entity.href);
+				}
+
 				entity = this.parseEntity(entity);
 
 				if (entity.getLinkByRel(/\/organization$/)) {
