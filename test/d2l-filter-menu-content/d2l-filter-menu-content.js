@@ -32,7 +32,7 @@ describe('d2l-filter-menu-content', function() {
 		sandbox.restore();
 	});
 
-	describe('Visibility and content type', function() {
+	describe('Content', function() {
 		var enrollment,
 			departmentsResponse,
 			semestersResponse,
@@ -75,71 +75,39 @@ describe('d2l-filter-menu-content', function() {
 		});
 
 		it('should show a spinner and hide contents until data is fetched', function(done) {
-			var handler = function() {
-				expect(component.$$('d2l-loading-spinner').classList.contains('d2l-filter-menu-content-hidden')).to.be.true;
-				document.removeEventListener('d2l-filter-menu-content-hide', handler);
-				done();
-			};
-			document.addEventListener('d2l-filter-menu-content-hide', handler);
-
 			expect(component.$$('d2l-loading-spinner').classList.contains('d2l-filter-menu-content-hidden')).to.be.false;
 			departmentsResponse = { entities: [] };
 			semestersResponse = { entities: [] };
 			component.load();
-		});
 
-		it('should signal that it should be hidden if user does not have enough departments/semesters', function(done) {
-			var handler = function(e) {
-				expect(e.detail.hide).to.be.true;
-				document.removeEventListener('d2l-filter-menu-content-hide', handler);
+			setTimeout(function() {
+				expect(component.$$('d2l-loading-spinner').classList.contains('d2l-filter-menu-content-hidden')).to.be.true;
 				done();
-			};
-			document.addEventListener('d2l-filter-menu-content-hide', handler);
-
-			departmentsResponse = { entities: [enrollment] };
-			semestersResponse = { entities: [] };
-			component.load();
-		});
-
-		it('should signal that it should be shown if user has enough departments/semesters', function(done) {
-			var handler = function(e) {
-				expect(e.detail.hide).to.be.false;
-				document.removeEventListener('d2l-filter-menu-content-hide', handler);
-				done();
-			};
-			document.addEventListener('d2l-filter-menu-content-hide', handler);
-
-			departmentsResponse = { entities: [enrollment] };
-			semestersResponse = { entities: [enrollment] };
-			component.load();
+			});
 		});
 
 		it('should show a simplified menu for users with <=7 semesters + departments', function(done) {
-			var handler = function() {
-				var content = component._currentContent();
-				expect(content.tagName).to.equal('D2L-FILTER-MENU-CONTENT-SIMPLE');
-				document.removeEventListener('d2l-filter-menu-content-hide', handler);
-				done();
-			};
-			document.addEventListener('d2l-filter-menu-content-hide', handler);
-
 			departmentsResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
 			semestersResponse = { entities: [enrollment, enrollment, enrollment] };
 			component.load();
+
+			setTimeout(function() {
+				var content = component._currentContent();
+				expect(content.tagName).to.equal('D2L-FILTER-MENU-CONTENT-SIMPLE');
+				done();
+			});
 		});
 
 		it('should show a tabbed menu for users with >7 semesters + departments', function(done) {
-			var handler = function() {
-				var content = component._currentContent();
-				expect(content.tagName).to.equal('D2L-FILTER-MENU-CONTENT-TABBED');
-				document.removeEventListener('d2l-filter-menu-content-hide', handler);
-				done();
-			};
-			document.addEventListener('d2l-filter-menu-content-hide', handler);
-
 			departmentsResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
 			semestersResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
 			component.load();
+
+			setTimeout(function() {
+				var content = component._currentContent();
+				expect(content.tagName).to.equal('D2L-FILTER-MENU-CONTENT-TABBED');
+				done();
+			});
 		});
 	});
 

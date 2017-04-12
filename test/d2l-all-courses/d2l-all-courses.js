@@ -80,37 +80,10 @@ describe('d2l-all-courses', function() {
 		}
 	});
 
-	it('should not load filter menu content when there are insufficient enrollments', function() {
+	it('should load filter menu content when filter menu is opened', function() {
 		var stub = sinon.stub(widget.$.filterMenuContent, 'load');
-
-		widget.pinnedEnrollments = Array(19).fill(pinnedEnrollmentEntity);
-		widget.load();
-		expect(stub.called).to.be.false;
-	});
-
-	it('should load filter menu content when there are sufficient enrollments', function() {
-		var stub = sinon.stub(widget.$.filterMenuContent, 'load');
-
-		widget.pinnedEnrollments = Array(20).fill(pinnedEnrollmentEntity);
-		widget.load();
+		widget._onFilterDropdownOpen();
 		expect(stub.called).to.be.true;
-	});
-
-	it('should hide filter menu when there are insufficient enrollments', function() {
-		widget.pinnedEnrollments = Array(19).fill(pinnedEnrollmentEntity);
-		widget.load();
-		expect(widget.$.filterAndSort.classList.contains('d2l-all-courses-hidden')).to.be.true;
-	});
-
-	it('should show filter menu when there are sufficient enrollments', function() {
-		widget.pinnedEnrollments = Array(20).fill(pinnedEnrollmentEntity);
-		widget.load();
-
-		// Class is only changed after column recalculation is done, which is done
-		// in a setTimeout to allow for a DOM width to be set
-		clock.tick(51);
-
-		expect(widget.$.filterAndSort.classList.contains('d2l-all-courses-hidden')).to.be.false;
 	});
 
 	describe('d2l-filter-menu-content-change', function() {
@@ -144,24 +117,6 @@ describe('d2l-all-courses', function() {
 			widget.$.filterMenuContent.currentFilters = [1, 1];
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 			expect(widget._filterText).to.equal('Filter: 2 Filters');
-		});
-	});
-
-	describe('d2l-filter-menu-content-hide', function() {
-		it('should hide the filter if the filter contents says it should be hidden', function() {
-			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-hide', {
-				hide: true
-			});
-
-			expect(getComputedStyle(widget.$.filterDropdown).display).to.equal('none');
-		});
-
-		it('should show the filter if the filter contents says it should be shown', function() {
-			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-hide', {
-				hide: false
-			});
-
-			expect(getComputedStyle(widget.$.filterDropdown).display).to.not.equal('none');
 		});
 	});
 

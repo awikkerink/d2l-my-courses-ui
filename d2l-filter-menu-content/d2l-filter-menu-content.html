@@ -51,17 +51,13 @@
 		<d2l-ajax
 			id="departmentsRequest"
 			url="[[_departmentsUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onDepartmentsResponse"
-			on-iron-ajax-error="_onErrorResponse">
+			headers='{ "Accept": "application/vnd.siren+json" }'>
 		</d2l-ajax>
 
 		<d2l-ajax
 			id="semestersRequest"
 			url="[[_semestersUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onSemestersResponse"
-			on-iron-ajax-error="_onErrorResponse">
+			headers='{ "Accept": "application/vnd.siren+json" }'>
 		</d2l-ajax>
 
 		<d2l-loading-spinner size="50">
@@ -91,6 +87,7 @@
 	</template>
 
 	<script>
+		/* global Promise */
 		'use strict';
 
 		Polymer({
@@ -135,12 +132,24 @@
 				this.unlisten(this.$.tabbedContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
 			},
 			load: function() {
-				if (this._departmentsUrl) {
-					this.$.departmentsRequest.generateRequest();
-				}
-				if (this._semestersUrl) {
-					this.$.semestersRequest.generateRequest();
-				}
+				Promise.all([
+					this._departmentsUrl ? this.$.departmentsRequest.generateRequest() : Promise.resolve({}),
+					this._semestersUrl ? this.$.semestersRequest.generateRequest() : Promise.resolve({})
+				]).then(function(values) {
+					var departmentsResponse = this.parseEntity(values[0].response);
+					var semestersResponse = this.parseEntity(values[1].response);
+
+					this.set('_departments', departmentsResponse.entities || []);
+					this.set('_semesters', semestersResponse.entities || []);
+
+					this.set('_hasManyFilters', this._semesters.length + this._departments.length > 7);
+					if (this._hasManyFilters) {
+						this.$.tabbedContent.load(this._hideLoadingSpinner.bind(this));
+					} else {
+						this.$.simpleContent.filterItems = this._departments.concat(this._semesters);
+						this._hideLoadingSpinner();
+					}
+				}.bind(this)).catch(this._hideLoadingSpinner.bind(this));
 			},
 			loadMore: function() {
 				if (this._hasManyFilters) {
@@ -170,46 +179,18 @@
 				// Set up search URLs and search Actions for filter dropdown
 				if (entity && entity.actions) {
 					var myEnrollmentsEntity = this.parseEntity(entity);
-					if (myEnrollmentsEntity.hasAction('add-department-filter'))	{
+					if (myEnrollmentsEntity.hasLinkByRel('https://api.brightspace.com/rels/departments')) {
+						this.set('_departmentsUrl', myEnrollmentsEntity.getLinkByRel('https://api.brightspace.com/rels/departments').href);
+					} else if (myEnrollmentsEntity.hasAction('add-department-filter'))	{
 						this.set('_departmentsUrl', this.createActionUrl(myEnrollmentsEntity.getActionByName('add-department-filter')));
 					}
-					if (myEnrollmentsEntity.hasAction('add-semester-filter')) {
+
+					if (myEnrollmentsEntity.hasLinkByRel('https://api.brightspace.com/rels/semesters')) {
+						this.set('_semestersUrl', myEnrollmentsEntity.getLinkByRel('https://api.brightspace.com/rels/semesters').href);
+					} else if (myEnrollmentsEntity.hasAction('add-semester-filter')) {
 						this.set('_semestersUrl', this.createActionUrl(myEnrollmentsEntity.getActionByName('add-semester-filter')));
 					}
 				}
-			},
-			__onResponse: function(response, path) {
-				if (response.detail.status === 200 || response.detail.status === 304) {
-					var entity = this.parseEntity(response.detail.xhr.response);
-					this.set(path, entity.entities);
-
-					if ( (this._semestersUrl && !this._semesters) || (this._departmentsUrl && !this._departments) ) {
-						return;
-					}
-					this._semesters = this._semesters || [];
-					this._departments = this._departments || [];
-
-					this._hideLoadingSpinner();
-					this.set('_hasManyFilters', this._semesters.length + this._departments.length > 7);
-					if (this._hasManyFilters) {
-						this.$.tabbedContent.load();
-					} else {
-						this.$.simpleContent.filterItems = this._departments.concat(this._semesters);
-					}
-
-					this.fire('d2l-filter-menu-content-hide', {
-						hide: this._semesters.length + this._departments.length <= 1
-					});
-				}
-			},
-			_onDepartmentsResponse: function(response) {
-				this.__onResponse(response, '_departments');
-			},
-			_onErrorResponse: function() {
-				this._hideLoadingSpinner();
-			},
-			_onSemestersResponse: function(response) {
-				this.__onResponse(response, '_semesters');
 			},
 			_onFiltersChanged: function(e) {
 				this.set('currentFilters', e.detail.filters);
