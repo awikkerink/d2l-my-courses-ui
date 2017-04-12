@@ -32,7 +32,7 @@ describe('d2l-filter-menu-content', function() {
 		sandbox.restore();
 	});
 
-	describe('Visibility and content type', function() {
+	describe('Content', function() {
 		var enrollment,
 			departmentsResponse,
 			semestersResponse,

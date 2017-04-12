@@ -133,13 +133,11 @@
 			},
 			load: function() {
 				Promise.all([
-					this._departmentsUrl ? this.$.departmentsRequest.generateRequest() : Promise.resolve(),
-					this._semestersUrl ? this.$.semestersRequest.generateRequest() : Promise.resolve()
+					this._departmentsUrl ? this.$.departmentsRequest.generateRequest() : Promise.resolve({}),
+					this._semestersUrl ? this.$.semestersRequest.generateRequest() : Promise.resolve({})
 				]).then(function(values) {
-					var departmentsReq = values[0] || {};
-					var semestersReq = values[1] || {};
-					var departmentsResponse = this.parseEntity(departmentsReq.response);
-					var semestersResponse = this.parseEntity(semestersReq.response);
+					var departmentsResponse = this.parseEntity(values[0].response);
+					var semestersResponse = this.parseEntity(values[1].response);
 
 					this.set('_departments', departmentsResponse.entities || []);
 					this.set('_semesters', semestersResponse.entities || []);
