@@ -28,9 +28,6 @@
 				text-decoration: underline;
 				color: var(--d2l-color-celestine);
 			}
-			.dropdown-content-gradient {
-				background: linear-gradient(to top, white, var(--d2l-color-regolith));
-			}
 			.dropdown-content-tabs {
 				display: flex;
 				align-items: center;
@@ -47,6 +44,7 @@
 				padding: 10px;
 				cursor: pointer;
 				display: inherit;
+				font-family: inherit;
 			}
 			.dropdown-content-tab-highlight {
 				background-color: var(--d2l-color-celestine);
@@ -80,7 +78,7 @@
 			on-iron-ajax-response="_onMoreSemestersResponse">
 		</d2l-ajax>
 
-		<div class="dropdown-content-tabs dropdown-content-gradient" role="tablist" hidden$="{{_oneTab}}">
+		<div class="dropdown-content-tabs" role="tablist" hidden$="{{_oneTab}}">
 			<div class="dropdown-content-tab" role="tab" aria-controls="semesterList">
 				<div class="dropdown-content-tab-highlight" id="semesterListHighlight"></div>
 				<button

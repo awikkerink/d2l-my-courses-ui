@@ -18,16 +18,13 @@
 			.d2l-filter-menu-content-hidden {
 				display: none !important;
 			}
-			.dropdown-content-gradient {
-				background: linear-gradient(to top, white, var(--d2l-color-regolith));
-			}
 			.no-items-text {
 				@apply --d2l-body-compact-text;
 				margin: 10px;
 			}
 		</style>
 
-		<div class="dropdown-content-gradient">
+		<div>
 			<d2l-menu label="{{localize('filtering.filter')}}" hidden$="[[!_hasFilterItems]]">
 				<template is="dom-repeat" items="[[filterItems]]">
 					<d2l-list-item-filter
