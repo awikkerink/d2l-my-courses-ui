@@ -53,7 +53,11 @@
 		},
 		_onUpdatesResponse: function(response) {
 			if (response.detail.status === 200) {
-				response.detail.xhr.response['Objects'].forEach(function(object) {
+				var json = response.detail.xhr.response;
+				if ('object' !== typeof json) {
+					json = JSON.parse(json);
+				}
+				json['Objects'].forEach(function(object) {
 					var updates = 0;
 					if (this.courseUpdatesConfig['showUnattemptedQuizzes']) {
 						updates += object['UnattemptedQuizzes'];
