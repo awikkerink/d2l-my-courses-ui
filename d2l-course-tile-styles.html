@@ -125,13 +125,12 @@
 				text-transform: uppercase;
 			}
 			.course-text {
-				position: relative;
 				margin-top: 0.6rem;
 				float: left;
 				flex: 1;
-				white-space: pre-wrap;
-				word-break: break-all;
-				word-break: break-word;
+				overflow: hidden;
+				word-wrap: break-word; /* IE/Edge */
+				overflow-wrap: break-word; /* replaces 'word-wrap' in Firefox, Chrome, Safari */
 			}
 			.course-info {
 				display: flex;
