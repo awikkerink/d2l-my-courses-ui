@@ -458,7 +458,11 @@ the user has in that organization - student, teacher, TA, etc.
 					this._courseInfoUrl = (courseInfoUrl) ? courseInfoUrl.href : null;
 
 					this._setCourseImageSrc();
-					this._organizationHomepageUrl = (organization.getLinkByRel(/\/organization-homepage$/) || {}).href;
+
+					var homepageEntity = organization.getSubEntityByRel(/\/organization-homepage$/);
+					if (homepageEntity !== null) {
+						this._organizationHomepageUrl = homepageEntity.properties.path;
+					}
 					if (!this._organizationHomepageUrl) {
 						var tileContainer = this.$$('.tile-container');
 						this.toggleClass('d2l-no-access', true, tileContainer);
