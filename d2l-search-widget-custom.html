@@ -93,7 +93,7 @@
 						<div class="search-results-listbox-page" data-page-name="search-results-page">
 							<d2l-search-listbox>
 								<template id="courseSearchResultsTemplate" is="dom-repeat" items="[[_liveSearchResults]]">
-									<div class="d2l-search-widget-custom-item" selectable data-text$="[[item.name]]" data-href$="[[item.href]]" role="option">
+									<div class="d2l-search-widget-custom-item" selectable data-text$="[[item.name]]" role="option">
 										[[item.name]]
 									</div>
 								</template>
@@ -381,8 +381,7 @@
 									// Polymer's splice method causes empty results to show up for an
 									// unknown reason, so use a normal Array.prototype.splice...
 									self._liveSearchResults.splice(index, 0, {
-										name: organization.properties.name,
-										href: (organization.getLinkByRel(/\/organization-homepage$/) || {}).href
+										name: organization.properties.name
 									});
 									// ...then, if this is the last result to get spliced in, manually
 									// call notifySplices with the changes.

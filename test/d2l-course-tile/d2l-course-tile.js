@@ -54,6 +54,12 @@ describe('<d2l-course-tile>', function() {
 					rel: ['alternate'],
 					href: ''
 				}]
+			}, {
+				class: ['relative-uri'],
+				rel: ['item', 'https://api.brightspace.com/rels/organization-homepage'],
+				properties: {
+					path: 'http://example.com/2/home'
+				}
 			}]
 		},
 		enrollmentEntity,
@@ -110,8 +116,8 @@ describe('<d2l-course-tile>', function() {
 
 		it('should have the correct href', function() {
 			var anchor = widget.$$('a');
-			var homepageLink = organizationEntity.getLinkByRel('https://api.brightspace.com/rels/organization-homepage');
-			expect(anchor.href).to.equal(homepageLink.href);
+			var homepageLink = organizationEntity.getSubEntityByRel('https://api.brightspace.com/rels/organization-homepage');
+			expect(anchor.href).to.equal(homepageLink.properties.path);
 		});
 
 		it('should update the course name', function() {
