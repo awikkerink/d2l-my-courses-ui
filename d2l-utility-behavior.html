@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
+
 
 <script src="https://s.brightspace.com/lib/siren-parser/6.0.0/siren-parser.js"></script>
 <script>
@@ -11,7 +13,7 @@
 	* General utility functions that can be used in many places.
 	* @polymerBehavior window.D2L.MyCourses.UtilityBehavior
 	*/
-	window.D2L.MyCourses.UtilityBehavior = {
+	var behavior = {
 		// Creates a URL with a query from an Action and an object of required parameters
 		createActionUrl: function(action, parameters) {
 			parameters = parameters || {};
@@ -38,14 +40,23 @@
 			var selfLink = entity.getLinkByRel('self');
 			return selfLink.href;
 		},
-		getOrgUnitId: function(enrollmentId) {
-			if (enrollmentId && typeof enrollmentId === 'string') {
-				return /organizations.*?\/([0-9]+)/
-							.exec(enrollmentId)[1];
+		getOrgUnitId: function(enrollment) {
+			if (!enrollment) {
+				return;
+			}
+
+			var organizationLink = enrollment.getLinkByRel(this.HypermediaRels.organization);
+			if (organizationLink && organizationLink.href) {
+				return /\/([0-9]+$)/.exec(organizationLink.href)[1];
 			}
 		},
 		parseEntity: function(entity) {
 			return window.D2L.Hypermedia.Siren.Parse(entity);
 		}
 	};
+
+	window.D2L.MyCourses.UtilityBehavior = [
+		window.D2L.Hypermedia.HMConstantsBehavior,
+		behavior
+	];
 </script>

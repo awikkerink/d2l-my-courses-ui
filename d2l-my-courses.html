@@ -323,7 +323,6 @@
 					enrollmentEntities.forEach(function(enrollment) {
 						var enrollmentId = this.getEntityIdentifier(enrollment);
 
-						var orgUnitId = this.getOrgUnitId(enrollmentId);
 						if (enrollment.hasClass('pinned')) {
 							if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
 								newPinnedEnrollments.push(enrollment);
@@ -336,7 +335,10 @@
 							}
 						}
 
-						this._enrollmentIdMap[orgUnitId] = enrollmentId;
+						var orgUnitId = this.getOrgUnitId(enrollment);
+						if (orgUnitId) {
+							this._enrollmentIdMap[orgUnitId] = enrollmentId;
+						}
 					}, this);
 					this.getUpdates(Object.keys(this._enrollmentIdMap).join(','));
 					this.pinnedEnrollments = this.pinnedEnrollments.concat(newPinnedEnrollments);

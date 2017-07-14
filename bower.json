@@ -51,6 +51,7 @@
     "iron-overlay-behavior": "^1.10.1",
     "iron-scroll-threshold": "PolymerElements/iron-scroll-threshold#^1.0.2",
     "iron-pages": "^1.0.8",
-    "polymer": "^1.7.0"
+    "polymer": "^1.7.0",
+    "d2l-hm-constants-behavior": "Brightspace/d2l-hm-constants-behavior#^1.0.14"
   }
 }
