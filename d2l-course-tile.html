@@ -470,21 +470,24 @@ the user has in that organization - student, teacher, TA, etc.
 					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
 					this._pinnedChanged();
 					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
-					var organizationLink = organization.getLinkByRel('self');
 					if (this.updateCountMap) {
-						var orgUnitId = this.getOrgUnitId(organizationLink.href);
-						var update = this.updateCountMap[orgUnitId];
-						if (update) {
-							this.setCourseUpdates(update);
+						var orgUnitId = this.getOrgUnitId(this.enrollment);
+						if (orgUnitId) {
+							var update = this.updateCountMap[orgUnitId];
+							if (update) {
+								this.setCourseUpdates(update);
+							}
 						}
 					}
 				}
 			},
 			_onUpdatesChange: function(updateChange) {
-				var orgUnitId = this.getOrgUnitId(this.enrollmentId);
-				var update = updateChange.base[orgUnitId];
-				if (update) {
-					this.setCourseUpdates(update);
+				var orgUnitId = this.getOrgUnitId(this.enrollment);
+				if (orgUnitId) {
+					var update = updateChange.base[orgUnitId];
+					if (update) {
+						this.setCourseUpdates(update);
+					}
 				}
 			},
 			_checkDateBounds: function(organization, response) {
