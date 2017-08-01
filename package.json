@@ -8,7 +8,7 @@
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
     "test": "npm run test:lint:js && wct",
-    "test:lint:js": "eslint --ext .js,.html .",
+    "test:lint:js": "eslint --ext .js,.html . d2l-filter-menu-content/ demo/ lang/ test/",
     "test:no-lint": "wct -p"
   },
   "config": {
