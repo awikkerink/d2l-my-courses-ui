@@ -40,16 +40,6 @@
 			var selfLink = entity.getLinkByRel('self');
 			return selfLink.href;
 		},
-		getOrgUnitId: function(enrollment) {
-			if (!enrollment) {
-				return;
-			}
-
-			var organizationLink = enrollment.getLinkByRel(this.HypermediaRels.organization);
-			if (organizationLink && organizationLink.href) {
-				return /\/([0-9]+$)/.exec(organizationLink.href)[1];
-			}
-		},
 		parseEntity: function(entity) {
 			return window.D2L.Hypermedia.Siren.Parse(entity);
 		}

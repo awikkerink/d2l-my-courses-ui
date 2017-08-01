@@ -244,7 +244,6 @@
 			*/
 
 			_allCoursesCreated: false,
-			_enrollmentIdMap: {},
 
 			/*
 			* Listeners
@@ -324,11 +323,6 @@
 								newUnpinnedEnrollments.push(enrollment);
 								this._unpinnedCoursesMap[enrollmentId] = true;
 							}
-						}
-
-						var orgUnitId = this.getOrgUnitId(enrollment);
-						if (orgUnitId) {
-							this._enrollmentIdMap[orgUnitId] = enrollmentId;
 						}
 					}, this);
 
