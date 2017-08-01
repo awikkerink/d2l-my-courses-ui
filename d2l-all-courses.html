@@ -17,7 +17,6 @@
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="d2l-filter-menu-content/d2l-filter-menu-content.html">
 <link rel="import" href="d2l-search-widget-custom.html">
-<link rel="import" href="d2l-updates-behavior.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
 
@@ -136,7 +135,7 @@
 					tile-sizes="[[_tileSizes]]"
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
-					update-count-map="[[updateCountMap]]"
+					course-updates-config="[[courseUpdatesConfig]]"
 					telemetry-endpoint="[[telemetryEndpoint]]"
 					user-id="[[userId]]"
 					tenant-id="[[tenantId]]">
@@ -162,7 +161,7 @@
 					tile-sizes="[[_tileSizes]]"
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
-					update-count-map="[[updateCountMap]]"
+					course-updates-config="[[courseUpdatesConfig]]"
 					telemetry-endpoint="[[telemetryEndpoint]]"
 					user-id="[[userId]]"
 					tenant-id="[[tenantId]]">
@@ -196,6 +195,8 @@
 					type: String,
 					observer: '_advancedSearchUrlChanged'
 				},
+				// Types of notifications to include in update count in course tile
+				courseUpdatesConfig: Object,
 				// Default option in Sort menu
 				defaultSortValue: {
 					type: String,
@@ -303,8 +304,7 @@
 				window.D2L.MyCourses.CourseManagementBehavior,
 				window.D2L.MyCourses.UtilityBehavior,
 				window.D2L.Hypermedia.OrganizationHMBehavior,
-				window.D2L.MyCourses.AlertBehavior,
-				window.D2L.MyCourses.UpdatesBehavior
+				window.D2L.MyCourses.AlertBehavior
 			],
 			listeners: {
 				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening',
@@ -367,7 +367,6 @@
 					this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 				}, this);
 				this.set('delayLoad', false);
-				this.set('updateCountMap', this.updateCountMap);
 
 				setTimeout(function() {
 					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
@@ -632,14 +631,8 @@
 				var enrollmentEntities = enrollments.getSubEntitiesByClass('enrollment');
 				var newPinnedEnrollments = [];
 				var newUnpinnedEnrollments = [];
-				var orgUnitIds = [];
 				enrollmentEntities.forEach(function(enrollment) {
 					var enrollmentId = this.getEntityIdentifier(enrollment);
-
-					var orgUnitId = this.getOrgUnitId(enrollment);
-					if (orgUnitId) {
-						orgUnitIds.push(orgUnitId);
-					}
 
 					if (enrollment.hasClass('pinned')) {
 						if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
@@ -653,7 +646,7 @@
 						}
 					}
 				}, this);
-				this.getUpdates(orgUnitIds.join(','));
+
 				if (append) {
 					this._filteredPinnedEnrollments = this._filteredPinnedEnrollments.concat(newPinnedEnrollments);
 					this._filteredUnpinnedEnrollments = this._filteredUnpinnedEnrollments.concat(newUnpinnedEnrollments);
