@@ -109,8 +109,7 @@ describe('d2l-course-tile-responsive-grid-behavior', function() {
 				width: 992,
 				itemCount: 7,
 				expectedColumns: 4
-			}]
-			.forEach(function(scenario) {
+			}].forEach(function(scenario) {
 				var description = 'width: ' + scenario.width + '; itemCount: ' + scenario.itemCount;
 				var numberOfColumns = component._calcNumColumns(scenario.width, scenario.itemCount);
 				expect(numberOfColumns, description).to.equal(scenario.expectedColumns);
