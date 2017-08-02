@@ -168,6 +168,16 @@
 				_departmentsUrl: String,
 				// URL constructed to fetch a user's enrollments with the enrollments search Action
 				_enrollmentsSearchUrl: String,
+				// True when there are any enrollments (pinned or unpinned)
+				_hasEnrollments: {
+					type: Boolean,
+					value: false
+				},
+				// True when there are pinned enrollments (i.e. `pinnedEnrollments.length > 0`)
+				_hasPinnedEnrollments: {
+					type: Boolean,
+					value: false
+				},
 				// Object containing the last response from an enrollments search request
 				_lastEnrollmentsSearchResponse: Object,
 				// Object containing the IDs of previously loaded pinned enrollments, to avoid duplicates
@@ -206,6 +216,7 @@
 				'enrollment-unpinned': '_onEnrollmentPinAction'
 			},
 			observers: [
+				'_enrollmentsChanged(pinnedEnrollments.length, unpinnedEnrollments.length)',
 				'_updateEnrollmentAlerts(_hasEnrollments, _hasPinnedEnrollments)'
 			],
 			ready: function() {
@@ -238,6 +249,7 @@
 			*/
 
 			_allCoursesCreated: false,
+			_enrollmentIdMap: {},
 
 			/*
 			* Listeners
@@ -282,6 +294,20 @@
 						setTimeout(this._onStartedInactiveAlert.bind(this), 50);
 					} else {
 						this._fetchEnrollmentEntity(e.detail.orgUnitId, e.detail.isPinned);
+					}
+				}
+			},
+			_onFetchEnrollmentEntityResponse: function(pinned, response) {
+				if (response.detail.status === 200 || response.detail.status === 304) {
+					var enrollmentEntity = this.parseEntity(response.detail.xhr.response);
+
+					// Enforce specific pin state
+					this._setEnrollmentPinData(enrollmentEntity, pinned);
+
+					if (pinned) {
+						this._moveEnrollmentToPinnedList(enrollmentEntity);
+					} else {
+						this._moveEnrollmentToUnpinnedList(enrollmentEntity);
 					}
 				}
 			},
@@ -380,6 +406,10 @@
 			* Observers
 			*/
 
+			_enrollmentsChanged: function() {
+				this.set('_hasPinnedEnrollments', this.pinnedEnrollments.length > 0);
+				this.set('_hasEnrollments', this._hasPinnedEnrollments || this.unpinnedEnrollments.length > 0);
+			},
 			_updateEnrollmentAlerts: function(hasEnrollments, hasPinnedEnrollments) {
 				this._clearAlerts();
 
@@ -396,6 +426,12 @@
 			* Utility/helper functions
 			*/
 
+			_addEnrollmentToList: function(pinned, enrollmentEntity) {
+				var listName = (pinned ? 'pinned' : 'unpinned') + 'Enrollments';
+
+				this._setEnrollmentPinData(enrollmentEntity, pinned);
+				this.unshift(listName, enrollmentEntity);
+			},
 			_createAllCourses: function() {
 				if (!this._allCoursesCreated) {
 					var allCourses = document.createElement('d2l-all-courses');
@@ -403,9 +439,76 @@
 					this._allCoursesCreated = true;
 				}
 			},
+			_fetchEnrollmentEntity: function(orgUnitId, pinned) {
+				if (!this._fetchEnrollmentAjaxPinned) {
+					this._fetchEnrollmentAjaxPinned = document.createElement('d2l-ajax');
+					this._fetchEnrollmentAjaxPinned.onResponse =
+						this._onFetchEnrollmentEntityResponse.bind(this, true);
+				}
+
+				if (!this._fetchEnrollmentAjaxUnpinned) {
+					this._fetchEnrollmentAjaxUnpinned = document.createElement('d2l-ajax');
+					this._fetchEnrollmentAjaxUnpinned.onResponse =
+						this._onFetchEnrollmentEntityResponse.bind(this, false);
+				}
+
+				var ajax = pinned
+					? this._fetchEnrollmentAjaxPinned
+					: this._fetchEnrollmentAjaxUnpinned;
+
+				ajax.url = this.fetchEnrollmentUrl + orgUnitId;
+				ajax.method = 'GET';
+				ajax.generateRequest();
+			},
 			_keypressOpenAllCoursesView: function(e) {
 				if ( e.code === 'Space' || e.code === 'Enter' ) {
 					return this._openAllCoursesView(e);
+				}
+			},
+			_moveEnrollmentToPinnedList: function(enrollment) {
+				var enrollmentId, enrollmentEntity;
+
+				if (typeof enrollment === 'string') {
+					enrollmentId = enrollment;
+				} else {
+					enrollmentEntity = enrollment;
+					enrollmentId = this.getEntityIdentifier(enrollmentEntity);
+				}
+
+				for (var index = 0; index < this.unpinnedEnrollments.length; index++) {
+					var pinnedEnrollmentId = this.getEntityIdentifier(this.unpinnedEnrollments[index]);
+					if (pinnedEnrollmentId === enrollmentId) {
+						enrollmentEntity = enrollmentEntity || this.unpinnedEnrollments[index];
+						this.splice('unpinnedEnrollments', index, 1);
+						break;
+					}
+				}
+
+				if (enrollmentEntity) {
+					this._addEnrollmentToList(true, enrollmentEntity);
+				}
+			},
+			_moveEnrollmentToUnpinnedList: function(enrollment) {
+				var enrollmentId, enrollmentEntity;
+
+				if (typeof enrollment === 'string') {
+					enrollmentId = enrollment;
+				} else {
+					enrollmentEntity = enrollment;
+					enrollmentId = this.getEntityIdentifier(enrollmentEntity);
+				}
+
+				for (var index = 0; index < this.pinnedEnrollments.length; index++) {
+					var unpinnedEnrollmentId = this.getEntityIdentifier(this.pinnedEnrollments[index]);
+					if (unpinnedEnrollmentId === enrollmentId) {
+						enrollmentEntity = enrollmentEntity || this.pinnedEnrollments[index];
+						this.splice('pinnedEnrollments', index, 1);
+						break;
+					}
+				}
+
+				if (enrollmentEntity) {
+					this._addEnrollmentToList(false, enrollmentEntity);
 				}
 			},
 			_openAllCoursesView: function(e) {

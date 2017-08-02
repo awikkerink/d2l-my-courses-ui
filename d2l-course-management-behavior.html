@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="d2l-utility-behavior.html">
 
 <script>
 	'use strict';
@@ -8,15 +7,8 @@
 		window.D2L = window.D2L || {};
 		window.D2L.MyCourses = window.D2L.MyCourses || {};
 
-		/*
-		* Behavior that allows for course management
-		*
-		* "Management" in this case means having a pinned and unpinned list, and supporting switching an enrollment between the
-		* two.
-		*
-		* @polymerBehavior window.D2L.MyCourses.CourseManagementBehavior
-		*/
-		window.D2L.MyCourses.CourseManagementBehaviorImpl = {
+		/* @polymerBehavior window.D2L.MyCourses.CourseManagementBehavior */
+		window.D2L.MyCourses.CourseManagementBehavior = {
 			properties: {
 				// Set of pinned enrollment Entities
 				pinnedEnrollments: {
@@ -33,86 +25,6 @@
 						return [];
 					},
 					notify: true
-				},
-				// True when there are pinned enrollments (i.e. `pinnedEnrollments.length > 0`)
-				_hasPinnedEnrollments: {
-					type: Boolean,
-					value: false
-				},
-				// True when there are any enrollments (pinned or unpinned)
-				_hasEnrollments: {
-					type: Boolean,
-					value: false
-				}
-			},
-			_enrollmentIdMap: {},
-			listeners: {
-				'tile-remove-complete': '_onTileRemoveComplete'
-			},
-			observers: [
-				'_enrollmentsChanged(pinnedEnrollments.length, unpinnedEnrollments.length)'
-			],
-			_enrollmentsChanged: function() {
-				this.set('_hasPinnedEnrollments', this.pinnedEnrollments.length > 0);
-				this.set('_hasEnrollments', this._hasPinnedEnrollments || this.unpinnedEnrollments.length > 0);
-			},
-			_addEnrollmentToList: function(pinned, enrollmentEntity) {
-				var listName = (pinned ? 'pinned' : 'unpinned') + 'Enrollments';
-
-				this._setEnrollmentPinData(enrollmentEntity, pinned);
-				this.unshift(listName, enrollmentEntity);
-			},
-			_moveEnrollmentToPinnedList: function(enrollment) {
-				var enrollmentId, enrollmentEntity;
-
-				if (typeof enrollment === 'string') {
-					enrollmentId = enrollment;
-				} else {
-					enrollmentEntity = enrollment;
-					enrollmentId = this.getEntityIdentifier(enrollmentEntity);
-				}
-
-				for (var index = 0; index < this.unpinnedEnrollments.length; index++) {
-					var pinnedEnrollmentId = this.getEntityIdentifier(this.unpinnedEnrollments[index]);
-					if (pinnedEnrollmentId === enrollmentId) {
-						enrollmentEntity = enrollmentEntity || this.unpinnedEnrollments[index];
-						this.splice('unpinnedEnrollments', index, 1);
-						break;
-					}
-				}
-
-				if (enrollmentEntity) {
-					this._addEnrollmentToList(true, enrollmentEntity);
-				}
-			},
-			_moveEnrollmentToUnpinnedList: function(enrollment) {
-				var enrollmentId, enrollmentEntity;
-
-				if (typeof enrollment === 'string') {
-					enrollmentId = enrollment;
-				} else {
-					enrollmentEntity = enrollment;
-					enrollmentId = this.getEntityIdentifier(enrollmentEntity);
-				}
-
-				for (var index = 0; index < this.pinnedEnrollments.length; index++) {
-					var unpinnedEnrollmentId = this.getEntityIdentifier(this.pinnedEnrollments[index]);
-					if (unpinnedEnrollmentId === enrollmentId) {
-						enrollmentEntity = enrollmentEntity || this.pinnedEnrollments[index];
-						this.splice('pinnedEnrollments', index, 1);
-						break;
-					}
-				}
-
-				if (enrollmentEntity) {
-					this._addEnrollmentToList(false, enrollmentEntity);
-				}
-			},
-			_onTileRemoveComplete: function(e) {
-				if (e.detail.pinned) {
-					this._moveEnrollmentToPinnedList(e.detail.enrollment);
-				} else {
-					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
 				}
 			},
 			_setEnrollmentPinData: function(entity, isPinned) {
@@ -131,47 +43,7 @@
 					entity.actions[0].fields[0].value = true;
 					entity._actionsByName['pin-course'] = entity.actions[0];
 				}
-			},
-			_fetchEnrollmentEntity: function(orgUnitId, pinned) {
-				if (!this._fetchEnrollmentAjaxPinned) {
-					this._fetchEnrollmentAjaxPinned = document.createElement('d2l-ajax');
-					this._fetchEnrollmentAjaxPinned.onResponse =
-						this._onFetchEnrollmentEntityResponse.bind(this, true);
-				}
-
-				if (!this._fetchEnrollmentAjaxUnpinned) {
-					this._fetchEnrollmentAjaxUnpinned = document.createElement('d2l-ajax');
-					this._fetchEnrollmentAjaxUnpinned.onResponse =
-						this._onFetchEnrollmentEntityResponse.bind(this, false);
-				}
-
-				var ajax = pinned
-					? this._fetchEnrollmentAjaxPinned
-					: this._fetchEnrollmentAjaxUnpinned;
-
-				ajax.url = this.fetchEnrollmentUrl + orgUnitId;
-				ajax.method = 'GET';
-				ajax.generateRequest();
-			},
-			_onFetchEnrollmentEntityResponse: function(pinned, response) {
-				if (response.detail.status === 200 || response.detail.status === 304) {
-					var enrollmentEntity = this.parseEntity(response.detail.xhr.response);
-
-					// Enforce specific pin state
-					this._setEnrollmentPinData(enrollmentEntity, pinned);
-
-					if (pinned) {
-						this._moveEnrollmentToPinnedList(enrollmentEntity);
-					} else {
-						this._moveEnrollmentToUnpinnedList(enrollmentEntity);
-					}
-				}
 			}
 		};
-
-		window.D2L.MyCourses.CourseManagementBehavior = [
-			window.D2L.MyCourses.CourseManagementBehaviorImpl,
-			window.D2L.MyCourses.UtilityBehavior
-		];
 	})();
 </script>
