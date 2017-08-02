@@ -221,19 +221,14 @@
 			],
 			ready: function() {
 				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
-				this._onEnrollmentPinnedMessage = this._onEnrollmentPinnedMessage.bind(this);
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseTiles);
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseList);
 			},
 			attached: function() {
 				this._rootEnrollmentRequest();
 
-				document.body.addEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._onStartedInactiveAlert.bind(this));
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
-			},
-			detached: function() {
-				document.body.removeEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 			},
 
 			/*
@@ -279,36 +274,6 @@
 				this._removeAlert('startedInactiveCourses');
 				if (this.$$('d2l-course-tile-grid').checkForStartedInactive(type)) {
 					this._addAlert('warning', 'startedInactiveCourses', this.localize('startedInactiveAlert'));
-				}
-			},
-			_onEnrollmentPinnedMessage: function(e) {
-				if (e.target !== this) {
-					var enrollmentId = this._enrollmentIdMap[e.detail.orgUnitId];
-
-					if (enrollmentId) {
-						if (e.detail.isPinned) {
-							this._moveEnrollmentToPinnedList(enrollmentId);
-						} else {
-							this._moveEnrollmentToUnpinnedList(enrollmentId);
-						}
-						setTimeout(this._onStartedInactiveAlert.bind(this), 50);
-					} else {
-						this._fetchEnrollmentEntity(e.detail.orgUnitId, e.detail.isPinned);
-					}
-				}
-			},
-			_onFetchEnrollmentEntityResponse: function(pinned, response) {
-				if (response.detail.status === 200 || response.detail.status === 304) {
-					var enrollmentEntity = this.parseEntity(response.detail.xhr.response);
-
-					// Enforce specific pin state
-					this._setEnrollmentPinData(enrollmentEntity, pinned);
-
-					if (pinned) {
-						this._moveEnrollmentToPinnedList(enrollmentEntity);
-					} else {
-						this._moveEnrollmentToUnpinnedList(enrollmentEntity);
-					}
 				}
 			},
 			_onSimpleOverlayClosed: function() {
@@ -438,27 +403,6 @@
 					this.$.allCoursesPlaceholder.appendChild(allCourses);
 					this._allCoursesCreated = true;
 				}
-			},
-			_fetchEnrollmentEntity: function(orgUnitId, pinned) {
-				if (!this._fetchEnrollmentAjaxPinned) {
-					this._fetchEnrollmentAjaxPinned = document.createElement('d2l-ajax');
-					this._fetchEnrollmentAjaxPinned.onResponse =
-						this._onFetchEnrollmentEntityResponse.bind(this, true);
-				}
-
-				if (!this._fetchEnrollmentAjaxUnpinned) {
-					this._fetchEnrollmentAjaxUnpinned = document.createElement('d2l-ajax');
-					this._fetchEnrollmentAjaxUnpinned.onResponse =
-						this._onFetchEnrollmentEntityResponse.bind(this, false);
-				}
-
-				var ajax = pinned
-					? this._fetchEnrollmentAjaxPinned
-					: this._fetchEnrollmentAjaxUnpinned;
-
-				ajax.url = this.fetchEnrollmentUrl + orgUnitId;
-				ajax.method = 'GET';
-				ajax.generateRequest();
 			},
 			_keypressOpenAllCoursesView: function(e) {
 				if ( e.code === 'Space' || e.code === 'Enter' ) {

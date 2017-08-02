@@ -496,50 +496,6 @@ describe('d2l-my-courses', function() {
 					done();
 				});
 			});
-
-			it('should move the correct pinned enrollment to the unpinned list when receiving an external unpin event', function(done) {
-				var coursePinnedChangeEvent = new CustomEvent(
-					'd2l-course-pinned-change', {
-						detail: {
-							orgUnitId: 1,
-							isPinned: false
-						}
-					}
-				);
-
-				expect(widget.pinnedEnrollments.length).to.equal(1);
-				expect(widget.unpinnedEnrollments.length).to.equal(1);
-
-				document.body.dispatchEvent(coursePinnedChangeEvent);
-
-				setTimeout(function() {
-					expect(widget.pinnedEnrollments.length).to.equal(0);
-					expect(widget.unpinnedEnrollments.length).to.equal(2);
-					done();
-				});
-			});
-
-			it('should move the correct unpinned enrollment to the pinned list when receiving an external pin event', function(done) {
-				var coursePinnedChangeEvent = new CustomEvent(
-					'd2l-course-pinned-change', {
-						detail: {
-							orgUnitId: 2,
-							isPinned: true
-						}
-					}
-				);
-
-				expect(widget.pinnedEnrollments.length).to.equal(1);
-				expect(widget.unpinnedEnrollments.length).to.equal(1);
-
-				document.body.dispatchEvent(coursePinnedChangeEvent);
-
-				setTimeout(function() {
-					expect(widget.pinnedEnrollments.length).to.equal(2);
-					expect(widget.unpinnedEnrollments.length).to.equal(0);
-					done();
-				});
-			});
 		});
 	});
 
