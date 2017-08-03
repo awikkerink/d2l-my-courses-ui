@@ -1,6 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
-
 
 <script src="https://s.brightspace.com/lib/siren-parser/6.1.0/siren-parser-global.js"></script>
 <script>
@@ -13,7 +11,7 @@
 	* General utility functions that can be used in many places.
 	* @polymerBehavior window.D2L.MyCourses.UtilityBehavior
 	*/
-	var behavior = {
+	window.D2L.MyCourses.UtilityBehavior = {
 		// Creates a URL with a query from an Action and an object of required parameters
 		createActionUrl: function(action, parameters) {
 			parameters = parameters || {};
@@ -44,9 +42,4 @@
 			return window.D2L.Hypermedia.Siren.Parse(entity);
 		}
 	};
-
-	window.D2L.MyCourses.UtilityBehavior = [
-		window.D2L.Hypermedia.HMConstantsBehavior,
-		behavior
-	];
 </script>

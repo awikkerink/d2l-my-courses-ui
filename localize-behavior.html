@@ -16,14 +16,8 @@
 	'use strict';
 
 	(function() {
-		window.D2L = window.D2L || {};
-		window.D2L.MyCourses = window.D2L.MyCourses || {};
-
-		/*
-		* Behavior for elements that require localization, based on `app-localize-behavior`
-		* @polymerBehavior window.D2L.MyCourses.LocalizeBehavior
-		*/
-		window.D2L.MyCourses.LocalizeBehaviorImpl = {
+		/* @polymerBehavior localizeBehaviorImpl */
+		var localizeBehaviorImpl = {
 			properties: {
 				language: {
 					type: String,
@@ -73,10 +67,15 @@
 			}
 		};
 
-		/* @polymerBehavior */
+		window.D2L = window.D2L || {};
+		window.D2L.MyCourses = window.D2L.MyCourses || {};
+		/*
+		* Behavior for elements that require localization, based on `app-localize-behavior`
+		* @polymerBehavior window.D2L.MyCourses.LocalizeBehavior
+		*/
 		window.D2L.MyCourses.LocalizeBehavior = [
 			Polymer.AppLocalizeBehavior,
-			window.D2L.MyCourses.LocalizeBehaviorImpl,
+			localizeBehaviorImpl,
 			window.D2L.MyCourses.LocalizeBehavior.LangArBehavior,
 			window.D2L.MyCourses.LocalizeBehavior.LangEnBehavior,
 			window.D2L.MyCourses.LocalizeBehavior.LangEsBehavior,
