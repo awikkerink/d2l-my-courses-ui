@@ -5,6 +5,7 @@
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
+<link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../d2l-menu/d2l-menu-item-radio.html">
@@ -299,6 +300,7 @@
 				}
 			},
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.CourseManagementBehavior,
@@ -424,7 +426,7 @@
 				if (this.$['all-courses'].opened && this.lastEnrollmentsSearchResponse) {
 					var lastResponseEntity = this.parseEntity(this.lastEnrollmentsSearchResponse);
 
-					if (lastResponseEntity && lastResponseEntity.hasLink('next')) {
+					if (lastResponseEntity && lastResponseEntity.hasLinkByRel('next')) {
 						this._enrollmentsSearchUrl = lastResponseEntity.getLinkByRel('next').href;
 						this.toggleClass('d2l-all-courses-hidden', false, this.$.lazyLoadSpinner);
 						this.$.lazyLoadSpinner.scrollIntoView();
@@ -510,11 +512,11 @@
 				if (entity) {
 					var enrollmentsRoot = this.parseEntity(entity);
 
-					if (!enrollmentsRoot.hasAction('search-my-enrollments')) {
+					if (!enrollmentsRoot.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
 						return;
 					}
 
-					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
+					var searchAction = enrollmentsRoot.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 
 					this.set('_enrollmentsSearchAction', searchAction);
 				}
@@ -628,13 +630,13 @@
 				this._filteredUnpinnedEnrollments = this.unpinnedEnrollments.slice();
 			},
 			_updateFilteredEnrollments: function(enrollments, append) {
-				var enrollmentEntities = enrollments.getSubEntitiesByClass('enrollment');
+				var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);
 				var newPinnedEnrollments = [];
 				var newUnpinnedEnrollments = [];
 				enrollmentEntities.forEach(function(enrollment) {
 					var enrollmentId = this.getEntityIdentifier(enrollment);
 
-					if (enrollment.hasClass('pinned')) {
+					if (enrollment.hasClass(this.HypermediaClasses.enrollments.pinned)) {
 						if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
 							newPinnedEnrollments.push(enrollment);
 							this._pinnedCoursesMap[enrollmentId] = true;

@@ -62,7 +62,7 @@ describe('d2l-filter-menu-content', function() {
 					rel: ['self'],
 					href: '/enrollments'
 				}, {
-					rel: ['/organization'],
+					rel: ['https://api.brightspace.com/rels/organization'],
 					href: '/organizations/1'
 				}]
 			};
@@ -119,7 +119,7 @@ describe('d2l-filter-menu-content', function() {
 					rel: ['self'],
 					href: '/enrollments'
 				}, {
-					rel: ['/organization'],
+					rel: ['https://api.brightspace.com/rels/organization'],
 					href: '/organizations/1'
 				}]
 			}];

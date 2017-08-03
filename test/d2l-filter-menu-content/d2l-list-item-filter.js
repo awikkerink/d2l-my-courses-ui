@@ -12,7 +12,7 @@ beforeEach(function() {
 			rel: ['self'],
 			href: '/enrollments'
 		}, {
-			rel: ['/organization'],
+			rel: ['https://api.brightspace.com/rels/organization'],
 			href: '/organizations/1'
 		}]
 	};

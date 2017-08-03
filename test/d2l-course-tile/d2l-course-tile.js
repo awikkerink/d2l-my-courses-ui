@@ -116,7 +116,7 @@ describe('<d2l-course-tile>', function() {
 
 		it('should have the correct href', function() {
 			var anchor = widget.$$('a');
-			var homepageLink = organizationEntity.getSubEntityByRel('https://api.brightspace.com/rels/organization-homepage');
+			var homepageLink = organizationEntity.getSubEntityByRel(widget.HypermediaRels.organizationHomepage);
 			expect(anchor.href).to.equal(homepageLink.properties.path);
 		});
 
