@@ -307,6 +307,10 @@ the user has in that organization - student, teacher, TA, etc.
 			_pinAnimationInProgress: false,
 			_telemetryRequest: null,
 			_generateOrganizationRequest: function() {
+				if (!this._organizationUrl) {
+					return;
+				}
+
 				this._organizationRequest = this._organizationRequest || document.createElement('d2l-ajax');
 				this._organizationRequest.url = this._organizationUrl;
 				this._organizationRequest.headers = {
@@ -319,6 +323,10 @@ the user has in that organization - student, teacher, TA, etc.
 				this._organizationRequest.generateRequest();
 			},
 			_generateNotificationsRequest: function() {
+				if (!this._notificationsUrl) {
+					return;
+				}
+
 				this._notificationsRequest = this._notificationsRequest || document.createElement('d2l-ajax');
 				this._notificationsRequest.url = this._notificationsUrl;
 				this._notificationsRequest.headers = {
