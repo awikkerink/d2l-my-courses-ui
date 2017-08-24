@@ -28,7 +28,7 @@
 					tenant-id="[[tenantId]]"
 					telemetry-endpoint="[[telemetryEndpoint]]"
 					show-course-code="[[showCourseCode]]"
-					update-count-map="[[updateCountMap]]">
+					course-updates-config="[[courseUpdatesConfig]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -69,7 +69,9 @@
 				userId: String,
 				tenantId: String,
 				telemetryEndpoint: String,
-				locale: String
+				locale: String,
+				// Types of notifications to include in update count in course tile
+				courseUpdatesConfig: Object
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileSlidingGridBehavior,
