@@ -6,6 +6,7 @@
 		<title>d2l-touch-menu demo</title>
 		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 		<script>
+			'use strict';
 			window.Polymer = {
 				dom: 'shadow',
 				lazyRegister: true
@@ -20,32 +21,6 @@
 	<body unresolved class="d2l-typography">
 		<main>
 			<h1>d2l-touch-menu demo</h1>
-			<script>
-				function xHovered(e) {
-					if(e.detail.hoverState === true) {
-						document.getElementById('alert-text').classList.add('hover');
-					} else {
-						document.getElementById('alert-text').classList.remove('hover');
-					}
-				}
-
-				function xSelected() {
-					var alertText = document.getElementById('alert-text');
-					alertText.className = 'selected';
-
-					setTimeout(function() {
-						this.className = '';
-					}.bind(alertText), 1000);
-				}
-
-				function menuOpened(e) {
-					document.getElementById('alert-text').classList.add('menu-open');
-				}
-
-				function menuClosed(e) {
-					document.getElementById('alert-text').classList.remove('menu-open');
-				}
-			</script>
 			<style>
 				div {
 					border: 1px solid green;
@@ -87,6 +62,31 @@
 				</d2l-touch-menu>
 			</div>
 			<script>
+				'use strict';
+				function xHovered(e) {
+					if (e.detail.hoverState === true) {
+						document.getElementById('alert-text').classList.add('hover');
+					} else {
+						document.getElementById('alert-text').classList.remove('hover');
+					}
+				}
+
+				function xSelected() {
+					var alertText = document.getElementById('alert-text');
+					alertText.className = 'selected';
+
+					setTimeout(function() {
+						this.className = '';
+					}.bind(alertText), 1000);
+				}
+
+				function menuOpened() {
+					document.getElementById('alert-text').classList.add('menu-open');
+				}
+
+				function menuClosed() {
+					document.getElementById('alert-text').classList.remove('menu-open');
+				}
 				document.getElementById('menu-parent').addEventListener('my-hover-event', xHovered);
 				document.getElementById('menu-parent').addEventListener('my-selection-event', xSelected);
 				document.getElementById('menu-parent').addEventListener('touch-menu-open', menuOpened);

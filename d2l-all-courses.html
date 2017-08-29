@@ -17,8 +17,8 @@
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="d2l-filter-menu-content/d2l-filter-menu-content.html">
 <link rel="import" href="d2l-search-widget-custom.html">
-<link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
+<link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-all-courses">
 	<template>
@@ -35,7 +35,6 @@
 		<d2l-simple-overlay
 			id="all-courses"
 			title-name="{{localize('allCourses')}}"
-			locale="[[locale]]"
 			close-simple-overlay-alt-text="{{localize('closeSimpleOverlayAltText')}}"
 			with-backdrop
 			restore-focus-on-close>
@@ -225,6 +224,7 @@
 					value: function() { return []; },
 					observer: '_pinnedEnrollmentsChanged'
 				},
+				showCourseCode: Boolean,
 				// the endpoint for the telemetry service
 				telemetryEndpoint: String,
 				// tenant ID sent with telemetry requests
