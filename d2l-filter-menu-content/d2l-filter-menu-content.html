@@ -181,19 +181,14 @@
 				this.toggleClass('d2l-filter-menu-content-hidden', false, this.$.filterHeader);
 			},
 			_myEnrollmentsEntityChanged: function(entity) {
-				// Set up search URLs and search Actions for filter dropdown
-				if (entity && entity.actions) {
+				// Set up search URLs for filter dropdown
+				if (entity) {
 					var myEnrollmentsEntity = this.parseEntity(entity);
 					if (myEnrollmentsEntity.hasLinkByRel(this.HypermediaRels.departments)) {
 						this.set('_departmentsUrl', myEnrollmentsEntity.getLinkByRel(this.HypermediaRels.departments).href);
-					} else if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.addDepartmentFilter))	{
-						this.set('_departmentsUrl', this.createActionUrl(myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.addDepartmentFilter)));
 					}
-
 					if (myEnrollmentsEntity.hasLinkByRel(this.HypermediaRels.semesters)) {
 						this.set('_semestersUrl', myEnrollmentsEntity.getLinkByRel(this.HypermediaRels.semesters).href);
-					} else if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.addSemesterFilter)) {
-						this.set('_semestersUrl', this.createActionUrl(myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.addSemesterFilter)));
 					}
 				}
 			},

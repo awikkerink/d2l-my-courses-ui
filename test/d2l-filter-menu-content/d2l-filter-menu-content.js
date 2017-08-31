@@ -8,13 +8,16 @@ describe('d2l-filter-menu-content', function() {
 
 	beforeEach(function() {
 		myEnrollmentsEntity = window.D2L.Hypermedia.Siren.Parse({
-			actions: [{
-				name: 'add-semester-filter',
-				href: '/enrollments/semesters'
-			}, {
-				name: 'add-department-filter',
-				href: '/enrollments/departments'
-			}]
+			links: [
+				{
+					rel: ['https://api.brightspace.com/rels/semesters'],
+					href: '/enrollments/semesters'
+				},
+				{
+					rel: ['https://api.brightspace.com/rels/departments'],
+					href: '/enrollments/departments'
+				}
+			]
 		});
 		component = fixture('d2l-filter-menu-content-fixture');
 	});
