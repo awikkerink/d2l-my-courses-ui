@@ -179,19 +179,14 @@
 				this.toggleClass('d2l-filter-menu-content-hidden', false, this.$.filterHeader);
 			},
 			_myEnrollmentsEntityChanged: function(entity) {
-				// Set up search URLs and search Actions for filter dropdown
-				if (entity && entity.actions) {
+				// Set up search URLs for filter dropdown
+				if (entity) {
 					var myEnrollmentsEntity = this.parseEntity(entity);
 					if (myEnrollmentsEntity.hasLinkByRel('https://api.brightspace.com/rels/departments')) {
 						this.set('_departmentsUrl', myEnrollmentsEntity.getLinkByRel('https://api.brightspace.com/rels/departments').href);
-					} else if (myEnrollmentsEntity.hasAction('add-department-filter'))	{
-						this.set('_departmentsUrl', this.createActionUrl(myEnrollmentsEntity.getActionByName('add-department-filter')));
 					}
-
 					if (myEnrollmentsEntity.hasLinkByRel('https://api.brightspace.com/rels/semesters')) {
 						this.set('_semestersUrl', myEnrollmentsEntity.getLinkByRel('https://api.brightspace.com/rels/semesters').href);
-					} else if (myEnrollmentsEntity.hasAction('add-semester-filter')) {
-						this.set('_semestersUrl', this.createActionUrl(myEnrollmentsEntity.getActionByName('add-semester-filter')));
 					}
 				}
 			},
