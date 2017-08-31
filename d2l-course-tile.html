@@ -323,7 +323,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._organizationRequest.generateRequest();
 			},
 			_generateNotificationsRequest: function() {
-				if (!this._notificationsUrl) {
+				if (!this._notificationsUrl || !this.courseUpdatesConfig) {
 					return;
 				}
 
