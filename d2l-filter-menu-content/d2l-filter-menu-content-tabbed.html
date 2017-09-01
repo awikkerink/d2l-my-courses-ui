@@ -1,6 +1,7 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../../d2l-colors/d2l-colors.html">
+<link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../../d2l-menu/d2l-menu.html">
 <link rel="import" href="../../d2l-search-widget/d2l-search-widget.html">
 <link rel="import" href="../../d2l-typography/d2l-typography-shared-styles.html">
@@ -219,6 +220,7 @@
 				filterStandardDepartmentName: String
 			},
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
@@ -270,7 +272,7 @@
 			_loadCompleteCallback: null,
 			_checkSelected: function(entity) {
 				// Checks if the given entity should be "selected" - used when semester/department search results change mostly
-				var id = entity.href || entity.getLinkByRel(/\/organization$/).href;
+				var id = entity.href || entity.getLinkByRel(this.HypermediaRels.organization).href;
 				return this._currentFilters.indexOf(id) > -1;
 			},
 			_clearFilters: function() {
@@ -304,17 +306,17 @@
 					var myEnrollmentsEntity = this.parseEntity(entity);
 
 					this._searchSemestersAction = undefined;
-					if (myEnrollmentsEntity.hasActionByName('search-my-semesters')) {
-						this._searchSemestersAction = myEnrollmentsEntity.getActionByName('search-my-semesters');
-					} else if (myEnrollmentsEntity.hasActionByName('add-semester-filter')) {
-						this._searchSemestersAction = myEnrollmentsEntity.getActionByName('add-semester-filter');
+					if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMySemesters)) {
+						this._searchSemestersAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMySemesters);
+					} else if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.addSemesterFilter)) {
+						this._searchSemestersAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.addSemesterFilter);
 					}
 
 					this._searchDepartmentsAction = undefined;
-					if (myEnrollmentsEntity.hasActionByName('search-my-departments')) {
-						this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName('search-my-departments');
-					} else if (myEnrollmentsEntity.hasActionByName('add-department-filter')) {
-						this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName('add-department-filter');
+					if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyDepartments)) {
+						this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyDepartments);
+					} else if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.addDepartmentFilter)) {
+						this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.addDepartmentFilter);
 					}
 
 					this._oneTab = !this._searchDepartmentsAction || !this._searchSemestersAction;

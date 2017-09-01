@@ -2,6 +2,7 @@
 <link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-alert/d2l-alert.html">
+<link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../d2l-link/d2l-link.html">
 <link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../d2l-simple-overlay/d2l-simple-overlay.html">
@@ -199,6 +200,7 @@
 				}
 			},
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.InteractionDetectionBehavior,
@@ -283,11 +285,11 @@
 				if (response.detail.status === 200) {
 					var enrollmentsRoot = this.parseEntity(response.detail.xhr.response);
 
-					if (!enrollmentsRoot.hasAction('search-my-enrollments')) {
+					if (!enrollmentsRoot.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
 						return;
 					}
 
-					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
+					var searchAction = enrollmentsRoot.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 					this.fetchEnrollmentUrl = searchAction.href + '/organizations/';
 
 					var query = {
@@ -305,14 +307,14 @@
 			_onEnrollmentsSearchResponse: function(response) {
 				if (response.detail.status === 200) {
 					var enrollments = this.parseEntity(response.detail.xhr.response);
-					var enrollmentEntities = enrollments.getSubEntitiesByClass('enrollment');
+					var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);
 					var newPinnedEnrollments = [];
 					var newUnpinnedEnrollments = [];
 
 					enrollmentEntities.forEach(function(enrollment) {
 						var enrollmentId = this.getEntityIdentifier(enrollment);
 
-						if (enrollment.hasClass('pinned')) {
+						if (enrollment.hasClass(this.HypermediaClasses.enrollments.pinned)) {
 							if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
 								newPinnedEnrollments.push(enrollment);
 								this._pinnedCoursesMap[enrollmentId] = true;

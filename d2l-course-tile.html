@@ -3,6 +3,7 @@
 <link rel="import" href="../d2l-course-image/d2l-course-image.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
+<link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
@@ -193,6 +194,7 @@ the user has in that organization - student, teacher, TA, etc.
 				}
 			},
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior,
 				window.D2L.Hypermedia.OrganizationHMBehavior
@@ -218,7 +220,9 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			// Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
 			pinClickHandler: function(isTouch) {
-				var pinAction = this.pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
+				var pinAction = this.pinned
+					? this.enrollment.getActionByName(this.HypermediaActions.enrollments.unpinCourse)
+					: this.enrollment.getActionByName(this.HypermediaActions.enrollments.pinCourse);
 
 				// This value is purely for UI responsiveness - if the request fails, this value will be set back to
 				// the previous value in the error handler; if the request succeeds, we also set it in the response
@@ -336,9 +340,9 @@ the user has in that organization - student, teacher, TA, etc.
 				this._notificationsRequest.generateRequest();
 			},
 			_enrollmentChanged: function() {
-				this.pinned = this.enrollment.hasClass('pinned');
+				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
 
-				var organizationLink = this.enrollment.getLinkByRel(/\/organization$/);
+				var organizationLink = this.enrollment.getLinkByRel(this.HypermediaRels.organization);
 
 				if (!this._organizationUrl || this._organizationUrl.indexOf(organizationLink.href) !== 0) {
 					this._organizationUrl = organizationLink.href + '?embedDepth=1';
@@ -436,14 +440,14 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_onEnrollmentPinError: function() {
 				// Just revert back to whatever pin state we already had stored
-				this.pinned = this.enrollment.hasClass('pinned');
+				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
 			},
 			_onEnrollmentPinResponse: function(response) {
 				if (response.detail.status === 200) {
 					// The pin action returns the updated enrollment, so update
 					// this.enrollment with the modified one
 					this.enrollment = this.parseEntity(response.detail.xhr.response);
-					this.pinned = this.enrollment.hasClass('pinned');
+					this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
 				}
 			},
 			_onOrganizationResponse: function(response) {
@@ -453,13 +457,12 @@ the user has in that organization - student, teacher, TA, etc.
 					this._organization = organization;
 					this._checkDateBounds(organization, response);
 
-					var rel = /course-offering-info-page/;
-					var courseInfoUrl = organization && organization.getLinkByRel(rel);
-					this._courseInfoUrl = (courseInfoUrl) ? courseInfoUrl.href : null;
+					var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
+					this._courseInfoUrl = courseInfoUrl ? courseInfoUrl.href : null;
 
 					this._setCourseImageSrc();
 
-					var homepageEntity = organization.getSubEntityByRel(/\/organization-homepage$/);
+					var homepageEntity = organization.getSubEntityByRel(this.HypermediaRels.organizationHomepage);
 					if (homepageEntity !== null) {
 						this._organizationHomepageUrl = homepageEntity.properties.path;
 					}
@@ -471,7 +474,7 @@ the user has in that organization - student, teacher, TA, etc.
 					this._pinnedChanged();
 					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
 
-					var notificationsLink = organization && organization.getLinkByRel(/\/organization-notifications$/);
+					var notificationsLink = organization && organization.getLinkByRel(this.HypermediaRels.organizationNotifications);
 					this._notificationsUrl = notificationsLink ? notificationsLink.href : null;
 					this._generateNotificationsRequest();
 				}
@@ -603,10 +606,10 @@ the user has in that organization - student, teacher, TA, etc.
 				this._onUnpinHover({detail: {hoverState: false}});
 			},
 			_getCanChangeCourseImage: function(organization) {
-				return organization && organization.getActionByName('set-catalog-image');
+				return organization && organization.getActionByName(this.HypermediaActions.organizations.setCatalogImage);
 			},
 			_setCourseImageSrc: function() {
-				this._image = this._organization.getSubEntityByClass('course-image');
+				this._image = this._organization.getSubEntityByClass(this.HypermediaClasses.courseImage.courseImage);
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */

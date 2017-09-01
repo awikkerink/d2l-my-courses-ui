@@ -4,6 +4,7 @@
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
+<link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget-behavior.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget-styles.html">
@@ -167,6 +168,7 @@
 			},
 
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior,
 				window.D2L.PolymerBehaviors.SearchWidgetBehavior
@@ -373,7 +375,7 @@
 						// Fetch each search result's organization's information
 						(function(enrollment, index, numEntities, self) {
 							var ajax = document.createElement('d2l-ajax');
-							ajax.url = enrollment.getLinkByRel(/\/organization$/).href;
+							ajax.url = enrollment.getLinkByRel(self.HypermediaRels.organization).href;
 							ajax.method = 'GET';
 							ajax.onResponse = function(response) {
 								if (response.detail.status === 200 || response.detail.status === 304) {

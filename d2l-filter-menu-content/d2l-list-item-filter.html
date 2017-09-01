@@ -1,5 +1,6 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
 <link rel="import" href="../../d2l-menu/d2l-menu-item-selectable-behavior.html">
 <link rel="import" href="../../d2l-menu/d2l-menu-item-selectable-styles.html">
@@ -50,6 +51,7 @@
 				_organizationUrl: String
 			},
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.PolymerBehaviors.MenuItemSelectableBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
@@ -65,8 +67,8 @@
 
 				entity = this.parseEntity(entity);
 
-				if (entity.getLinkByRel(/\/organization$/)) {
-					this.set('_organizationUrl', entity.getLinkByRel(/\/organization$/).href);
+				if (entity.getLinkByRel(this.HypermediaRels.organization)) {
+					this.set('_organizationUrl', entity.getLinkByRel(this.HypermediaRels.organization).href);
 				}
 			},
 			_onOrganizationResponse: function(response) {

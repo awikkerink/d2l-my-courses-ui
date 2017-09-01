@@ -38,14 +38,14 @@ describe('d2l-utility-behavior', function() {
 
 	describe('createActionUrl', function() {
 		it('should return the URL with default values if no parameters are specified', function() {
-			var url = component.createActionUrl(enrollmentEntity.getActionByName('unpin-course'));
+			var url = component.createActionUrl(enrollmentEntity.getActionByName(component.HypermediaActions.enrollments.unpinCourse));
 
 			expect(url).to.equal(enrollment.actions[0].href + '?pinned=false');
 		});
 
 		it('should return the URL with the specified query parameter(s)', function() {
 			var url = component.createActionUrl(
-				enrollmentEntity.getActionByName('unpin-course'),
+				enrollmentEntity.getActionByName(component.HypermediaActions.enrollments.unpinCourse),
 				{ pinned: 'foo' }
 			);
 
@@ -54,7 +54,7 @@ describe('d2l-utility-behavior', function() {
 
 		it('should not add any fields that are not on the action', function() {
 			var url = component.createActionUrl(
-				enrollmentEntity.getActionByName('unpin-course'),
+				enrollmentEntity.getActionByName(component.HypermediaActions.enrollments.unpinCourse),
 				{ foo: 'bar' }
 			);
 
