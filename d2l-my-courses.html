@@ -214,7 +214,8 @@
 				'clear-image-scroll-threshold': '_onClearImageScrollThreshold',
 				'd2l-simple-overlay-closed': '_onSimpleOverlayClosed',
 				'enrollment-pinned': '_onEnrollmentPinAction',
-				'enrollment-unpinned': '_onEnrollmentPinAction'
+				'enrollment-unpinned': '_onEnrollmentPinAction',
+				'tile-remove-complete': '_onTileRemoveComplete'
 			},
 			observers: [
 				'_enrollmentsChanged(pinnedEnrollments.length, unpinnedEnrollments.length)',
@@ -258,9 +259,13 @@
 			},
 			_onEnrollmentPinAction: function(e) {
 				var isPinned = e.type === 'enrollment-pinned';
-				var orgUnitId = /organizations\/([0-9]+)/
-					.exec(this.getEntityIdentifier(e.detail.enrollment))[1];
+				var match = /[0-9]+$/.exec(this.getEntityIdentifier(e.detail.organization));
 
+				if (!match) {
+					return;
+				}
+
+				var orgUnitId = match[0];
 				this.fire(
 					'd2l-course-pinned-change', {
 						orgUnitId: orgUnitId,
@@ -360,6 +365,13 @@
 					this.$$('d2l-all-courses').setCourseImage(e);
 				}
 				this.$$('d2l-course-tile-grid').setCourseImage(e);
+			},
+			_onTileRemoveComplete: function(e) {
+				if (e.detail.pinned) {
+					this._moveEnrollmentToPinnedList(e.detail.enrollment);
+				} else {
+					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
+				}
 			},
 
 			/*

@@ -376,12 +376,15 @@ describe('d2l-my-courses', function() {
 	});
 
 	describe('With enrollments', function() {
-		var pinnedEnrollmentEntity,
-			unpinnedEnrollmentEntity;
+		var organizationEntity;
 
 		beforeEach(function(done) {
-			pinnedEnrollmentEntity = window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse.entities[0]);
-			unpinnedEnrollmentEntity = window.D2L.Hypermedia.Siren.Parse(noPinnedEnrollmentsResponse.entities[0]);
+			organizationEntity = window.D2L.Hypermedia.Siren.Parse({
+				links: [{
+					rel: ['self'],
+					href: '/organizations/1'
+				}]
+			});
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
@@ -449,7 +452,7 @@ describe('d2l-my-courses', function() {
 				var enrollmentPinEvent = new CustomEvent(
 					'enrollment-pinned', {
 						detail: {
-							enrollment: pinnedEnrollmentEntity,
+							organization: organizationEntity,
 							isPinned: true
 						}
 					}
@@ -476,7 +479,7 @@ describe('d2l-my-courses', function() {
 				var enrollmentUnpinEvent = new CustomEvent(
 					'enrollment-unpinned', {
 						detail: {
-							enrollment: unpinnedEnrollmentEntity,
+							organization: organizationEntity,
 							isPinned: true
 						}
 					}
