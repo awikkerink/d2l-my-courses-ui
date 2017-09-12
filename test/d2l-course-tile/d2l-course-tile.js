@@ -39,6 +39,9 @@ describe('<d2l-course-tile>', function() {
 				rel: ['https://api.brightspace.com/rels/organization-homepage'],
 				href: 'http://example.com/1/home',
 				type: 'text/html'
+			}, {
+				rel: ['https://notifications.api.brightspace.com/rels/organization-notifications'],
+				href: '/organizations/1/my-notifications'
 			}],
 			entities: [{
 				class: ['course-image'],
@@ -478,6 +481,20 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	describe('setting course updates attribute', function() {
+		it('should set the notifications URL from the organization response', function(done) {
+			server.respondWith(
+				'GET',
+				'/organizations/1?embedDepth=1',
+				[200, {}, JSON.stringify(organization)]);
+
+			widget.enrollment = enrollmentEntity;
+
+			setTimeout(function() {
+				expect(widget._notificationsUrl).to.equal('/organizations/1/my-notifications');
+				done();
+			});
+		});
+
 		it('should show update number when less than 99', function() {
 			widget._setCourseUpdates(85);
 			expect(widget.$.courseUpdates.getAttribute('class')).to.not.contain('d2l-updates-hidden');
