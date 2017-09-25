@@ -42,6 +42,23 @@
 		},
 		parseEntity: function(entity) {
 			return window.D2L.Hypermedia.Siren.Parse(entity);
+		},
+		fetchSirenEntity: function(url) {
+			return window.d2lfetch
+				.fetch(new Request(url, {
+					headers: { Accept: 'application/vnd.siren+json' }
+				}))
+				.then(this.responseToSirenEntity.bind(this));
+		},
+		responseToSirenEntity: function(response) {
+			if (response.ok) {
+				return response
+					.json()
+					.then(function(json) {
+						return window.D2L.Hypermedia.Siren.Parse(json);
+					});
+			}
+			return Promise.reject(response.status + ' ' + response.statusText);
 		}
 	};
 </script>

@@ -28,7 +28,6 @@
   ],
   "dependencies": {
     "app-localize-behavior": "PolymerElements/app-localize-behavior#^1.0.2",
-    "d2l-ajax": "^3.4.1",
     "d2l-alert": "git://github.com/Brightspace/alert.git#^1.0.2",
     "d2l-colors": "^2.3.0",
     "d2l-course-image": "git://github.com/Brightspace/course-image.git#^1.0.3",

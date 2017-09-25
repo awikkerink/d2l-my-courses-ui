@@ -353,23 +353,16 @@
 				}
 			},
 			_fetchRoot: function() {
-				return window.d2lfetch
-					.fetch(new Request(this.enrollmentsUrl, {
-						headers: { Accept: 'application/vnd.siren+json' }
-					}))
-					.then(this._getJson)
+				return this.fetchSirenEntity(this.enrollmentsUrl)
 					.then(this._fetchEnrollments.bind(this))
 					.catch(this._showContent.bind(this));
 			},
-			_fetchEnrollments: function(response) {
-				var enrollmentsRoot = this.parseEntity(response);
-
-				if (!enrollmentsRoot.hasAction('search-my-enrollments')) {
+			_fetchEnrollments: function(enrollmentsRootEntity) {
+				if (!enrollmentsRootEntity.hasAction('search-my-enrollments')) {
 					return Promise.resolve();
 				}
 
-				var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
-				this.fetchEnrollmentUrl = searchAction.href + '/organizations/';
+				var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
 
 				var query = {
 					pageSize: 25,
@@ -379,15 +372,13 @@
 				};
 				this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 
-				return window.d2lfetch
-					.fetch(new Request(this._enrollmentsSearchUrl))
-					.then(this._getJson)
+				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
 					.then(this._populateEnrollments.bind(this))
 					.catch(this._showContent.bind(this));
 			},
-			_populateEnrollments: function(response) {
-				var enrollments = this.parseEntity(response);
-				var enrollmentEntities = enrollments.getSubEntitiesByClass('enrollment');
+			_populateEnrollments: function(enrollmentsEntity) {
+				this._lastEnrollmentsSearchResponse = enrollmentsEntity;
+				var enrollmentEntities = enrollmentsEntity.getSubEntitiesByClass('enrollment');
 				var newPinnedEnrollments = [];
 				var newUnpinnedEnrollments = [];
 
@@ -418,12 +409,6 @@
 				this.fire('recalculate-columns');
 
 				this._showContent();
-			},
-			_getJson: function(response) {
-				if (response.ok) {
-					return response.json();
-				}
-				return Promise.reject(response.status + ' ' + response.statusText);
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				var enrollmentId, enrollmentEntity;

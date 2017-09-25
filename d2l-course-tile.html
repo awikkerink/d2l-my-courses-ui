@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-course-image/d2l-course-image.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
@@ -235,18 +234,27 @@ the user has in that organization - student, teacher, TA, etc.
 					body[field.name] = field.value;
 				});
 
-				this._enrollmentPinRequest = this._enrollmentPinRequest || document.createElement('d2l-ajax');
-				this._enrollmentPinRequest.url = pinAction.href;
-				this._enrollmentPinRequest.method = pinAction.method;
-				this._enrollmentPinRequest.body = body;
-				this._enrollmentPinRequest.headers = {
-					'accept':'application/vnd.siren+json',
-					'content-type':'application/x-www-form-urlencoded'
-				};
-				this.listen(this._enrollmentPinRequest, 'iron-ajax-response', '_onEnrollmentPinResponse');
-				this.listen(this._enrollmentPinRequest, 'iron-ajax-error', '_onEnrollmentPinError');
-
-				this._enrollmentPinRequest.generateRequest();
+				window.d2lfetch
+					.fetch(new Request(pinAction.href, {
+						method: pinAction.method,
+						body: new URLSearchParams(body),
+						headers: {
+							'accept':'application/vnd.siren+json',
+							'content-type':'application/x-www-form-urlencoded'
+						}
+					}))
+					.then(this.responseToSirenEntity.bind(this))
+					.then(function(enrollment) {
+						// The pin action returns the updated enrollment, so update
+						// this.enrollment with the modified one
+						this.enrollment = enrollment;
+						this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
+					}.bind(this))
+					.catch(function(e) {
+						console.error(e, body);
+						// Just revert back to whatever pin state we already had stored
+						this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
+					}.bind(this));
 
 				var eventName = this.pinned ? 'enrollment-pinned' : 'enrollment-unpinned';
 				this.fire(eventName, {
@@ -302,42 +310,35 @@ the user has in that organization - student, teacher, TA, etc.
 						break;
 				}
 			},
-			_enrollmentPinRequest: null,
-			_organizationRequest: null,
 			_organizationUrl: null,
-			_notificationsRequest: null,
 			_notificationsUrl: null,
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
 			_telemetryRequest: null,
-			_generateOrganizationRequest: function() {
+			_fetchOrganization: function() {
 				if (!this._organizationUrl) {
 					return;
 				}
 
-				this._organizationRequest = this._organizationRequest || document.createElement('d2l-ajax');
-				this._organizationRequest.url = this._organizationUrl;
-				this._organizationRequest.headers = {
-					'accept': 'application/vnd.siren+json',
-					// Needs no-cache so that images refresh if the users here using the back button
-					'cache-control': 'no-cache',
-					'pragma': 'no-cache'
-				};
-				this.listen(this._organizationRequest, 'iron-ajax-response', '_onOrganizationResponse');
-				this._organizationRequest.generateRequest();
+				return window.d2lfetch
+					.fetch(new Request(this._organizationUrl, {
+						headers: {
+							'accept': 'application/vnd.siren+json',
+							// Needs no-cache so that images refresh if the users here using the back button
+							'cache-control': 'no-cache',
+							'pragma': 'no-cache'
+						}
+					}))
+					.then(this.responseToSirenEntity.bind(this))
+					.then(this._onOrganizationResponse.bind(this));
 			},
-			_generateNotificationsRequest: function() {
+			_fetchNotifications: function() {
 				if (!this._notificationsUrl || !this.courseUpdatesConfig) {
 					return;
 				}
 
-				this._notificationsRequest = this._notificationsRequest || document.createElement('d2l-ajax');
-				this._notificationsRequest.url = this._notificationsUrl;
-				this._notificationsRequest.headers = {
-					'accept': 'application/vnd.siren+json'
-				};
-				this.listen(this._notificationsRequest, 'iron-ajax-response', '_onNotificationsResponse');
-				this._notificationsRequest.generateRequest();
+				return this.fetchSirenEntity(this._notificationsUrl)
+					.then(this._onNotificationsResponse.bind(this));
 			},
 			_enrollmentChanged: function() {
 				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
@@ -348,13 +349,15 @@ the user has in that organization - student, teacher, TA, etc.
 					this._organizationUrl = organizationLink.href + '?embedDepth=1';
 
 					if (!this.delayLoad) {
-						this._generateOrganizationRequest();
+						return this._fetchOrganization()
+							.then(this._fetchNotifications.bind(this));
 					}
 				}
 			},
 			_delayLoadChanged: function(delayLoad) {
 				if (this.isAttached && !delayLoad && !this._organization) {
-					this._generateOrganizationRequest();
+					return this._fetchOrganization()
+						.then(this._fetchNotifications.bind(this));
 				}
 			},
 			_displaySetImageResult: function(success) {
@@ -385,27 +388,26 @@ the user has in that organization - student, teacher, TA, etc.
 				}.bind(this), 1000);
 			},
 			_launchCourseTileImageSelector: function(e) {
-				this._telemetryRequest = this._telemetryRequest || document.createElement('d2l-ajax');
-				this._telemetryRequest.url = this.telemetryEndpoint;
-				this._telemetryRequest.method = 'POST';
-				this._telemetryRequest.headers = {
-					'content-type': 'application/json'
-				};
-				this._telemetryRequest.body = JSON.stringify({
-					name: 'LaunchChangeImage',
-					ts: Math.round(Date.now() / 1000),
-					userId: this.userId,
-					tenantId: this.tenantId
-				});
-
-				this._telemetryRequest.generateRequest();
-
 				e.preventDefault();
 				e.stopPropagation();
 
 				this.fire('open-change-image-view', {
 					organization: this._organization
 				});
+
+				return window.d2lfetch
+					.fetch(new Request(this.telemetryEndpoint, {
+						method: 'POST',
+						headers: {
+							'content-type': 'application/json'
+						},
+						body: JSON.stringify({
+							name: 'LaunchChangeImage',
+							ts: Math.round(Date.now() / 1000),
+							userId: this.userId,
+							tenantId: this.tenantId
+						})
+					}));
 			},
 			_hoverCourseTile: function() {
 				this._showHoverMenu = true;
@@ -438,77 +440,56 @@ the user has in that organization - student, teacher, TA, etc.
 					this.toggleClass('animate-insertion', true, this);
 				}
 			},
-			_onEnrollmentPinError: function() {
-				// Just revert back to whatever pin state we already had stored
-				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
-			},
-			_onEnrollmentPinResponse: function(response) {
-				if (response.detail.status === 200) {
-					// The pin action returns the updated enrollment, so update
-					// this.enrollment with the modified one
-					this.enrollment = this.parseEntity(response.detail.xhr.response);
-					this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
+			_onOrganizationResponse: function(organization) {
+				this._organization = organization;
+				this._checkDateBounds(organization);
+
+				var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
+				this._courseInfoUrl = courseInfoUrl ? courseInfoUrl.href : null;
+
+				this._setCourseImageSrc();
+
+				var homepageEntity = organization.getSubEntityByRel(this.HypermediaRels.organizationHomepage);
+				if (homepageEntity !== null) {
+					this._organizationHomepageUrl = homepageEntity.properties.path;
 				}
-			},
-			_onOrganizationResponse: function(response) {
-				if (response.detail.status === 200) {
-					var organization = this.parseEntity(response.detail.xhr.response);
-
-					this._organization = organization;
-					this._checkDateBounds(organization, response);
-
-					var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
-					this._courseInfoUrl = courseInfoUrl ? courseInfoUrl.href : null;
-
-					this._setCourseImageSrc();
-
-					var homepageEntity = organization.getSubEntityByRel(this.HypermediaRels.organizationHomepage);
-					if (homepageEntity !== null) {
-						this._organizationHomepageUrl = homepageEntity.properties.path;
-					}
-					if (!this._organizationHomepageUrl) {
-						var tileContainer = this.$$('.tile-container');
-						this.toggleClass('d2l-no-access', true, tileContainer);
-					}
-					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
-					this._pinnedChanged();
-					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
-
-					var notificationsLink = organization && organization.getLinkByRel(this.HypermediaRels.organizationNotifications);
-					this._notificationsUrl = notificationsLink ? notificationsLink.href : null;
-					this._generateNotificationsRequest();
+				if (!this._organizationHomepageUrl) {
+					var tileContainer = this.$$('.tile-container');
+					this.toggleClass('d2l-no-access', true, tileContainer);
 				}
-			},
-			_onNotificationsResponse: function(response) {
-				if (response.detail.status === 200) {
-					var notifications = this.parseEntity(response.detail.xhr.response);
+				this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
+				this._pinnedChanged();
+				this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
 
-					var total = 0;
-					if (this.courseUpdatesConfig.showUnattemptedQuizzes) {
-						total += notifications.properties.UnattemptedQuizzes;
-					}
-					if (this.courseUpdatesConfig.showDropboxUnreadFeedback) {
-						total += notifications.properties.UnreadAssignmentFeedback;
-					}
-					if (this.courseUpdatesConfig.showUngradedQuizAttempts) {
-						total += notifications.properties.UngradedQuizzes;
-					}
-					if (this.courseUpdatesConfig.showUnreadDiscussionMessages) {
-						total += notifications.properties.UnreadDiscussions + notifications.properties.UnapprovedDiscussions;
-					}
-					if (this.courseUpdatesConfig.showUnreadDropboxSubmissions) {
-						total += notifications.properties.UnreadAssignmentSubmissions;
-					}
-					this._setCourseUpdates(total);
+				var notificationsLink = organization && organization.getLinkByRel(this.HypermediaRels.organizationNotifications);
+				this._notificationsUrl = notificationsLink ? notificationsLink.href : null;
+			},
+			_onNotificationsResponse: function(notifications) {
+				var total = 0;
+				if (this.courseUpdatesConfig.showUnattemptedQuizzes) {
+					total += notifications.properties.UnattemptedQuizzes;
 				}
+				if (this.courseUpdatesConfig.showDropboxUnreadFeedback) {
+					total += notifications.properties.UnreadAssignmentFeedback;
+				}
+				if (this.courseUpdatesConfig.showUngradedQuizAttempts) {
+					total += notifications.properties.UngradedQuizzes;
+				}
+				if (this.courseUpdatesConfig.showUnreadDiscussionMessages) {
+					total += notifications.properties.UnreadDiscussions + notifications.properties.UnapprovedDiscussions;
+				}
+				if (this.courseUpdatesConfig.showUnreadDropboxSubmissions) {
+					total += notifications.properties.UnreadAssignmentSubmissions;
+				}
+				this._setCourseUpdates(total);
 			},
 			_setCourseUpdates: function(updates) {
 				this._courseUpdates = updates > 99 ? '99+' : Math.max(updates, 0);
 				this.toggleClass('d2l-updates-hidden', updates <= 0, this.$.courseUpdates);
 				this.$$('#courseUpdates').setAttribute( 'aria-hidden', updates === 0 ? 'true' : 'false' );
 			},
-			_checkDateBounds: function(organization, response) {
-				var serverDate = Date.parse(response.detail.xhr.getResponseHeader('Date'));
+			_checkDateBounds: function(organization) {
+				var serverDate = Date.now();
 				var endDate = Date.parse(organization.properties.endDate);
 				var startDate = Date.parse(organization.properties.startDate);
 				var inactive = !organization.properties.isActive;
