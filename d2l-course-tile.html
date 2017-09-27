@@ -107,6 +107,8 @@ the user has in that organization - student, teacher, TA, etc.
 	<script>
 		'use strict';
 
+		/* global Promise */
+
 		Polymer({
 			is: 'd2l-course-tile',
 
@@ -234,7 +236,7 @@ the user has in that organization - student, teacher, TA, etc.
 					body[field.name] = field.value;
 				});
 
-				window.d2lfetch
+				var promise = window.d2lfetch
 					.fetch(new Request(pinAction.href, {
 						method: pinAction.method,
 						body: new URLSearchParams(body),
@@ -250,8 +252,7 @@ the user has in that organization - student, teacher, TA, etc.
 						this.enrollment = enrollment;
 						this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
 					}.bind(this))
-					.catch(function(e) {
-						console.error(e, body);
+					.catch(function() {
 						// Just revert back to whatever pin state we already had stored
 						this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
 					}.bind(this));
@@ -279,6 +280,8 @@ the user has in that organization - student, teacher, TA, etc.
 				}, { bubbles: true });
 
 				this._pendingPinAction = this.pinned;
+
+				return promise;
 			},
 			// Sets classes for this tile having the touch menu on it when it is opened/closed
 			setTouchMenuOpen: function(isOpen) {
@@ -329,16 +332,14 @@ the user has in that organization - student, teacher, TA, etc.
 							'pragma': 'no-cache'
 						}
 					}))
-					.then(this.responseToSirenEntity.bind(this))
-					.then(this._onOrganizationResponse.bind(this));
+					.then(this.responseToSirenEntity.bind(this));
 			},
 			_fetchNotifications: function() {
 				if (!this._notificationsUrl || !this.courseUpdatesConfig) {
 					return;
 				}
 
-				return this.fetchSirenEntity(this._notificationsUrl)
-					.then(this._onNotificationsResponse.bind(this));
+				return this.fetchSirenEntity(this._notificationsUrl);
 			},
 			_enrollmentChanged: function() {
 				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
@@ -350,14 +351,18 @@ the user has in that organization - student, teacher, TA, etc.
 
 					if (!this.delayLoad) {
 						return this._fetchOrganization()
-							.then(this._fetchNotifications.bind(this));
+							.then(this._onOrganizationResponse.bind(this))
+							.then(this._fetchNotifications.bind(this))
+							.then(this._onNotificationsResponse.bind(this));
 					}
 				}
 			},
 			_delayLoadChanged: function(delayLoad) {
 				if (this.isAttached && !delayLoad && !this._organization) {
 					return this._fetchOrganization()
-						.then(this._fetchNotifications.bind(this));
+						.then(this._onOrganizationResponse.bind(this))
+						.then(this._fetchNotifications.bind(this))
+						.then(this._onNotificationsResponse.bind(this));
 				}
 			},
 			_displaySetImageResult: function(success) {
@@ -463,6 +468,8 @@ the user has in that organization - student, teacher, TA, etc.
 
 				var notificationsLink = organization && organization.getLinkByRel(this.HypermediaRels.organizationNotifications);
 				this._notificationsUrl = notificationsLink ? notificationsLink.href : null;
+
+				return Promise.resolve();
 			},
 			_onNotificationsResponse: function(notifications) {
 				var total = 0;

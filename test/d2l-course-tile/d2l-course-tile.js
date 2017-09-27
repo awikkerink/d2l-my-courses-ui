@@ -1,9 +1,10 @@
-/* global describe, it, before, beforeEach, afterEach, fixture, expect, sinon */
+/* global Promise, describe, it, before, beforeEach, afterEach, fixture, expect, sinon */
 
 'use strict';
 
 describe('<d2l-course-tile>', function() {
-	var server,
+	var sandbox,
+		server,
 		widget,
 		enrollment = {
 			class: ['pinned', 'enrollment'],
@@ -74,13 +75,21 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	beforeEach(function() {
+		sandbox = sinon.sandbox.create();
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 
 		widget = fixture('d2l-course-tile-fixture');
+		window.d2lfetch.fetch = sandbox.stub()
+			.withArgs(sinon.match.has('url', sinon.match('/organizations/1?embedDepth=1')))
+			.returns(Promise.resolve({
+				ok: true,
+				json: function() { return Promise.resolve(organization); }
+			}));
 	});
 
 	afterEach(function() {
+		sandbox.restore();
 		server.restore();
 	});
 
@@ -89,30 +98,24 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	it('should fetch the organization when the enrollment changes', function(done) {
-		server.respondWith(
-			'GET',
-			'/organizations/1?embedDepth=1',
-			[200, {}, JSON.stringify(organization)]);
+		var spy = sandbox.spy(widget, '_onOrganizationResponse');
 
 		widget.enrollment = enrollmentEntity;
 
-		widget._organizationRequest.addEventListener('iron-ajax-response', function() {
-			expect(widget._organization.properties).to.be.an('object');
+		setTimeout(function() {
+			expect(spy).to.have.been.calledOnce;
 			done();
 		});
 	});
 
 	describe('setting the enrollment attribute', function() {
 		beforeEach(function(done) {
-			server.respondWith(
-				'GET',
-				'/organizations/1?embedDepth=1',
-				[200, {}, JSON.stringify(organization)]);
+			var spy = sandbox.spy(widget, '_onOrganizationResponse');
 
 			widget.enrollment = enrollmentEntity;
 
-			widget._organizationRequest.addEventListener('iron-ajax-response', function() {
-				// Ensure organization has been received before doing tests
+			setTimeout(function() {
+				expect(spy).to.have.been.calledOnce;
 				done();
 			});
 		});
@@ -170,39 +173,30 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	describe('delay-load attribute', function() {
-		it('should not fetch the organization if delay-load=true', function() {
+		it('should not fetch the organization if delay-load=true', function(done) {
 			var delayedWidget = fixture('d2l-course-tile-fixture-delayed');
-
-			server.respondWith(
-				'GET',
-				'/organizations/1?embedDepth=1',
-				[200, {}, JSON.stringify(organization)]);
+			delayedWidget._fetchOrganization = sandbox.stub().returns(Promise.resolve(organizationEntity));
 
 			delayedWidget.enrollment = enrollmentEntity;
 
-			// Request object won't be constructed on enrollment change if delayLoad = true
-			expect(delayedWidget._organizationRequest).to.not.exist;
+			setTimeout(function() {
+				expect(delayedWidget._fetchOrganization).to.have.not.been.called;
+				done();
+			});
 		});
 
 		it('should fetch the organization when delay-load is set to false', function(done) {
 			var delayedWidget = fixture('d2l-course-tile-fixture-delayed');
+			var spy = sandbox.spy(delayedWidget, '_onOrganizationResponse');
+			delayedWidget._fetchOrganization = sandbox.stub().returns(Promise.resolve(organizationEntity));
 
-			server.respondWith(
-				'GET',
-				'/organizations/1?embedDepth=1',
-				[200, {}, JSON.stringify(organization)]);
+			delayedWidget.delayLoad = false;
 
-			delayedWidget.enrollment = enrollmentEntity;
-
-			// Need to create the empty object in this test, so that we can add the event listener
-			delayedWidget._organizationRequest = document.createElement('d2l-ajax');
-
-			delayedWidget._organizationRequest.addEventListener('iron-ajax-response', function() {
+			setTimeout(function() {
+				expect(delayedWidget._fetchOrganization).to.have.been.calledOnce;
+				expect(spy).to.have.been.calledOnce;
 				done();
 			});
-
-			// Changing delayLoad to false will create the d2l-ajax component
-			delayedWidget.delayLoad = false;
 		});
 	});
 
@@ -210,71 +204,61 @@ describe('<d2l-course-tile>', function() {
 		var event = { preventDefault: function() {} };
 
 		beforeEach(function(done) {
-			server.respondWith(
-				'GET',
-				'/organizations/1?embedDepth=1',
-				[200, {}, JSON.stringify(organization)]);
-
-			server.respondWith(
-				'GET',
-				'/d2l/lp/auth/xsrf-tokens',
-				[200, {}, JSON.stringify({
-					referrerToken: 'foo'
-				})]);
-
+			var spy = sandbox.spy(widget, '_onOrganizationResponse');
 			widget.enrollment = enrollmentEntity;
 
-			widget._organizationRequest.addEventListener('iron-ajax-response', function() {
-				// Ensure organization has been received before doing tests
+			setTimeout(function() {
+				expect(spy).to.have.been.calledOnce;
 				done();
 			});
 		});
 
-		afterEach(function() {
-			server.restore();
-		});
-
-		it('should set the update action parameters correctly', function() {
-			widget._hoverPinClickHandler(event);
-
-			expect(widget._enrollmentPinRequest.url).to.equal('/enrollments/users/169/organizations/1');
-			expect(widget._enrollmentPinRequest.method).to.equal('PUT');
-		});
-
-		it('should call the pinning API', function(done) {
-			server.respondWith(
-				'PUT',
-				'/enrollments/users/169/organizations/1',
-				function(req) {
-					expect(req.requestBody).to.contain('pinned=false');
-					done();
-				});
+		it('should set the update action parameters correctly and call the pinning API', function(done) {
+			window.d2lfetch.fetch = sandbox.stub()
+				.withArgs(sinon.match.has('url', sinon.match('/enrollments/users/169/organizations/1'))
+					.and(sinon.match.has('method', 'PUT')))
+				.returns(Promise.resolve({
+					ok: true,
+					json: function() { return Promise.resolve(enrollment); }
+				}));
 
 			widget._hoverPinClickHandler(event);
+
+			setTimeout(function() {
+				expect(window.d2lfetch.fetch).to.have.been.calledOnce;
+				done();
+			});
 		});
 
 		it('should update the local pinned state with the received pin state', function(done) {
-			server.respondWith(
-				'PUT',
-				'/enrollments/users/169/organizations/1',
-				[200, {}, JSON.stringify(enrollment)]);
+			window.d2lfetch.fetch = sandbox.stub()
+				.withArgs(sinon.match.has('url', sinon.match('/enrollments/users/169/organizations/1'))
+					.and(sinon.match.has('method', 'PUT')))
+				.returns(Promise.resolve({
+					ok: true,
+					json: function() { return Promise.resolve(enrollment); }
+				}));
 
 			expect(widget.pinned).to.be.true;
 			widget._hoverPinClickHandler(event);
 			expect(widget.pinned).to.be.false;
 
 			setTimeout(function() {
+				expect(window.d2lfetch.fetch).to.have.been.calledOnce;
 				// We responded with pinned = true, so it gets set back to true by the response
 				expect(widget.pinned).to.be.true;
 				done();
-			}, 10);
+			});
 		});
 
 		it('should update the overflow menu button with the new pinned state', function(done) {
-			server.respondWith(
-				'PUT',
-				'/enrollments/users/169/organizations/1',
-				[200, {}, JSON.stringify(enrollment)]);
+			window.d2lfetch.fetch = sandbox.stub()
+				.withArgs(sinon.match.has('url', sinon.match('/enrollments/users/169/organizations/1'))
+					.and(sinon.match.has('method', 'PUT')))
+				.returns(Promise.resolve({
+					ok: true,
+					json: function() { return Promise.resolve(enrollment); }
+				}));
 
 			widget._showHoverMenu = true;
 
@@ -289,10 +273,13 @@ describe('<d2l-course-tile>', function() {
 		});
 
 		it('should aria-announce the change in pin state', function(done) {
-			server.respondWith(
-				'PUT',
-				'/enrollments/users/169/organizations/1',
-				[200, {}, JSON.stringify(enrollment)]);
+			window.d2lfetch.fetch = sandbox.stub()
+				.withArgs(sinon.match.has('url', sinon.match('/enrollments/users/169/organizations/1'))
+					.and(sinon.match.has('method', 'PUT')))
+				.returns(Promise.resolve({
+					ok: true,
+					json: function() { return Promise.resolve(enrollment); }
+				}));
 
 			widget.addEventListener('iron-announce', function(e) {
 				expect(widget.pinned).to.be.false;
@@ -468,15 +455,17 @@ describe('<d2l-course-tile>', function() {
 
 		it('should send a telemetry event', function(done) {
 			widget.telemetryEndpoint = '/foo/bar';
-			server.respondWith(
-				'POST',
-				widget.telemetryEndpoint,
-				function(req) {
-					req.respond(200, {}, '');
-					done();
-				});
+			window.d2lfetch.fetch = sandbox.stub()
+				.withArgs(sinon.match.has('url', sinon.match(widget.telemetryEndpoint))
+					.and(sinon.match.has('method', 'POST')))
+				.returns(Promise.resolve());
 
 			widget._launchCourseTileImageSelector(e);
+
+			setTimeout(function() {
+				expect(window.d2lfetch.fetch).to.have.been.calledOnce;
+				done();
+			});
 		});
 	});
 
@@ -531,7 +520,7 @@ describe('<d2l-course-tile>', function() {
 		});
 	});
 
-	var curDate = 1484259377534;
+	var curDate = Date.now();
 	var formattedDate = 'FORMATTED_DATE';
 	var inactiveText = '(Inactive)';
 
@@ -541,10 +530,6 @@ describe('<d2l-course-tile>', function() {
 
 	function getPastDate() {
 		return new Date(curDate - 8000).toISOString();
-	}
-
-	function getCurrentDate() {
-		return new Date(curDate).toISOString();
 	}
 
 	function verifyOverlay(params) {
@@ -569,7 +554,7 @@ describe('<d2l-course-tile>', function() {
 	}
 
 	describe('Notification Overlay', function() {
-		var org, response;
+		var org;
 
 		beforeEach(function() {
 			org = {
@@ -577,13 +562,6 @@ describe('<d2l-course-tile>', function() {
 					endDate: getFutureDate(),
 					startDate: getPastDate(),
 					isActive: true
-				}
-			};
-			response = {
-				detail: {
-					xhr: {
-						getResponseHeader: sinon.stub().returns(getCurrentDate())
-					}
 				}
 			};
 			window.BSI = window.BSI || {};
@@ -598,7 +576,7 @@ describe('<d2l-course-tile>', function() {
 			describe('when the course is active', function() {
 				it('Adds an overlay with the date', function() {
 					org.properties.startDate = getFutureDate();
-					widget._checkDateBounds(org, response);
+					widget._checkDateBounds(org);
 					verifyOverlay({
 						title:'Course Starts',
 						showDate: true,
@@ -611,7 +589,7 @@ describe('<d2l-course-tile>', function() {
 				it('Adds an overlay with the date and "inactive"', function() {
 					org.properties.startDate = getFutureDate();
 					org.properties.isActive = false;
-					widget._checkDateBounds(org, response);
+					widget._checkDateBounds(org);
 					verifyOverlay({
 						title: 'Course Starts',
 						showDate: true,
@@ -625,7 +603,7 @@ describe('<d2l-course-tile>', function() {
 			describe('when the course is active', function() {
 				it('Adds an overlay with the date', function() {
 					org.properties.endDate = getPastDate();
-					widget._checkDateBounds(org, response);
+					widget._checkDateBounds(org);
 					verifyOverlay({
 						title: 'Course Ended',
 						showDate: true,
@@ -638,7 +616,7 @@ describe('<d2l-course-tile>', function() {
 				it('Adds an overlay with the date', function() {
 					org.properties.endDate = getPastDate();
 					org.properties.isActive = false;
-					widget._checkDateBounds(org, response);
+					widget._checkDateBounds(org);
 					verifyOverlay({
 						title: 'Course Ended',
 						showDate: true,
@@ -651,7 +629,7 @@ describe('<d2l-course-tile>', function() {
 		describe('given the course is in progress', function() {
 			describe('when the course is active', function() {
 				it('does not add an overlay', function() {
-					widget._checkDateBounds(org, response);
+					widget._checkDateBounds(org);
 					verifyOverlay({
 						title: '',
 						showDate: false,
@@ -663,7 +641,7 @@ describe('<d2l-course-tile>', function() {
 			describe('when the course is inactive', function() {
 				it('adds an "inactive" overlay', function() {
 					org.properties.isActive = false;
-					widget._checkDateBounds(org, response);
+					widget._checkDateBounds(org);
 					verifyOverlay({
 						title: 'Course Started',
 						showDate: false,
@@ -677,7 +655,7 @@ describe('<d2l-course-tile>', function() {
 			describe('when the course is active', function() {
 				it('does not add an overlay', function() {
 					org.properties.startDate = null;
-					widget._checkDateBounds(org, response);
+					widget._checkDateBounds(org);
 					verifyOverlay({
 						title: '',
 						showDate: false,
@@ -690,7 +668,7 @@ describe('<d2l-course-tile>', function() {
 				it('adds an overlay with the "inactive" tile', function() {
 					org.properties.startDate = null;
 					org.properties.isActive = false;
-					widget._checkDateBounds(org, response);
+					widget._checkDateBounds(org);
 					verifyOverlay({
 						title: 'Inactive',
 						showDate: false,

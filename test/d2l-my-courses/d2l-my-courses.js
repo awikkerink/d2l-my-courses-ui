@@ -1,11 +1,11 @@
-/* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
+/* global Promise, describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
 'use strict';
 
 describe('d2l-my-courses', function() {
-	var server,
+	var sandbox,
+		server,
 		widget,
-		// Using relative URLs here so that d2l-ajax just uses cookies (no need to mock the token fetching this way)
 		rootHref = '/enrollments',
 		searchHref = '/enrollments/users/169',
 		enrollmentsRootResponse = {
@@ -145,15 +145,25 @@ describe('d2l-my-courses', function() {
 	var clock;
 
 	beforeEach(function() {
+		sandbox = sinon.sandbox.create();
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 		clock = sinon.useFakeTimers();
 
 		widget = fixture('d2l-my-courses-fixture');
+
+		widget.fetchSirenEntity = sandbox.stub();
+		widget.fetchSirenEntity.withArgs(rootHref).returns(Promise.resolve(
+			window.D2L.Hypermedia.Siren.Parse(enrollmentsRootResponse)
+		));
+		widget.fetchSirenEntity.withArgs(searchHref).returns(Promise.resolve(
+			window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse)
+		));
 	});
 
 	afterEach(function() {
 		clock.restore();
+		sandbox.restore();
 		server.restore();
 	});
 
@@ -162,207 +172,86 @@ describe('d2l-my-courses', function() {
 	});
 
 	describe('Enrollments requests and responses', function() {
-		it('should not send a search request if the root request fails', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(404, {}, '');
-				});
+		it('should not send a search request if the root request fails', function() {
+			widget._fetchRoot = sandbox.stub().returns(Promise.reject());
+			var spy = sandbox.spy(widget, '_fetchEnrollments');
 
-			var enrollmentsSearchSpy = sinon.spy(widget.$.enrollmentsSearchRequest, 'generateRequest');
-
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsRootRequest.addEventListener('iron-ajax-error', function() {
-				expect(enrollmentsSearchSpy.callCount === 0);
-				widget.$.enrollmentsSearchRequest.generateRequest.restore();
-				done();
+			return widget._fetchRoot().catch(function() {
+				expect(spy).to.have.not.been.called;
 			});
 		});
 
-		it('should send a search request for enrollments', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
+		it('should send a search request for enrollments', function() {
+			var spy = sandbox.spy(widget, '_fetchEnrollments');
 
-			server.respondWith(
-				'GET',
-				new RegExp(searchHref),
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
-				});
-
-			var enrollmentsSearchSpy = sinon.spy(widget, '_onEnrollmentsSearchResponse');
-
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
-				expect(enrollmentsSearchSpy.called);
-				widget._onEnrollmentsSearchResponse.restore();
-				done();
+			return widget._fetchRoot().then(function() {
+				expect(spy).to.have.been.called;
 			});
 		});
 
-		it('should append enrollments on successive search requests', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
+		it('should append enrollments on successive search requests', function() {
+			widget.fetchSirenEntity.withArgs(sinon.match('/enrollments/users/169?search='))
+				.onFirstCall().returns(Promise.resolve(
+					window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse)
+				))
+				.onSecondCall().returns(Promise.resolve(
+					window.D2L.Hypermedia.Siren.Parse(enrollmentsNextPageSearchResponse)
+				));
 
-			server.respondWith(
-				'GET',
-				new RegExp(searchHref),
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					if (widget.pinnedEnrollments.length === 0) {
-						req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
-					} else {
-						req.respond(200, {}, JSON.stringify(enrollmentsNextPageSearchResponse));
-					}
-				});
-
-			var enrollmentsSearchSpy = sinon.spy(widget, '_onEnrollmentsSearchResponse');
-
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
-				if (enrollmentsSearchSpy.calledOnce) {
-					widget.$.enrollmentsSearchRequest.generateRequest();
-				} else if (enrollmentsSearchSpy.calledTwice) {
+			return widget._fetchRoot()
+				.then(widget._fetchRoot.bind(widget))
+				.then(function() {
 					expect(widget.pinnedEnrollments.length).to.equal(2);
-					widget._onEnrollmentsSearchResponse.restore();
-					done();
-				}
-			});
+				});
 		});
 
-		it('should set the request URL for pinned courses', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
-
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsRootRequest.addEventListener('iron-ajax-response', function() {
+		it('should set the request URL for pinned courses', function() {
+			return widget._fetchRoot().then(function() {
 				expect(widget._enrollmentsSearchUrl).to.match(/sort=-PinDate/);
-				done();
 			});
 		});
 
-		it('should rescale the course tile grid on search response', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
-
-			server.respondWith(
-				'GET',
-				new RegExp(searchHref),
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
-				});
-
+		it('should rescale the course tile grid on search response', function() {
 			var gridRescaleSpy = sinon.spy(widget.$$('d2l-course-tile-grid'), '_rescaleCourseTileRegions');
 
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
+			return widget._fetchRoot().then(function() {
 				expect(gridRescaleSpy.called);
-				widget.$$('d2l-course-tile-grid')._rescaleCourseTileRegions.restore();
-				done();
 			});
 		});
 
-		it('should display appropriate alert when there are no enrollments', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
+		it('should display appropriate alert when there are no enrollments', function() {
+			widget.fetchSirenEntity.withArgs(sinon.match('/enrollments/users/169?search=')).returns(Promise.resolve(
+				window.D2L.Hypermedia.Siren.Parse(noEnrollmentsResponse)
+			));
 
-			server.respondWith(
-				'GET',
-				new RegExp(searchHref),
-				function(req) {
-					req.respond(200, {}, JSON.stringify(noEnrollmentsResponse));
-				});
-
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
+			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(false);
 				expect(widget._alerts).to.include({ alertName: 'noCourses', alertType: 'call-to-action', alertMessage: 'Your courses aren\'t quite ready. Please check back soon.' });
-				done();
 			});
 		});
 
-		it('should display appropriate message when there are no pinned enrollments', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
+		it('should display appropriate message when there are no pinned enrollments', function() {
+			widget.fetchSirenEntity.withArgs(sinon.match('/enrollments/users/169?search=')).returns(Promise.resolve(
+				window.D2L.Hypermedia.Siren.Parse(noPinnedEnrollmentsResponse)
+			));
 
-			server.respondWith(
-				'GET',
-				new RegExp(searchHref),
-				function(req) {
-					req.respond(200, {}, JSON.stringify(noPinnedEnrollmentsResponse));
-				});
-
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
+			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(true);
 				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
-				done();
 			});
 		});
 
-		it('should update enrollment alerts when enrollment information is updated', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
+		it('should update enrollment alerts when enrollment information is updated', function() {
+			widget.fetchSirenEntity.withArgs(sinon.match('/enrollments/users/169?search=')).returns(Promise.resolve(
+				window.D2L.Hypermedia.Siren.Parse(noPinnedEnrollmentsResponse)
+			));
 
-			server.respondWith(
-				'GET',
-				new RegExp(searchHref),
-				function(req) {
-					req.respond(200, {}, JSON.stringify(noPinnedEnrollmentsResponse));
-				});
-
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
+			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(true);
 				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
 				var updateEnrollmentAlertsSpy = sinon.spy(widget, '_updateEnrollmentAlerts');
 				widget._hasPinnedEnrollments = true;
 				expect(updateEnrollmentAlertsSpy.called);
-				done();
 			});
 		});
 
@@ -378,34 +267,19 @@ describe('d2l-my-courses', function() {
 	describe('With enrollments', function() {
 		var organizationEntity;
 
-		beforeEach(function(done) {
+		beforeEach(function() {
 			organizationEntity = window.D2L.Hypermedia.Siren.Parse({
 				links: [{
 					rel: ['self'],
 					href: '/organizations/1'
 				}]
 			});
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
 
-			server.respondWith(
-				'GET',
-				new RegExp(searchHref),
-				function(req) {
-					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
-				});
+			widget.fetchSirenEntity.withArgs(sinon.match('/enrollments/users/169?search=')).returns(Promise.resolve(
+				window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse)
+			));
 
-			widget.$.enrollmentsRootRequest.generateRequest();
-			var doneFunc = function() {
-				done();
-				widget.$.enrollmentsSearchRequest.removeEventListener('iron-ajax-response', doneFunc);
-			};
-			// Wait until the second (search) request finishes before checking things
-			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', doneFunc);
+			return widget._fetchRoot();
 		});
 
 		it('should return the correct value from getCourseTileItemCount', function() {
