@@ -1,5 +1,4 @@
 <link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../../d2l-colors/d2l-colors.html">
 <link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../../d2l-loading-spinner/d2l-loading-spinner.html">
@@ -14,7 +13,8 @@
 	<template>
 		<style>
 			:host {
-				display: block;
+				display: flex;
+				flex-direction: column;
 			}
 			:host([hidden]) {
 				display: none !important;
@@ -27,7 +27,6 @@
 			.dropdown-content-tabs {
 				display: flex;
 				align-items: center;
-				justify-content: space-between;
 			}
 			.dropdown-content-tab {
 				flex: 1;
@@ -58,9 +57,6 @@
 				@apply --d2l-body-compact-text;
 				margin: 10px;
 			}
-			d2l-loading-spinner {
-				align-self: center;
-			}
 			.clear-button {
 				@apply --d2l-body-small-text;
 				color: var(--d2l-color-celestine);
@@ -73,7 +69,6 @@
 			.dropdown-content-header {
 				box-sizing: border-box;
 				display: flex;
-				align-items: center;
 				justify-content: space-between;
 				border-bottom: 1px solid var(--d2l-color-titanius);
 				width: 100%;
@@ -83,18 +78,6 @@
 				background: linear-gradient(to top, white, var(--d2l-color-regolith));
 			}
 		</style>
-
-		<d2l-ajax
-			id="departmentsRequest"
-			url="[[_departmentsUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'>
-		</d2l-ajax>
-
-		<d2l-ajax
-			id="semestersRequest"
-			url="[[_semestersUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'>
-		</d2l-ajax>
 
 		<d2l-loading-spinner
 			hidden=[[_showContent]]
@@ -278,27 +261,29 @@
 			},
 			load: function() {
 				if (this._departments.length > 0 || this._semesters.length > 0) {
+					// We've already loaded, don't load again
 					this.$.departmentSearchWidget.search();
 					this.$.semesterSearchWidget.search();
 					return;
 				}
 
 				var self = this;
-				Promise
-					.all([
-						this._departmentsUrl ? this.$.departmentsRequest.generateRequest() : Promise.resolve({}),
-						this._semestersUrl ? this.$.semestersRequest.generateRequest() : Promise.resolve({})
-					])
-					.then(function(values) {
-						var departmentsResponse = self.parseEntity(values[0].response);
-						var semestersResponse = self.parseEntity(values[1].response);
-
-						self.set('_departments', departmentsResponse.entities || []);
-						self.set('_semesters', semestersResponse.entities || []);
-
+				var fetchDepartments = this.fetchSirenEntity(this._departmentsUrl)
+					.then(function(departmentsEntity) {
+						self.set('_departments', departmentsEntity.entities || []);
 						self.$.departmentSearchWidget.search();
+					});
+				var fetchSemesters = this.fetchSirenEntity(this._semestersUrl)
+					.then(function(semestersEntity) {
+						self.set('_semesters', semestersEntity.entities || []);
 						self.$.semesterSearchWidget.search();
-					})
+					});
+
+				return Promise
+					.all([
+						fetchDepartments,
+						fetchSemesters
+					])
 					.then(function() {
 						self._showContent = true;
 					})
@@ -354,17 +339,25 @@
 					var myEnrollmentsEntity = this.parseEntity(entity);
 
 					this._searchSemestersAction = undefined;
+					this._semestersUrl = undefined;
 					if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMySemesters)) {
 						this._searchSemestersAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMySemesters);
 					} else if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.addSemesterFilter)) {
 						this._searchSemestersAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.addSemesterFilter);
 					}
+					if (myEnrollmentsEntity.hasLinkByRel(this.HypermediaRels.semesters)) {
+						this._semestersUrl = myEnrollmentsEntity.getLinkByRel(this.HypermediaRels.semesters).href;
+					}
 
 					this._searchDepartmentsAction = undefined;
+					this._departmentsUrl = undefined;
 					if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyDepartments)) {
 						this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyDepartments);
 					} else if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.addDepartmentFilter)) {
 						this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.addDepartmentFilter);
+					}
+					if (myEnrollmentsEntity.hasLinkByRel(this.HypermediaRels.departments)) {
+						this._departmentsUrl = myEnrollmentsEntity.getLinkByRel(this.HypermediaRels.departments).href;
 					}
 				}
 			},

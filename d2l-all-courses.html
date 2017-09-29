@@ -25,14 +25,6 @@
 	<template>
 		<style include="d2l-all-courses-styles"></style>
 
-		<d2l-ajax
-			id="enrollmentsSearchRequest"
-			url="[[_enrollmentsSearchUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onEnrollmentsSearchResponse"
-			last-response="{{lastEnrollmentsSearchResponse}}">
-		</d2l-ajax>
-
 		<d2l-simple-overlay
 			id="all-courses"
 			title-name="{{localize('allCourses')}}"
@@ -297,11 +289,11 @@
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
+				window.D2L.Hypermedia.OrganizationHMBehavior,
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.CourseManagementBehavior,
 				window.D2L.MyCourses.UtilityBehavior,
-				window.D2L.Hypermedia.OrganizationHMBehavior,
 				window.D2L.MyCourses.AlertBehavior
 			],
 			listeners: {
@@ -424,14 +416,12 @@
 						this._enrollmentsSearchUrl = lastResponseEntity.getLinkByRel('next').href;
 						this.toggleClass('d2l-all-courses-hidden', false, this.$.lazyLoadSpinner);
 						this.$.lazyLoadSpinner.scrollIntoView();
-						this.$.enrollmentsSearchRequest.generateRequest();
+
+						return this.fetchSirenEntity(this._enrollmentsSearchUrl)
+							.then(function(enrollmentsEntity) {
+								this._updateFilteredEnrollments(enrollmentsEntity, true);
+							}.bind(this));
 					}
-				}
-			},
-			_onEnrollmentsSearchResponse: function(response) {
-				if (response.detail.status === 200) {
-					var enrollments = this.parseEntity(response.detail.xhr.response);
-					this._updateFilteredEnrollments(enrollments, true);
 				}
 			},
 			_onFilterChanged: function(e) {
