@@ -1,11 +1,14 @@
-/* global describe, it, beforeEach, fixture, expect, sinon */
+/* global Promise, describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
 'use strict';
 
-var listItem,
-	enrollment;
+var sandbox,
+	listItem,
+	enrollment,
+	organization;
 
 beforeEach(function() {
+	sandbox = sinon.sandbox.create();
 	enrollment = {
 		rel: ['enrollment'],
 		links: [{
@@ -16,7 +19,24 @@ beforeEach(function() {
 			href: '/organizations/1'
 		}]
 	};
+	organization = {
+		properties: {
+			name: 'foo'
+		},
+		links: [{
+			rel: ['self'],
+			href: 'bar'
+		}]
+	};
+
 	listItem = fixture('d2l-list-item-filter-fixture');
+	listItem.fetchSirenEntity = sandbox.stub().returns(Promise.resolve(
+		window.D2L.Hypermedia.Siren.Parse(organization)
+	));
+});
+
+afterEach(function() {
+	sandbox.restore();
 });
 
 describe('d2l-list-item-filter', function() {
@@ -28,37 +48,22 @@ describe('d2l-list-item-filter', function() {
 		expect(listItem.$$('d2l-icon').icon).to.equal('d2l-tier2:check-box');
 	});
 
-	it('should fetch the organization when the enrollment changes', function() {
-		var stub = sinon.stub(listItem.$$('d2l-ajax'), 'generateRequest');
-
+	it('should fetch the organization when the enrollment changes', function(done) {
 		listItem.set('enrollmentEntity', window.D2L.Hypermedia.Siren.Parse(enrollment));
 
-		expect(stub.called).to.be.true;
-		expect(listItem._organizationUrl).to.equal('/organizations/1');
+		setTimeout(function() {
+			expect(listItem.fetchSirenEntity).to.have.been.calledWith('/organizations/1');
+			expect(listItem._organizationUrl).to.equal('/organizations/1');
+			done();
+		});
 	});
 
 	it('should update text and value based off of organizations response', function(done) {
-		var server = sinon.fakeServer.create();
-		server.respondImmediately = true;
-		server.respondWith(
-			'GET',
-			'/organizations/1',
-			[200, '{}', JSON.stringify({
-				properties: {
-					name: 'foo'
-				},
-				links: [{
-					rel: ['self'],
-					href: 'bar'
-				}]
-			})]);
-
 		listItem.set('enrollmentEntity', window.D2L.Hypermedia.Siren.Parse(enrollment));
 
 		setTimeout(function() {
 			expect(listItem.text).to.equal('foo');
 			expect(listItem.value).to.equal('bar');
-			server.restore();
 			done();
 		});
 	});
