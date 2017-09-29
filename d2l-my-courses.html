@@ -1,6 +1,7 @@
+<script src="../fetch/fetch.js"></script>
+<script src="polyfill/Array.prototype.includes.js"></script>
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
-<link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-alert/d2l-alert.html">
 <link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../d2l-link/d2l-link.html">
@@ -47,22 +48,6 @@
 				clear: both;
 			}
 		</style>
-
-		<d2l-ajax
-			id="enrollmentsRootRequest"
-			url="[[enrollmentsUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onEnrollmentsRootResponse">
-
-		</d2l-ajax>
-
-		<d2l-ajax
-			id="enrollmentsSearchRequest"
-			url="[[_enrollmentsSearchUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onEnrollmentsSearchResponse"
-			last-response="{{_lastEnrollmentsSearchResponse}}">
-		</d2l-ajax>
 
 		<div class="spinner-container">
 			<d2l-loading-spinner
@@ -129,8 +114,14 @@
 
 	</template>
 
+	<script src="https://s.brightspace.com/lib/d2lfetch/1.2.0/d2lfetch.js"></script>
+	<script src="https://s.brightspace.com/lib/d2lfetch-auth/0.6.0/d2lfetch-auth.js"></script>
+	<script src="https://s.brightspace.com/lib/d2lfetch-dedupe/0.10.0/d2lfetch-dedupe.js"></script>
+	<script src="https://s.brightspace.com/lib/d2lfetch-simple-cache/0.3.0/d2lfetch-simple-cache.js"></script>
 	<script>
 		'use strict';
+
+		/* global Promise */
 
 		Polymer({
 			is: 'd2l-my-courses',
@@ -222,12 +213,16 @@
 				'_updateEnrollmentAlerts(_hasEnrollments, _hasPinnedEnrollments)'
 			],
 			ready: function() {
+				window.d2lfetch.use({name: 'auth', fn: window.d2lfetch.auth});
+				window.d2lfetch.use({name: 'dedupe', fn: window.d2lfetch.dedupe});
+				window.d2lfetch.use({name: 'simpleCache', fn: window.d2lfetch.simpleCache});
+
 				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseTiles);
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseList);
 			},
 			attached: function() {
-				this._rootEnrollmentRequest();
+				this._fetchRoot();
 
 				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._onStartedInactiveAlert.bind(this));
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
@@ -285,65 +280,6 @@
 				this._removeAlert('setCourseImageFailure');
 				// update the startedInactive alert in case the user changed the pinned states in the overlay
 				this._onStartedInactiveAlert();
-			},
-			_onEnrollmentsRootResponse: function(response) {
-				if (response.detail.status === 200) {
-					var enrollmentsRoot = this.parseEntity(response.detail.xhr.response);
-
-					if (!enrollmentsRoot.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
-						return;
-					}
-
-					var searchAction = enrollmentsRoot.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
-					this.fetchEnrollmentUrl = searchAction.href + '/organizations/';
-
-					var query = {
-						pageSize: 25,
-						embedDepth: 1,
-						sort: '-PinDate,OrgUnitName,OrgUnitId',
-						autoPinCourses: true
-					};
-					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
-					this.$.enrollmentsSearchRequest.generateRequest();
-				} else {
-					this._showContent();
-				}
-			},
-			_onEnrollmentsSearchResponse: function(response) {
-				if (response.detail.status === 200) {
-					var enrollments = this.parseEntity(response.detail.xhr.response);
-					var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);
-					var newPinnedEnrollments = [];
-					var newUnpinnedEnrollments = [];
-
-					enrollmentEntities.forEach(function(enrollment) {
-						var enrollmentId = this.getEntityIdentifier(enrollment);
-
-						if (enrollment.hasClass(this.HypermediaClasses.enrollments.pinned)) {
-							if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
-								newPinnedEnrollments.push(enrollment);
-								this._pinnedCoursesMap[enrollmentId] = true;
-							}
-						} else {
-							if (!this._unpinnedCoursesMap.hasOwnProperty(enrollmentId)) {
-								newUnpinnedEnrollments.push(enrollment);
-								this._unpinnedCoursesMap[enrollmentId] = true;
-							}
-						}
-					}, this);
-
-					this.pinnedEnrollments = this.pinnedEnrollments.concat(newPinnedEnrollments);
-					this.unpinnedEnrollments = this.unpinnedEnrollments.concat(newUnpinnedEnrollments);
-
-					var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this.pinnedEnrollments.length);
-					this._tileSizes = (colNum === 2) ?
-						{ mobile: { maxwidth: 767, size: 50 }, tablet: { maxwidth: 1243, size: 33 }, desktop: { size: 20 } } :
-						{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
-
-					this.fire('recalculate-columns');
-				}
-
-				this._showContent();
 			},
 			_onOpenChangeImageView: function(e) {
 				if (e.detail.organization) {
@@ -415,6 +351,64 @@
 				if ( e.code === 'Space' || e.code === 'Enter' ) {
 					return this._openAllCoursesView(e);
 				}
+			},
+			_fetchRoot: function() {
+				return this.fetchSirenEntity(this.enrollmentsUrl)
+					.then(this._fetchEnrollments.bind(this))
+					.catch(this._showContent.bind(this));
+			},
+			_fetchEnrollments: function(enrollmentsRootEntity) {
+				if (!enrollmentsRootEntity.hasAction('search-my-enrollments')) {
+					return Promise.resolve();
+				}
+
+				var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
+
+				var query = {
+					pageSize: 25,
+					embedDepth: 1,
+					sort: '-PinDate,OrgUnitName,OrgUnitId',
+					autoPinCourses: true
+				};
+				this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
+
+				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
+					.then(this._populateEnrollments.bind(this))
+					.catch(this._showContent.bind(this));
+			},
+			_populateEnrollments: function(enrollmentsEntity) {
+				this._lastEnrollmentsSearchResponse = enrollmentsEntity;
+				var enrollmentEntities = enrollmentsEntity.getSubEntitiesByClass('enrollment');
+				var newPinnedEnrollments = [];
+				var newUnpinnedEnrollments = [];
+
+				enrollmentEntities.forEach(function(enrollment) {
+					var enrollmentId = this.getEntityIdentifier(enrollment);
+
+					if (enrollment.hasClass('pinned')) {
+						if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
+							newPinnedEnrollments.push(enrollment);
+							this._pinnedCoursesMap[enrollmentId] = true;
+						}
+					} else {
+						if (!this._unpinnedCoursesMap.hasOwnProperty(enrollmentId)) {
+							newUnpinnedEnrollments.push(enrollment);
+							this._unpinnedCoursesMap[enrollmentId] = true;
+						}
+					}
+				}, this);
+
+				this.pinnedEnrollments = this.pinnedEnrollments.concat(newPinnedEnrollments);
+				this.unpinnedEnrollments = this.unpinnedEnrollments.concat(newUnpinnedEnrollments);
+
+				var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this.pinnedEnrollments.length);
+				this._tileSizes = (colNum === 2) ?
+					{ mobile: { maxwidth: 767, size: 50 }, tablet: { maxwidth: 1243, size: 33 }, desktop: { size: 20 } } :
+					{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
+
+				this.fire('recalculate-columns');
+
+				this._showContent();
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				var enrollmentId, enrollmentEntity;
@@ -494,17 +488,6 @@
 			},
 			_refreshPage: function() {
 				document.location.reload(true);
-			},
-			_rootEnrollmentRequest: function() {
-				this._pinnedCoursesMap = {};
-				this._unpinnedCoursesMap = {};
-				this.unpinnedEnrollments = [];
-				this.pinnedEnrollments = [];
-				this.debounce('d2l-root-request', this._rootRequest, 1000);
-			},
-			//encapsulates root enrollment request, the debounce method loses context when directly using this
-			_rootRequest: function() {
-				this.$.enrollmentsRootRequest.generateRequest();
 			},
 			_showContent: function() {
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.initialLoadingSpinner);

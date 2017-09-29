@@ -1,7 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-input/iron-input.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
-<link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
 <link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
@@ -35,20 +34,6 @@
 				@apply --d2l-body-compact-text;
 			}
 		</style>
-
-		<d2l-ajax
-			id="fullSearchRequest"
-			url="[[_searchUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onSearchResponse">
-		</d2l-ajax>
-
-		<d2l-ajax
-			id="liveSearchRequest"
-			url="[[_liveSearchUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onLiveSearchResponse">
-		</d2l-ajax>
 
 		<d2l-dropdown no-auto-open>
 			<div class="search-bar d2l-dropdown-opener" id="opener">
@@ -113,6 +98,8 @@
 	</template>
 	<script>
 		'use strict';
+
+		/* global Promise */
 
 		Polymer({
 			is: 'd2l-search-widget-custom',
@@ -362,47 +349,43 @@
 				});
 				this.set('_organizationRequests', []);
 
-				this.$.liveSearchRequest.generateRequest();
+				return this.fetchSirenEntity(this._liveSearchUrl)
+					.then(this._onLiveSearchResponse.bind(this));
 			},
-			_onLiveSearchResponse: function(response) {
-				if (response.detail.status === 200 && this._searchInput) {
-					var searchResponse = this.parseEntity(response.detail.xhr.response);
-					var enrollmentEntities = searchResponse.entities;
-					this.$$('iron-pages').select(enrollmentEntities.length > 0 ? 'search-results-page' : 'no-results-page');
-
-					this._liveSearchResults = [];
-					for (var i = 0; i < enrollmentEntities.length; i++) {
-						// Fetch each search result's organization's information
-						(function(enrollment, index, numEntities, self) {
-							var ajax = document.createElement('d2l-ajax');
-							ajax.url = enrollment.getLinkByRel(self.HypermediaRels.organization).href;
-							ajax.method = 'GET';
-							ajax.onResponse = function(response) {
-								if (response.detail.status === 200 || response.detail.status === 304) {
-									var organization = self.parseEntity(response.detail.response);
-									// Polymer's splice method causes empty results to show up for an
-									// unknown reason, so use a normal Array.prototype.splice...
-									self._liveSearchResults.splice(index, 0, {
-										name: organization.properties.name
-									});
-									// ...then, if this is the last result to get spliced in, manually
-									// call notifySplices with the changes.
-									if (self._liveSearchResults.length >= numEntities) {
-										self.notifySplices('_liveSearchResults', [{
-											index: 0,
-											removed: [],
-											addedCount: numEntities,
-											object: self._liveSearchResults,
-											type: 'splice'
-										}]);
-									}
-								}
-							};
-							ajax.generateRequest();
-							self.push('_organizationRequests', ajax);
-						})(enrollmentEntities[i], i, enrollmentEntities.length, this);
-					}
+			_onLiveSearchResponse: function(enrollmentsEntity) {
+				if (!this._searchInput) {
+					return;
 				}
+
+				var enrollmentEntities = enrollmentsEntity.entities;
+				this.$$('iron-pages').select(enrollmentEntities.length > 0 ? 'search-results-page' : 'no-results-page');
+
+				this._liveSearchResults = [];
+				var fetches = [];
+				for (var i = 0; i < enrollmentEntities.length; i++) {
+					var url = enrollmentEntities[i].getLinkByRel(this.HypermediaRels.organization).href;
+					// Fetch each search result's organization's information
+					var result = this.fetchSirenEntity(url)
+						.then(function(organizationEntity) {
+							// Polymer's splice method causes empty results to show up for an
+							// unknown reason, so use a normal Array.prototype.splice
+							this._liveSearchResults.splice(i, 0, {
+								name: organizationEntity.properties.name
+							});
+						}.bind(this));
+					fetches.push(result);
+				}
+
+				return Promise.all(fetches)
+					.then(function() {
+						// Once all fetches have completed, manually call notifySplices with the changes
+						this.notifySplices('_liveSearchResults', [{
+							index: 0,
+							removed: [],
+							addedCount: enrollmentEntities.length,
+							type: 'splice'
+						}]);
+					}.bind(this));
 			},
 
 			/*
