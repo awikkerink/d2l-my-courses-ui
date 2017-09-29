@@ -531,6 +531,15 @@ describe('<d2l-course-tile>', function() {
 		});
 	});
 
+	describe('calling focus', function() {
+		it('should set focus on anchor', function() {
+			var anchorSpy = sinon.spy(widget.$$('d2l-course-tile-anchor'), 'focus');
+
+			widget.focus();
+			expect(anchorSpy.called);
+		});
+	});
+
 	var curDate = 1484259377534;
 	var formattedDate = 'FORMATTED_DATE';
 	var inactiveText = '(Inactive)';
