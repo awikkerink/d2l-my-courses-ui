@@ -37,138 +37,6 @@ describe('d2l-filter-menu-content-tabbed', function() {
 		expect(component._searchSemestersAction.href).to.equal('/enrollments');
 	});
 
-	describe('d2l-filter-menu-content-filters-changed', function() {
-		it('should emit an event when a filter is added', function(done) {
-			var handler = function() {
-				document.removeEventListener('d2l-filter-menu-content-filters-changed', handler);
-				done();
-			};
-			document.addEventListener('d2l-filter-menu-content-filters-changed', handler);
-
-			component.$$('#departmentList d2l-menu').fire('d2l-menu-item-change', {
-				selected: true,
-				value: 'foo'
-			});
-		});
-
-		it('should emit an event when a filter is removed', function(done) {
-			var handler = function() {
-				document.removeEventListener('d2l-filter-menu-content-filters-changed', handler);
-				done();
-			};
-			document.addEventListener('d2l-filter-menu-content-filters-changed', handler);
-
-			component.$$('#departmentList d2l-menu').fire('d2l-menu-item-change', {
-				selected: false,
-				value: 'foo'
-			});
-		});
-	});
-
-	describe('Lazy loading', function() {
-		it('should set internal values appropriately when there are not any more departments', function(done) {
-			component.$.departmentSearchWidget.fire('d2l-search-component-results-changed', {
-				links: [{
-					rel: ['self'],
-					href: '/enrollments'
-				}]
-			});
-
-			setTimeout(function() {
-				expect(component._hasMoreDepartments).to.be.false;
-				expect(component._moreDepartmentsUrl).to.equal('');
-				done();
-			});
-		});
-
-		it('should set internal values appropriately when there are more departments', function(done) {
-			component.$.departmentSearchWidget.fire('d2l-search-widget-results-changed', {
-				links: [{
-					rel: ['self'],
-					href: '/enrollments'
-				}, {
-					rel: ['next'],
-					href: '/enrollments?page=2'
-				}]
-			});
-
-			setTimeout(function() {
-				expect(component._hasMoreDepartments).to.be.true;
-				expect(component._moreDepartmentsUrl).to.equal('/enrollments?page=2');
-				done();
-			});
-		});
-
-		it('should set internal values appropriately when there are not any more semesters', function(done) {
-			component.$.semesterSearchWidget.fire('d2l-search-component-results-changed', {
-				links: [{
-					rel: ['self'],
-					href: '/enrollments'
-				}]
-			});
-
-			setTimeout(function() {
-				expect(component._hasMoreSemesters).to.be.false;
-				expect(component._moreSemestersUrl).to.equal('');
-				done();
-			});
-		});
-
-		it('should set internal values appropriately when there are more semesters', function(done) {
-			component.$.semesterSearchWidget.fire('d2l-search-widget-results-changed', {
-				links: [{
-					rel: ['self'],
-					href: '/enrollments'
-				}, {
-					rel: ['next'],
-					href: '/enrollments?page=2'
-				}]
-			});
-
-			setTimeout(function() {
-				expect(component._hasMoreSemesters).to.be.true;
-				expect(component._moreSemestersUrl).to.equal('/enrollments?page=2');
-				done();
-			});
-		});
-
-		it('should trigger a request for more departments when the departments tab is selected', function() {
-			var departmentStub = sandbox.stub(component.$.moreDepartmentsRequest, 'generateRequest');
-			var semesterStub = sandbox.stub(component.$.moreSemestersRequest, 'generateRequest');
-			component._selectDepartmentList();
-
-			component.loadMore();
-
-			expect(departmentStub.called).to.be.false;
-			expect(semesterStub.called).to.be.false;
-
-			component.set('_hasMoreDepartments', true);
-
-			component.loadMore();
-
-			expect(departmentStub.called).to.be.true;
-			expect(semesterStub.called).to.be.false;
-		});
-
-		it('should trigger a request for more semesters when the semesters tab is selected', function() {
-			var departmentStub = sandbox.stub(component.$.moreDepartmentsRequest, 'generateRequest');
-			var semesterStub = sandbox.stub(component.$.moreSemestersRequest, 'generateRequest');
-			component._selectSemesterList();
-
-			component.loadMore();
-
-			expect(departmentStub.called).to.be.false;
-			expect(semesterStub.called).to.be.false;
-
-			component.set('_hasMoreSemesters', true);
-
-			component.loadMore();
-
-			expect(departmentStub.called).to.be.false;
-			expect(semesterStub.called).to.be.true;
-		});
-	});
-
 	describe('OrgUnitType names in filter dropdown', function() {
 		describe('default labels', function() {
 			it('should render default "Standard Semester OrgUnitType" name', function() {
@@ -203,6 +71,7 @@ describe('d2l-filter-menu-content-tabbed', function() {
 				expect(component.$.departmentListButton.textContent).to.equal('Department (1)');
 			});
 		});
+
 		describe('custom labels', function() {
 			it('should render custom "Standard Semester OrgUnitType" name', function() {
 				var spy = sandbox.spy(component, '_updateSemesterFilterLabel');
@@ -244,6 +113,44 @@ describe('d2l-filter-menu-content-tabbed', function() {
 
 				expect(spy.called).to.be.true;
 				expect(component.$.departmentListButton.textContent).to.equal(testDepartmentName + ' (1)');
+			});
+		});
+	});
+
+	describe('Clear button', function() {
+		beforeEach(function() {
+			component._currentFilters = [{
+				rel: ['enrollment'],
+				links: [{
+					rel: ['self'],
+					href: '/enrollments'
+				}, {
+					rel: ['https://api.brightspace.com/rels/organization'],
+					href: '/organizations/1'
+				}]
+			}];
+		});
+
+		it('should be hidden when there are no filters selected', function() {
+			component._numDepartmentFilters = 0;
+			component._numSemesterFilters = 0;
+
+			expect(component._showClearButton).to.be.false;
+		});
+
+		it('should appear when at least one filter is selected', function() {
+			component._numDepartmentFilters = 1;
+
+			expect(component._showClearButton).to.be.true;
+		});
+
+		it('should clear filters when clicked', function(done) {
+			component._numDepartmentFilters = 1;
+
+			setTimeout(function() {
+				component.$$('.clear-button').click();
+				expect(component._showClearButton).to.be.false;
+				done();
 			});
 		});
 	});
