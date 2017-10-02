@@ -314,7 +314,7 @@ describe('d2l-my-courses', function() {
 			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
-		describe('coruse image upload', function() {
+		describe('course image upload', function() {
 			var openChangeImageViewEvent = new CustomEvent(
 				'open-change-image-view', {
 					detail: {
