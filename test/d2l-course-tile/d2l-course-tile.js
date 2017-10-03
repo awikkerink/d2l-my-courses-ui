@@ -372,7 +372,7 @@ describe('<d2l-course-tile>', function() {
 				success = true;
 				expect(widget.$$('.change-image-success')).to.equal(null);
 				widget._nextImage = newImage;
-				widget._displaySetImageResult(success, newImage);
+				widget._displaySetImageResult(success);
 				clock.tick(1001);
 			});
 
