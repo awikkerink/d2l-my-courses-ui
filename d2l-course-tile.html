@@ -191,6 +191,14 @@ the user has in that organization - student, teacher, TA, etc.
 				_showHoverMenu: {
 					type: Boolean,
 					value: false
+				},
+				_successClass: {
+					type: String,
+					value: 'change-image-success'
+				},
+				_failureClass: {
+					type: String,
+					value: 'change-image-failure'
 				}
 			},
 			behaviors: [
@@ -284,9 +292,30 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			// Refreshes image from organization API call (especially useful when uploading course image)
 			refreshImage: function() {
+				var tileContainer = this.$$('.tile-container');
+
 				this._forceImageRefresh = true;
+				this.toggleClass('change-image-loading', true, tileContainer);
+
+				//jontemp
 				this._fetchOrganization()
-					.then(this._onOrganizationResponse.bind(this));
+					.then(
+						this._onOrganizationResponse.bind(this),
+						function() {
+							//this.toggleClass('change-image-loading', false, tileContainer);
+							this._displaySetImageResult(false);
+						}.bind(this))
+					.then(function() {
+						/*setTimeout(function() {
+							this.toggleClass('change-image-loading', false, tileContainer);
+							this.toggleClass(this._successClass, true, tileContainer);
+							setTimeout(function() {
+								this.toggleClass(this._successClass, false, tileContainer);
+							}.bind(this), 1000);
+						}.bind(this), 1000);*/
+						this._displaySetImageResult(true, true);
+					}.bind(this)
+				);
 			},
 			// Sets classes for this tile having the touch menu on it when it is opened/closed
 			setTouchMenuOpen: function(isOpen) {
@@ -370,30 +399,27 @@ the user has in that organization - student, teacher, TA, etc.
 						.then(this._onNotificationsResponse.bind(this));
 				}
 			},
-			_displaySetImageResult: function(success) {
+			_displaySetImageResult: function(success, skipSetImage) {
 				var tileContainer = this.$$('.tile-container');
 				var courseImage = this.$$('.course-image img');
-
-				var successClass = 'change-image-success',
-					failureClass = 'change-image-failure';
 
 				// We want to wait at least a second of the load icon before showing the status
 				setTimeout(function() {
 					this.toggleClass('change-image-loading', false, tileContainer);
-					this.toggleClass(successClass, success, tileContainer);
-					this.toggleClass(failureClass, !success, tileContainer);
+					this.toggleClass(this._successClass, success, tileContainer);
+					this.toggleClass(this._failureClass, !success, tileContainer);
 					this._iconDetails = success ?
 						{ className: 'checkmark', iconName: 'd2l-tier2:check'} :
 						{ className: 'fail-icon', iconName: 'd2l-tier3:close'};
 
 					// Remove the icon after a bit of time
 					setTimeout(function() {
-						if (success) {
+						if (success && !skipSetImage) {
 							this.toggleClass('d2l-course-tile-hidden', false, courseImage);
 							this._image = this._nextImage;
 						}
-						this.toggleClass(successClass, false, tileContainer);
-						this.toggleClass(failureClass, false, tileContainer);
+						this.toggleClass(this._successClass, false, tileContainer);
+						this.toggleClass(this._failureClass, false, tileContainer);
 					}.bind(this), 1000);
 				}.bind(this), 1000);
 			},
