@@ -3,6 +3,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../d2l-alert/d2l-alert.html">
+<link rel="import" href="../d2l-fetch/d2l-fetch.html">
 <link rel="import" href="../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../d2l-link/d2l-link.html">
 <link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
@@ -115,10 +116,6 @@
 
 	</template>
 
-	<script src="https://s.brightspace.com/lib/d2lfetch/1.2.0/d2lfetch.js"></script>
-	<script src="https://s.brightspace.com/lib/d2lfetch-auth/0.6.0/d2lfetch-auth.js"></script>
-	<script src="https://s.brightspace.com/lib/d2lfetch-dedupe/0.10.0/d2lfetch-dedupe.js"></script>
-	<script src="https://s.brightspace.com/lib/d2lfetch-simple-cache/0.3.0/d2lfetch-simple-cache.js"></script>
 	<script>
 		'use strict';
 
@@ -214,10 +211,6 @@
 				'_updateEnrollmentAlerts(_hasEnrollments, _hasPinnedEnrollments)'
 			],
 			ready: function() {
-				window.d2lfetch.use({name: 'auth', fn: window.d2lfetch.auth});
-				window.d2lfetch.use({name: 'dedupe', fn: window.d2lfetch.dedupe});
-				window.d2lfetch.use({name: 'simpleCache', fn: window.d2lfetch.simpleCache});
-
 				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseTiles);
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseList);
