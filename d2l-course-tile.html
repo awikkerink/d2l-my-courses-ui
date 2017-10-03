@@ -174,6 +174,7 @@ the user has in that organization - student, teacher, TA, etc.
 				_courseSettingsLabel: String,
 				_courseNotificationLabel: String,
 				_canChangeCourseImage: Boolean,
+				_forceImageRefresh: Boolean,
 				_image: Object,
 				_nextImage: Object,
 				// The icon we want to show when you select an image
@@ -218,9 +219,6 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			focus: function() {
 				this.$['d2l-course-tile-anchor'].focus();
-			},
-			getOrganization: function() {
-				return this._organization;
 			},
 			// Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
 			pinClickHandler: function(isTouch) {
@@ -285,6 +283,12 @@ the user has in that organization - student, teacher, TA, etc.
 				this._pendingPinAction = this.pinned;
 
 				return promise;
+			},
+			// Refreshes image from organization API call (especially useful when uploading course image)
+			refreshImage: function() {
+				this._forceImageRefresh = true;
+				this._fetchOrganization()
+					.then(this._onOrganizationResponse.bind(this));
 			},
 			// Sets classes for this tile having the touch menu on it when it is opened/closed
 			setTouchMenuOpen: function(isOpen) {
@@ -600,7 +604,10 @@ the user has in that organization - student, teacher, TA, etc.
 				return organization && organization.getActionByName(this.HypermediaActions.organizations.setCatalogImage);
 			},
 			_setCourseImageSrc: function() {
-				this._image = this._organization.getSubEntityByClass(this.HypermediaClasses.courseImage.courseImage);
+				var image = this._organization.getSubEntityByClass(this.HypermediaClasses.courseImage.courseImage);
+
+				image.forceImageRefresh = this._forceImageRefresh;
+				this._image = image;
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */
