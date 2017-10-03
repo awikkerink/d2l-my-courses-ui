@@ -10,7 +10,7 @@
     "test": "npm run test:lint:js && npm run test:lint:wc && wct",
     "test:lint:js": "eslint --ext .js,.html . d2l-filter-menu-content/ demo/ lang/ test/",
     "test:lint:wc": "polymer lint",
-    "test:no-lint": "cross-env LAUNCHPAD_BROWSERS=firefox wct -p"
+    "test:no-lint": "cross-env LAUNCHPAD_BROWSERS=chrome wct -p"
   },
   "config": {
     "frauPublisher": {
