@@ -484,6 +484,22 @@ describe('<d2l-course-tile>', function() {
 			});
 		});
 
+		it('should reject and not call the response handler when notification URL is not set', function() {
+			widget._onNotificationsResponse = sandbox.stub();
+			widget.courseUpdatesConfig = undefined;
+			return widget._fetchNotifications().catch(function() {
+				expect(widget._onNotificationsResponse).to.have.not.been.called;
+			});
+		});
+
+		it('should reject and not call the response handler when notification URL is not set', function() {
+			widget._onNotificationsResponse = sandbox.stub();
+			widget._notificationsUrl = undefined;
+			return widget._fetchNotifications().catch(function() {
+				expect(widget._onNotificationsResponse).to.have.not.been.called;
+			});
+		});
+
 		it('should show update number when less than 99', function() {
 			widget._setCourseUpdates(85);
 			expect(widget.$.courseUpdates.getAttribute('class')).to.not.contain('d2l-updates-hidden');
