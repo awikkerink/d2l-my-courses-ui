@@ -321,7 +321,7 @@ the user has in that organization - student, teacher, TA, etc.
 			_telemetryRequest: null,
 			_fetchOrganization: function() {
 				if (!this._organizationUrl) {
-					return;
+					return Promise.reject('Organization URL is not set');
 				}
 
 				return window.d2lfetch
@@ -337,7 +337,7 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_fetchNotifications: function() {
 				if (!this._notificationsUrl || !this.courseUpdatesConfig) {
-					return;
+					return Promise.reject('Notifications URL or config is not set');
 				}
 
 				return this.fetchSirenEntity(this._notificationsUrl);
