@@ -321,7 +321,7 @@ the user has in that organization - student, teacher, TA, etc.
 			_telemetryRequest: null,
 			_fetchOrganization: function() {
 				if (!this._organizationUrl) {
-					return Promise.reject('Organization URL is not set');
+					return;
 				}
 
 				return window.d2lfetch
@@ -336,8 +336,8 @@ the user has in that organization - student, teacher, TA, etc.
 					.then(this.responseToSirenEntity.bind(this));
 			},
 			_fetchNotifications: function() {
-				if (!this._notificationsUrl || !this.courseUpdatesConfig) {
-					return Promise.reject('Notifications URL or config is not set');
+				if (!this._notificationsUrl) {
+					return;
 				}
 
 				return this.fetchSirenEntity(this._notificationsUrl);
@@ -473,6 +473,10 @@ the user has in that organization - student, teacher, TA, etc.
 				return Promise.resolve();
 			},
 			_onNotificationsResponse: function(notifications) {
+				if (!this.courseUpdatesConfig) {
+					return;
+				}
+
 				var total = 0;
 				if (this.courseUpdatesConfig.showUnattemptedQuizzes) {
 					total += notifications.properties.UnattemptedQuizzes;
