@@ -115,50 +115,56 @@
 				</div>
 			</div>
 			<div id="semesterList" hidden="[[!_semesterListVisible]]" aria-labelledby="semesterListButton" role="tabpanel">
-				<d2l-search-widget
-					id="semesterSearchWidget"
-					hidden$="[[!_hasSemesters]]"
-					placeholder-text="{{localize('filtering.searchSemesters')}}"
-					search-button-label="{{localize('search')}}"
-					clear-button-label="{{localize('search.clearSearch')}}"
-					search-action="[[_searchSemestersAction]]"
-					search-field-name="search"
-					cache-responses></d2l-search-widget>
-				<d2l-menu
-					label="{{localize('filtering.semesterDefault')}}"
-					hidden$="[[!_hasSemesters]]">
-					<template is="dom-repeat" items="[[_semesters]]">
-						<d2l-list-item-filter
-							enrollment-entity="[[item]]"
-							selected="[[_checkSelected(item)]]">
-						</d2l-list-item-filter>
-					</template>
-				</d2l-menu>
+				<div hidden$="[[!_hasSemesters]]">
+					<d2l-search-widget
+						id="semesterSearchWidget"
+						placeholder-text="{{localize('filtering.searchSemesters')}}"
+						search-button-label="{{localize('search')}}"
+						clear-button-label="{{localize('search.clearSearch')}}"
+						search-action="[[_searchSemestersAction]]"
+						search-field-name="search"
+						cache-responses></d2l-search-widget>
+					<d2l-menu label="{{localize('filtering.semesterDefault')}}">
+						<template is="dom-repeat" items="[[_semesters]]">
+							<d2l-list-item-filter
+								enrollment-entity="[[item]]"
+								selected="[[_checkSelected(item)]]">
+							</d2l-list-item-filter>
+						</template>
+					</d2l-menu>
+
+					<div class="no-items-text" hidden$="[[_hasSemesterSearchResults]]">
+						{{localize('noSearchResults')}}
+					</div>
+				</div>
 
 				<div id="noSemestersText" class="no-items-text" hidden$="[[_hasSemesters]]">
 					{{localize('filtering.noFilterItemsDefault')}}
 				</div>
 			</div>
 			<div id="departmentList" hidden="[[!_departmentListVisible]]" aria-labelledby="departmentListButton" role="tabpanel">
-				<d2l-search-widget
-					id="departmentSearchWidget"
-					hidden$="[[!_hasDepartments]]"
-					placeholder-text="{{localize('filtering.searchDepartments')}}"
-					search-button-label="{{localize('search')}}"
-					clear-button-label="{{localize('search.clearSearch')}}"
-					search-action="[[_searchDepartmentsAction]]"
-					search-field-name="search"
-					cache-responses></d2l-search-widget>
-				<d2l-menu
-					label="{{localize('filtering.departmentDefault')}}"
-					hidden$="[[!_hasDepartments]]">
-					<template is="dom-repeat" items="[[_departments]]">
-						<d2l-list-item-filter
-							enrollment-entity="[[item]]"
-							selected="[[_checkSelected(item)]]">
-						</d2l-list-item-filter>
-					</template>
-				</d2l-menu>
+				<div hidden$="[[!_hasDepartments]]">
+					<d2l-search-widget
+						id="departmentSearchWidget"
+						placeholder-text="{{localize('filtering.searchDepartments')}}"
+						search-button-label="{{localize('search')}}"
+						clear-button-label="{{localize('search.clearSearch')}}"
+						search-action="[[_searchDepartmentsAction]]"
+						search-field-name="search"
+						cache-responses></d2l-search-widget>
+					<d2l-menu label="{{localize('filtering.departmentDefault')}}">
+						<template is="dom-repeat" items="[[_departments]]">
+							<d2l-list-item-filter
+								enrollment-entity="[[item]]"
+								selected="[[_checkSelected(item)]]">
+							</d2l-list-item-filter>
+						</template>
+					</d2l-menu>
+
+					<div class="no-items-text" hidden$="[[_hasDepartmentSearchResults]]">
+						{{localize('noSearchResults')}}
+					</div>
+				</div>
 
 				<div id="noDepartmentsText" class="no-items-text" hidden$="[[_hasDepartments]]">
 					{{localize('filtering.noFilterItemsDefault')}}
@@ -200,6 +206,14 @@
 					value: false
 				},
 				_hasSemesters: {
+					type: Boolean,
+					value: false
+				},
+				_hasDepartmentSearchResults: {
+					type: Boolean,
+					value: false
+				},
+				_hasSemesterSearchResults: {
 					type: Boolean,
 					value: false
 				},
@@ -269,11 +283,13 @@
 				var fetchDepartments = this.fetchSirenEntity(this._departmentsUrl)
 					.then(function(departmentsEntity) {
 						self.set('_departments', departmentsEntity.entities || []);
+						self._hasDepartments = self._departments.length > 0;
 						self.$.departmentSearchWidget.search();
 					});
 				var fetchSemesters = this.fetchSirenEntity(this._semestersUrl)
 					.then(function(semestersEntity) {
 						self.set('_semesters', semestersEntity.entities || []);
+						self._hasSemesters = self._semesters.length > 0;
 						self.$.semesterSearchWidget.search();
 					});
 
@@ -381,13 +397,6 @@
 			_updateSemesterFilterLabel: function(numSemesterFilters, semesterFilterName) {
 				this.__updateFilterLabel(numSemesterFilters, semesterFilterName, this.$.semesterListButton, this.$.semesterSearchWidget);
 			},
-			__onSearchResults: function(entity, hasPath) {
-				if (!entity.hasLinkByRel) {
-					entity = this.parseEntity(entity);
-				}
-
-				this.set(hasPath, (entity.entities || []).length > 0);
-			},
 			_onDepartmentSearchResults: function(e) {
 				if (!this._departmentsLoaded) {
 					// If this is the first load, select the semester list after we've fetched the contents
@@ -399,8 +408,8 @@
 						this._showContent = true;
 					}
 				}
-				this.set('_departments', e.detail.entities);
-				this.__onSearchResults(e.detail, '_hasDepartments');
+				this.set('_departments', e.detail.entities || []);
+				this._hasDepartmentSearchResults = this._departments.length > 0;
 				this.$.departmentList.querySelector('d2l-menu').resize();
 
 				setTimeout(function() {
@@ -419,8 +428,8 @@
 						this._showContent = true;
 					}
 				}
-				this.set('_semesters', e.detail.entities);
-				this.__onSearchResults(e.detail, '_hasSemesters');
+				this.set('_semesters', e.detail.entities || []);
+				this._hasSemesterSearchResults = this._semesters.length > 0;
 				this.$.semesterList.querySelector('d2l-menu').resize();
 
 				setTimeout(function() {
