@@ -64,7 +64,11 @@ To lint and run unit tests, run:
 npm test
 ```
 
-## Telemetry
+## Performance Timings
+
+For details on the performance profile of my-courses and the various timings which are collected, see [Performance Timings](performance-timing.md).
+
+## User Telemetry
 
 My courses and its associated components track various user telemetry events. These are sent to Kibana.
 
