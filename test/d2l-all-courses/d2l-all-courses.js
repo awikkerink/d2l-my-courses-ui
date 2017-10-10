@@ -263,8 +263,6 @@ describe('d2l-all-courses', function() {
 		it('should clear filters', function() {
 			var spy = sandbox.spy(widget.$.filterMenuContent, '_clearFilters');
 
-			widget._hasManyEnrollments = true;
-
 			widget.$.filterMenuContent.currentFilters = [1];
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 
