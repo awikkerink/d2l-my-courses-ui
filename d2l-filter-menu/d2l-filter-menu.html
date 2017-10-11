@@ -185,8 +185,10 @@
 			open: function() {
 				this._selectTab({ target: { dataset: { tabName: 'semesters' }}});
 
-				this.$.semestersTab.load();
-				this.$.departmentsTab.load();
+				return Promise.all([
+					this.$.semestersTab.load(),
+					this.$.departmentsTab.load()
+				]);
 			},
 			clearFilters: function() {
 				this.$.semestersTab.clear();

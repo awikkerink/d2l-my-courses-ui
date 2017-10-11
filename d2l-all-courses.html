@@ -440,7 +440,7 @@
 			},
 			_onFilterDropdownOpen: function() {
 				this.set('_filterText', this.localize('filtering.filter'));
-				this.$.filterMenu.open();
+				return this.$.filterMenu.open();
 			},
 			_onMenuItemChange: function(e) {
 				this.set('_sortParameter', this._sortOptions[e.detail.value].queryParameter);
