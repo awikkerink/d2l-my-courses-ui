@@ -49,6 +49,16 @@
 				}))
 				.then(this.responseToSirenEntity.bind(this));
 		},
+		performanceMark: function(name) {
+			if (window.performance && window.performance.mark) {
+				window.performance.mark(name);
+			}
+		},
+		performanceMeasure: function(name, startMark, endMark) {
+			if (window.performance && window.performance.measure) {
+				window.performance.measure(name, startMark, endMark);
+			}
+		},
 		responseToSirenEntity: function(response) {
 			if (response.ok) {
 				return response

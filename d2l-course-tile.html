@@ -203,6 +203,7 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
+					this.fire('course-tile-first-render');
 					var tileContainerEl = this.$$('.tile-container');
 					document.body.addEventListener('focus', this._onFocus, true);
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
@@ -447,7 +448,12 @@ the user has in that organization - student, teacher, TA, etc.
 				}
 			},
 			_onOrganizationResponse: function(organization) {
+
 				this._organization = organization;
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					this.fire('course-tile-organization');
+				}.bind(this));
+
 				this._checkDateBounds(organization);
 
 				var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);

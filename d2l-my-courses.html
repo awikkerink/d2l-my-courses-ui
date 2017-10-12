@@ -186,6 +186,26 @@
 				_unpinnedCoursesMap: {
 					type: Object,
 					value: function() { return {}; }
+				},
+				_performanceTracking: {
+					type: Object,
+					value: {
+						'course-tile-first-render': {
+							name: 'my-courses.tiles.rendered',
+							count: 0,
+							startMark: 'my-courses.search-enrollments.response'
+						},
+						'course-tile-organization': {
+							name: 'my-courses.tiles.organizations',
+							count: 0,
+							startMark: 'my-courses.search-enrollments.response'
+						},
+						'course-image-loaded': {
+							name: 'my-courses.tiles.images',
+							count: 0,
+							startMark: 'my-courses.tiles.first-organization'
+						}
+					}
 				}
 			},
 			behaviors: [
@@ -204,7 +224,10 @@
 				'd2l-simple-overlay-closed': '_onSimpleOverlayClosed',
 				'enrollment-pinned': '_onEnrollmentPinAction',
 				'enrollment-unpinned': '_onEnrollmentPinAction',
-				'tile-remove-complete': '_onTileRemoveComplete'
+				'tile-remove-complete': '_onTileRemoveComplete',
+				'course-tile-first-render': '_onPerformanceEvent',
+				'course-tile-organization': '_onPerformanceEvent',
+				'course-image-loaded': '_onPerformanceEvent'
 			},
 			observers: [
 				'_enrollmentsChanged(pinnedEnrollments.length, unpinnedEnrollments.length)',
@@ -216,6 +239,7 @@
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseList);
 			},
 			attached: function() {
+				this.performanceMark('my-courses.attached');
 				this._fetchRoot();
 
 				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._onStartedInactiveAlert.bind(this));
@@ -324,6 +348,30 @@
 					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
 				}
 			},
+			_onPerformanceEvent: function(e) {
+
+				var data = this._performanceTracking[e.type];
+				if (data === undefined || data.count >= this.pinnedEnrollments.length) return;
+
+				data.count++;
+				if (e.type === 'course-tile-organization' && data.count === 1) {
+					this.performanceMark('my-courses.tiles.first-organization');
+				}
+				if (data.count === this.pinnedEnrollments.length) {
+					this.performanceMark(data.name);
+					this.performanceMeasure(data.name, data.startMark, data.name);
+				}
+
+				// once we've seen all events for every tile, my-courses is "complete"
+				for (var key in this._performanceTracking) {
+					if (this._performanceTracking[key].count < this.pinnedEnrollments.length) {
+						return;
+					}
+				}
+				this.performanceMark('my-courses.complete');
+				this.performanceMeasure('my-courses', 'my-courses.attached', 'my-courses.complete');
+
+			},
 
 			/*
 			* Observers
@@ -368,11 +416,20 @@
 				}
 			},
 			_fetchRoot: function() {
+				this.performanceMark('my-courses.root-enrollments.request');
 				return this.fetchSirenEntity(this.enrollmentsUrl)
 					.then(this._fetchEnrollments.bind(this))
 					.catch(this._showContent.bind(this));
 			},
 			_fetchEnrollments: function(enrollmentsRootEntity) {
+
+				this.performanceMark('my-courses.root-enrollments.response');
+				this.performanceMeasure(
+					'my-courses.root-enrollments',
+					'my-courses.root-enrollments.request',
+					'my-courses.root-enrollments.response'
+				);
+
 				if (!enrollmentsRootEntity.hasAction('search-my-enrollments')) {
 					return Promise.resolve();
 				}
@@ -387,11 +444,20 @@
 				};
 				this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 
+				this.performanceMark('my-courses.search-enrollments.request');
 				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
 					.then(this._populateEnrollments.bind(this))
 					.catch(this._showContent.bind(this));
 			},
 			_populateEnrollments: function(enrollmentsEntity) {
+
+				this.performanceMark('my-courses.search-enrollments.response');
+				this.performanceMeasure(
+					'my-courses.search-enrollments',
+					'my-courses.search-enrollments.request',
+					'my-courses.search-enrollments.response'
+				);
+
 				this._lastEnrollmentsSearchResponse = enrollmentsEntity;
 				var enrollmentEntities = enrollmentsEntity.getSubEntitiesByClass('enrollment');
 				var newPinnedEnrollments = [];
