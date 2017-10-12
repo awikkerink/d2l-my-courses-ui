@@ -1,5 +1,7 @@
 <link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-colors/d2l-colors.html">
 <link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
+<link rel="import" href="../../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="../../iron-pages/iron-pages.html">
 <link rel="import" href="../d2l-utility-behavior.html">
 <link rel="import" href="../localize-behavior.html">
@@ -76,7 +78,7 @@
 
 		<div id="contentView">
 			<div class="dropdown-content-tabs" role="tablist">
-				<div class="dropdown-content-tab" role="tab" aria-controls="semesterList">
+				<div class="dropdown-content-tab" role="tab" aria-controls="semestersTab">
 					<div class="dropdown-content-tab-highlight" hidden$="[[!_semestersTabVisible]]"></div>
 					<button
 						id="semestersTabButton"
@@ -84,10 +86,10 @@
 						on-tap="_selectTab"
 						data-tab-name="semesters"
 						aria-pressed="true">
-						[[localize('filtering.semesterDefault')]]
+						[[_semestersTabText]]
 					</button>
 				</div>
-				<div class="dropdown-content-tab" role="tab" aria-controls="departmentList">
+				<div class="dropdown-content-tab" role="tab" aria-controls="departmentsTab">
 					<div class="dropdown-content-tab-highlight" hidden$="[[!_departmentsTabVisible]]"></div>
 					<button
 						id="departmentsTabButton"
@@ -95,7 +97,7 @@
 						on-tap="_selectTab"
 						data-tab-name="departments"
 						aria-pressed="false">
-						[[localize('filtering.departmentDefault')]]
+						[[_departmentsTabText]]
 					</button>
 				</div>
 			</div>
@@ -106,10 +108,10 @@
 				id="semestersTab"
 				data-tab-name="semesters"
 				aria-labelledby="semestersTabButton"
-				menu-label-text="[[localize('filtering.semesterDefault')]]"
-				no-filters-text="[[localize('filtering.noFilterItemsDefault')]]"
+				menu-label-text="[[filterStandardSemesterName]]"
+				no-filters-text="[[_noFiltersText]]"
 				search-action="[[_searchSemestersAction]]"
-				search-placeholder-text="[[localize('filtering.searchSemesters')]]"
+				search-placeholder-text="[[_semestersSearchPlaceholderText]]"
 				selected-filters="{{semesterFilters}}">
 			</d2l-filter-menu-tab>
 
@@ -117,10 +119,10 @@
 				id="departmentsTab"
 				data-tab-name="departments"
 				aria-labelledby="departmentsTabButton"
-				menu-label-text="[[localize('filtering.departmentDefault')]]"
-				no-filters-text="[[localize('filtering.noFilterItemsDefault')]]"
+				menu-label-text="[[filterStandardDepartmentName]]"
+				no-filters-text="[[_noFiltersText]]"
 				search-action="[[_searchDepartmentsAction]]"
-				search-placeholder-text="[[localize('filtering.searchDepartments')]]"
+				search-placeholder-text="[[_departmentsSearchPlaceholderText]]"
 				selected-filters="{{departmentFilters}}">
 			</d2l-filter-menu-tab>
 		</iron-pages>
@@ -159,6 +161,26 @@
 				_departmentsTabVisible: {
 					type: Boolean,
 					value: false
+				},
+				_semestersTabText: {
+					type: String,
+					computed: '_computeTabText(filterStandardSemesterName, semesterFilters.length)'
+				},
+				_departmentsTabText: {
+					type: String,
+					computed: '_computeTabText(filterStandardDepartmentName, departmentFilters.length)'
+				},
+				_semestersSearchPlaceholderText: {
+					type: String,
+					computed: '_computeSearchPlaceholderText(filterStandardSemesterName)'
+				},
+				_departmentsSearchPlaceholderText: {
+					type: String,
+					computed: '_computeSearchPlaceholderText(filterStandardDepartmentName)'
+				},
+				_noFiltersText: {
+					type: String,
+					computed: '_computeNoFiltersText(filterStandardSemesterName, filterStandardDepartmentName)'
 				}
 			},
 			behaviors: [
@@ -166,20 +188,8 @@
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
-			attached: function() {
-				this.listen(this.$.semestersTab, 'selected-filters-changed', '_onSelectedFiltersChanged');
-				this.listen(this.$.departmentsTab, 'selected-filters-changed', '_onSelectedFiltersChanged');
-			},
-			detached: function() {
-				this.unlisten(this.$.semestersTab, 'selected-filters-changed', '_onSelectedFiltersChanged');
-				this.unlisten(this.$.departmentsTab, 'selected-filters-changed', '_onSelectedFiltersChanged');
-			},
-			observers: [
-				'_updateNames(filterStandardSemesterName, filterStandardDepartmentName)'
-			],
-			ready: function() {
-				this.filterStandardSemesterName = this.localize('filtering.semesterDefault');
-				this.filterStandardDepartmentName = this.localize('filtering.departmentDefault');
+			listeners: {
+				'selected-filters-changed': '_onSelectedFiltersChanged'
 			},
 
 			open: function() {
@@ -206,8 +216,6 @@
 				return currentFilters.length > 0;
 			},
 			_onSelectedFiltersChanged: function() {
-				this._updateTabText();
-
 				this.set('currentFilters', this.semesterFilters.concat(this.departmentFilters));
 				this.fire('d2l-filter-menu-change', {
 					filters: this.currentFilters
@@ -238,26 +246,14 @@
 				this.$.semestersTabButton.setAttribute('aria-pressed', this._semestersTabVisible);
 				this.$.departmentsTabButton.setAttribute('aria-pressed', this._departmentsTabVisible);
 			},
-			_updateTabText: function() {
-				this.$.semestersTabButton.textContent = this.localize(
-					'filtering.filterLabel',
-					'filterLabel', this.filterStandardSemesterName,
-					'num', this.semesterFilters.length
-				);
-				this.$.departmentsTabButton.textContent = this.localize(
-					'filtering.filterLabel',
-					'filterLabel', this.filterStandardDepartmentName,
-					'num', this.departmentFilters.length
-				);
+			_computeTabText: function(filterLabel, num) {
+				return this.localize('filtering.filterLabel', 'filterLabel', filterLabel, 'num', num);
 			},
-			_updateNames: function(semesterName, departmentName) {
-				this._updateTabText();
-				this.$.semestersTab.searchPlaceholderText = this.localize('filtering.searchBy', 'filter', semesterName);
-				this.$.departmentsTab.searchPlaceholderText = this.localize('filtering.searchBy', 'filter', departmentName);
-
-				var noFiltersText = this.localize('filtering.noFilterItems', 'semester', semesterName, 'department', departmentName);
-				this.$.semestersTab.noFiltersText = noFiltersText;
-				this.$.departmentsTab.noFiltersText = noFiltersText;
+			_computeSearchPlaceholderText: function(name) {
+				return this.localize('filtering.searchBy', 'filter', name);
+			},
+			_computeNoFiltersText: function(semesterName, departmentName) {
+				return this.localize('filtering.noFilterItems', 'semester', semesterName, 'department', departmentName);
 			}
 		});
 	</script>
