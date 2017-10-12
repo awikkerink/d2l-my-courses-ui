@@ -45,9 +45,7 @@
 				</template>
 			</d2l-menu>
 
-			<div class="no-items-text" hidden$="[[_hasSearchResults]]">
-				[[localize('noSearchResults')]]
-			</div>
+			<div class="no-items-text" hidden$="[[_hasSearchResults]]">[[localize('noSearchResults')]]</div>
 		</div>
 
 		<div class="no-items-text" hidden$="[[_showContent]]">[[noFiltersText]]</div>
@@ -71,7 +69,7 @@
 				_hasSearchResults: {
 					type: Boolean,
 					value: false,
-					computed: '_computeHasSearchResults(_allFilters)'
+					computed: '_computeHasSearchResults(_allFilters.length)'
 				},
 				_allFilters: {
 					type: Array,
@@ -83,6 +81,7 @@
 				}
 			},
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
@@ -129,8 +128,8 @@
 				var id = entity.href || entity.getLinkByRel(this.HypermediaRels.organization).href;
 				return this.selectedFilters.indexOf(id) > -1;
 			},
-			_computeHasSearchResults: function(filters) {
-				return filters.length > 0;
+			_computeHasSearchResults: function(allFiltersLength) {
+				return allFiltersLength > 0;
 			},
 			_onMenuItemChange: function(e) {
 				if (e.detail.selected) {
