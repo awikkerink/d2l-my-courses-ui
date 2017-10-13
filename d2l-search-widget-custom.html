@@ -355,7 +355,7 @@
 					return;
 				}
 
-				var enrollmentEntities = enrollmentsEntity.entities;
+				var enrollmentEntities = enrollmentsEntity.entities || [];
 				this.$$('iron-pages').select(enrollmentEntities.length > 0 ? 'search-results-page' : 'no-results-page');
 
 				this._liveSearchResults = [];

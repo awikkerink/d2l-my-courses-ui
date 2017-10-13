@@ -204,6 +204,7 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
+					this.fire('course-tile-first-render');
 					var tileContainerEl = this.$$('.tile-container');
 					document.body.addEventListener('focus', this._onFocus, true);
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
@@ -346,7 +347,7 @@ the user has in that organization - student, teacher, TA, etc.
 					.then(this.responseToSirenEntity.bind(this));
 			},
 			_fetchNotifications: function() {
-				if (!this._notificationsUrl || !this.courseUpdatesConfig) {
+				if (!this._notificationsUrl) {
 					return;
 				}
 
@@ -457,7 +458,12 @@ the user has in that organization - student, teacher, TA, etc.
 				}
 			},
 			_onOrganizationResponse: function(organization) {
+
 				this._organization = organization;
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					this.fire('course-tile-organization');
+				}.bind(this));
+
 				this._checkDateBounds(organization);
 
 				var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
@@ -483,6 +489,10 @@ the user has in that organization - student, teacher, TA, etc.
 				return Promise.resolve();
 			},
 			_onNotificationsResponse: function(notifications) {
+				if (!this.courseUpdatesConfig) {
+					return;
+				}
+
 				var total = 0;
 				if (this.courseUpdatesConfig.showUnattemptedQuizzes) {
 					total += notifications.properties.UnattemptedQuizzes;

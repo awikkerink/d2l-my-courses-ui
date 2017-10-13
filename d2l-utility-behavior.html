@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-fetch/d2l-fetch.html">
 
 <script src="https://s.brightspace.com/lib/siren-parser/6.1.0/siren-parser-global.js"></script>
 <script>
@@ -47,6 +48,16 @@
 					headers: { Accept: 'application/vnd.siren+json' }
 				}))
 				.then(this.responseToSirenEntity.bind(this));
+		},
+		performanceMark: function(name) {
+			if (window.performance && window.performance.mark) {
+				window.performance.mark(name);
+			}
+		},
+		performanceMeasure: function(name, startMark, endMark) {
+			if (window.performance && window.performance.measure) {
+				window.performance.measure(name, startMark, endMark);
+			}
 		},
 		responseToSirenEntity: function(response) {
 			if (response.ok) {
