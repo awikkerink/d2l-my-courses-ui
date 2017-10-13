@@ -29,7 +29,7 @@ beforeEach(function() {
 		}]
 	};
 
-	listItem = fixture('d2l-list-item-filter-fixture');
+	listItem = fixture('d2l-filter-list-item-fixture');
 	listItem.fetchSirenEntity = sandbox.stub().returns(Promise.resolve(
 		window.D2L.Hypermedia.Siren.Parse(organization)
 	));
@@ -39,7 +39,7 @@ afterEach(function() {
 	sandbox.restore();
 });
 
-describe('d2l-list-item-filter', function() {
+describe('d2l-filter-list-item', function() {
 	it('should change icon when selected state changes', function() {
 		expect(listItem.$$('d2l-icon').icon).to.equal('d2l-tier2:check-box-unchecked');
 
