@@ -58,25 +58,18 @@ describe('<d2l-search-widget-custom>', function() {
 		clock.restore();
 	});
 
-	it('should perform a search when sort changes', function() {
-		var spy = sandbox.spy(widget, 'search');
-		widget.set('sort', '-PinDate,OrgUnitName,OrgUnitId');
-		clock.tick(501);
-		expect(spy.called).to.be.true;
-	});
-
-	it('should perform a search when filter changes', function() {
-		var spy = sandbox.spy(widget, 'search');
-		widget.set('parentOrganizations', [1, 2, 3]);
+	it('should perform a search when the searchUrl changes', function() {
+		var spy = sandbox.spy(widget, '_onSearchUrlChanged');
+		widget.searchUrl = '/organizations/1234';
 		clock.tick(501);
 		expect(spy.called).to.be.true;
 	});
 
 	it('only performs one search per debounce period', function() {
-		var spy = sandbox.spy(widget, 'search');
+		var spy = sandbox.spy(widget, '_onSearchUrlChanged');
 
 		for (var i = 0; i < 20; i++) {
-			widget.set('sort', 'sort' + i);
+			widget.searchUrl = '/organizations/1234';
 			clock.tick(200);
 		}
 

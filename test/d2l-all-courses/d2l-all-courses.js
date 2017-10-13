@@ -39,6 +39,17 @@ describe('d2l-all-courses', function() {
 
 		widget = fixture('d2l-all-courses-fixture');
 		widget.$['search-widget']._setSearchUrl = sandbox.stub();
+		widget._enrollmentsSearchAction = {
+			name: 'search-my-enrollments',
+			href: '/enrollments/users/169',
+			fields: [{
+				name: 'parentOrganizations',
+				value: ''
+			}, {
+				name: 'sort',
+				value: ''
+			}]
+		};
 
 		widgetNoAdvancedSearch = fixture('d2l-all-courses-without-advanced-search-fixture');
 	});
@@ -98,12 +109,10 @@ describe('d2l-all-courses', function() {
 			filters: [1]
 		};
 
-		it('should update the parent organizations', function() {
-			expect(widget._parentOrganizations.length).to.equal(0);
+		it('should set the search URL with the correct parentOrganizations', function() {
+			widget.$.filterMenu.fire('d2l-filter-menu-change', event);
 
-			widget.$$('d2l-filter-menu').fire('d2l-filter-menu-change', event);
-
-			expect(widget._parentOrganizations.length).to.equal(1);
+			expect(widget._searchUrl).to.match(/parentOrganizations=1/);
 		});
 	});
 
@@ -194,7 +203,7 @@ describe('d2l-all-courses', function() {
 
 		it('should show no pinned courses in search message when no pinned courses in filter', function() {
 			widget._clearAlerts();
-			widget._parentOrganizations = ['boop'];
+			widget.$.filterMenu.currentFilters.length = 1;
 			widget._updateEnrollmentAlerts(false, true);
 			expect(widget._noPinnedCoursesInSelection).to.be.true;
 		});
@@ -208,7 +217,7 @@ describe('d2l-all-courses', function() {
 
 		it('should show no unpinned courses in search message when no unpinned courses in filter', function() {
 			widget._clearAlerts();
-			widget._parentOrganizations = ['boop'];
+			widget.$.filterMenu.currentFilters.length = 1;
 			widget._updateEnrollmentAlerts(true, false);
 			expect(widget._noUnpinnedCoursesInSelection).to.be.true;
 		});
@@ -222,7 +231,7 @@ describe('d2l-all-courses', function() {
 
 		it('should not show message when there are pinned courses in filter', function() {
 			widget._clearAlerts();
-			widget._parentOrganizations = ['boop'];
+			widget.$.filterMenu.currentFilters.length = 1;
 			widget._updateEnrollmentAlerts(true, true);
 			expect(widget._noPinnedCoursesInSelection).to.be.false;
 		});
@@ -236,7 +245,7 @@ describe('d2l-all-courses', function() {
 
 		it('should not show message when there are unpinned courses in filter', function() {
 			widget._clearAlerts();
-			widget._parentOrganizations = ['boop'];
+			widget.$.filterMenu.currentFilters.length = 1;
 			widget._updateEnrollmentAlerts(true, true);
 			expect(widget._noUnpinnedCoursesInSelection).to.be.false;
 		});
@@ -289,16 +298,12 @@ describe('d2l-all-courses', function() {
 				value: 'OrgUnitCode'
 			};
 
-			var defaultValue = widget.defaultSortValue;
-
 			widget.load();
-			expect(widget._sortParameter).to.equal(widget._sortOptions[defaultValue].queryParameter);
 			widget.$$('d2l-dropdown-menu').fire('d2l-menu-item-change', event);
-			expect(widget._sortParameter).to.equal(widget._sortOptions[event.value].queryParameter);
+			expect(widget._searchUrl).to.contain('-PinDate,OrgUnitCode,OrgUnitId');
 
 			widget.$$('d2l-simple-overlay')._renderOpened();
 			expect(spy.called).to.be.true;
-			expect(widget._sortParameter).to.equal(widget._sortOptions[defaultValue].queryParameter);
 		});
 	});
 });

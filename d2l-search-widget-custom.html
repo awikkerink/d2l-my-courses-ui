@@ -103,15 +103,10 @@
 			is: 'd2l-search-widget-custom',
 
 			properties: {
-				// Value to send for the `sort` parameter in the search query
-				sort: String,
-
-				// Value to send for the `parentOrganizations` parameter in the search query
-				parentOrganizations: {
-					type: Array,
-					value: function() {
-						return [];
-					}
+				// URL to use to search. Updated by the search field, as well as external sources like sort/filter menus
+				searchUrl: {
+					type: String,
+					observer: '_onSearchUrlChanged'
 				},
 
 				// Outstanding /organizations XHRs, which are cancelled when a new search starts
@@ -159,10 +154,6 @@
 				window.D2L.PolymerBehaviors.SearchWidgetBehavior
 			],
 
-			observers: [
-				'_onSearchDependencyChanged(sort, parentOrganizations)'
-			],
-
 			ready: function() {
 				this._handleFocusBound = this._handleFocus.bind(this);
 				this._handleClickBound = this._handleClick.bind(this);
@@ -193,19 +184,13 @@
 				ENTER: 13
 			},
 
-			_onSearchDependencyChanged: function() {
-				if (this.isAttached) {
-					this.debounce('_onSearchDependencyChanged', this.search, 500);
-				}
-			},
-
 			/*
 			* SearchWidgetBehavior overrides
 			*/
 
 			search: function() {
 				this._addSearchToHistory(this._searchInput);
-				this._setSearchUrl(this._searchPageSize, '_searchUrl');
+				this._setSearchUrl(this._searchPageSize, 'searchUrl');
 			},
 			clear: function() {
 				// Triggers _onSearchInputChanged to call _setSearchUrl with empty query
@@ -227,9 +212,7 @@
 
 				var queryParams = {
 					page: 1,
-					pageSize: pageSize,
-					parentOrganizations: this.parentOrganizations.join(','),
-					sort: this.sort
+					pageSize: pageSize
 				};
 				queryParams[this.searchFieldName] = encodeURIComponent(this._searchInput.trim());
 
@@ -237,7 +220,7 @@
 			},
 			_onSearchInputChanged: function(newSearchString) {
 				if (newSearchString.trim().length === 0) {
-					this._setSearchUrl(this._searchPageSize, '_searchUrl');
+					this._setSearchUrl(this._searchPageSize, 'searchUrl');
 				} else {
 					this.set('_showClearIcon', false);
 				}
@@ -331,7 +314,7 @@
 			},
 
 			/*
-			* Live search funtionality
+			* Live search functionality
 			*/
 
 			_liveSearch: function() {
