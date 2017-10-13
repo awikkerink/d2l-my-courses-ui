@@ -6,6 +6,7 @@
 <link rel="import" href="../d2l-utility-behavior.html">
 <link rel="import" href="../localize-behavior.html">
 <link rel="import" href="d2l-filter-menu-tab.html">
+<link rel="import" href="d2l-filter-menu-tab-roles.html">
 
 <dom-module id="d2l-filter-menu">
 	<template>
@@ -106,7 +107,7 @@
 						on-tap="_selectTab"
 						data-tab-name="roles"
 						aria-pressed="false">
-						[[_rolesTabText]]
+						Role
 					</button>
 				</div>
 			</div>
@@ -135,12 +136,13 @@
 				selected-filters="{{_departmentFilters}}">
 			</d2l-filter-menu-tab>
 
-			<d2l-filter-menu-tab
+			<d2l-filter-menu-tab-roles
 				id="rolesTab"
 				data-tab-name="roles"
 				aria-labelledby="rolesTabButton"
-				no-filters-text="[[_noFiltersText]]">
-			</d2l-filter-menu-tab>
+				no-filters-text="[[_noFiltersText]]"
+				my-enrollments-entity="[[myEnrollmentsEntity]]">
+			</d2l-filter-menu-tab-roles>
 		</iron-pages>
 	</template>
 
@@ -168,12 +170,9 @@
 					type: Array,
 					value: function() { return []; }
 				},
-				_roleFilters: {
-					type: Array,
-					value: function() { return []; }
-				},
 				_searchDepartmentsAction: Object,
 				_searchSemestersAction: Object,
+				_searchMyEnrollmentsAction: Object,
 				_semestersTabVisible: {
 					type: Boolean,
 					value: false
@@ -199,10 +198,6 @@
 					type: String,
 					computed: '_computeTabText(filterStandardDepartmentName, _departmentFilters.length)'
 				},
-				_rolesTabText: {
-					type: String,
-					computed: '_computeTabText("Roles", _roleFilters.length)'
-				},
 				_semestersSearchPlaceholderText: {
 					type: String,
 					computed: '_computeSearchPlaceholderText(filterStandardSemesterName)'
@@ -222,7 +217,8 @@
 				window.D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
-				'selected-filters-changed': '_onSelectedFiltersChanged'
+				'role-filters-changed': '_onRoleFiltersChanged',
+				'selected-filters-changed': '_onDepartmentOrSemesterFiltersChanged'
 			},
 
 			open: function() {
@@ -240,16 +236,27 @@
 				// Clear button is removed via dom-if, so need to manually set focus to next element
 				if (this._semestersTabVisible) {
 					this.$.semestersTabButton.focus();
-				} else {
+				} else if (this._departmentsTabVisible) {
 					this.$.departmentsTabButton.focus();
+				} else {
+					this.$.rolesTabButton.focus();
 				}
 			},
 
-			_onSelectedFiltersChanged: function() {
+			_onRoleFiltersChanged: function(e) {
+				this.fire('d2l-filter-menu-change', e.detail);
+			},
+			_onDepartmentOrSemesterFiltersChanged: function() {
+				if (!this._semesterFilters || !this._departmentFilters || !this._searchMyEnrollmentsAction) {
+					return;
+				}
+
 				this.set('currentFilters', this._semesterFilters.concat(this._departmentFilters));
-				this.fire('d2l-filter-menu-change', {
-					filters: this.currentFilters
+
+				var searchUrl = this.createActionUrl(this._searchMyEnrollmentsAction, {
+					parentOrganizations: this.currentFilters.join(',')
 				});
+				this.fire('d2l-filter-menu-change', searchUrl);
 			},
 			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
 				myEnrollmentsEntity = this.parseEntity(myEnrollmentsEntity);
@@ -260,6 +267,10 @@
 
 				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyDepartments)) {
 					this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyDepartments);
+				}
+
+				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
+					this._searchMyEnrollmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 				}
 			},
 			_selectTab: function(e) {
@@ -273,6 +284,7 @@
 
 				this.$.semestersTab.resize();
 				this.$.departmentsTab.resize();
+				this.$.rolesTab.resize();
 
 				this.$.semestersTabButton.setAttribute('aria-pressed', this._semestersTabVisible);
 				this.$.departmentsTabButton.setAttribute('aria-pressed', this._departmentsTabVisible);

@@ -394,13 +394,7 @@
 				}
 			},
 			_onFilterChanged: function(e) {
-				if (!this._enrollmentsSearchAction) {
-					return;
-				}
-
-				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
-					parentOrganizations: e.detail.filters.join(',')
-				});
+				this._searchUrl = e.detail;
 			},
 			_onFilterDropdownClose: function() {
 				var length = this.$.filterMenu.currentFilters.length;

@@ -1,0 +1,128 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-menu/d2l-menu.html">
+<link rel="import" href="../../d2l-typography/d2l-typography-shared-styles.html">
+<link rel="import" href="../d2l-utility-behavior.html">
+<link rel="import" href="d2l-filter-list-item-role.html">
+
+<dom-module id="d2l-filter-menu-tab-roles">
+	<template>
+		<style>
+			:host {
+				display: flex;
+				flex-direction: column;
+			}
+			:host([hidden]) {
+				display: none !important;
+			}
+			.no-items-text {
+				@apply --d2l-body-compact-text;
+				margin: 10px;
+			}
+		</style>
+
+		<div hidden$="[[!_showContent]]">
+			<d2l-menu label="[[menuLabelText]]">
+				<template is="dom-repeat" items="[[_filterItems]]">
+					<d2l-filter-list-item-role
+						text="[[item.title]]"
+						value="[[item]]">
+					</d2l-filter-list-item-role>
+				</template>
+			</d2l-menu>
+		</div>
+
+		<div class="no-items-text" hidden$="[[_showContent]]">[[noFiltersText]]</div>
+	</template>
+
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-filter-menu-tab-roles',
+			properties: {
+				myEnrollmentsEntity: {
+					type: Object,
+					observer: '_myEnrollmentsEntityChanged'
+				},
+				menuLabelText: String,
+				noFiltersText: String,
+				_filterItems: {
+					type: Array,
+					value: function() { return []; }
+				},
+				_showContent: {
+					type: Boolean,
+					value: false
+				}
+			},
+			behaviors: [
+				window.D2L.MyCourses.UtilityBehavior
+			],
+			listeners: {
+				'd2l-menu-item-change': '_onMenuItemChange'
+			},
+
+			clear: function() {
+				var items = this.$$('d2l-menu').querySelectorAll('d2l-filter-list-item');
+				items.forEach(function(item) {
+					item.selected = false;
+				}.bind(this));
+
+				var action = this.myEnrollmentsEntity.getActionByName('apply-role-filters');
+				this.searchUrl = this.createActionUrl(action, {
+					roles: ''
+				});
+			},
+			resize: function() {
+				this.$$('d2l-menu').resize();
+
+				setTimeout(function() {
+					// DE24225 - force dropdown to resize after opening
+					window.dispatchEvent(new Event('resize'));
+				}.bind(this), 200);
+			},
+
+			_computeShowContent: function(filtersLength) {
+				return filtersLength > 0;
+			},
+			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
+				myEnrollmentsEntity = this.parseEntity(myEnrollmentsEntity);
+				if (!myEnrollmentsEntity.hasActionByName('set-role-filters')) {
+					return;
+				}
+
+				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName('set-role-filters');
+				var setRoleFiltersUrl = this.createActionUrl(setRoleFiltersAction);
+
+				this.fetchSirenEntity(setRoleFiltersUrl)
+					.then(function(roleFiltersEntity) {
+						this._filterItems = roleFiltersEntity.entities || [];
+						this._showContent = this._filterItems.length > 0;
+					}.bind(this));
+			},
+			_onMenuItemChange: function(e) {
+				var action;
+				if (e.detail.selected) {
+					action = e.detail.value.getActionByName('add-filter');
+				} else {
+					action = e.detail.value.getActionByName('remove-filter');
+				}
+				// Create the URL to add/remove the filter to overall filter
+				var url = this.createActionUrl(action);
+
+				this.fetchSirenEntity(url)
+					.then(function(roleFiltersEntity) {
+						// Use the apply-role-filters action to create the new searchUrl
+						action = roleFiltersEntity.getActionByName('apply-role-filters');
+						var roles = action.getFieldByName('roles').value;
+						var searchUrl = this.createActionUrl(action, {
+							roles: roles
+						});
+
+						this._filterItems = roleFiltersEntity.entities || [];
+						this.fire('role-filters-changed', searchUrl);
+					}.bind(this));
+			}
+		});
+	</script>
+</dom-module>
