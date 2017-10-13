@@ -3,27 +3,11 @@
   "description": "Brightspace My Courses homepage widget",
   "private": true,
   "scripts": {
-    "prebuild": "rimraf dist && mkdir dist",
-    "build": "cp d2l-*.html ./dist/",
     "postinstall": "bower install",
-    "publish:cdn": "npm run build -s && frau-publisher",
     "test": "npm run test:lint:js && npm run test:lint:wc && wct",
     "test:lint:js": "eslint --ext .js,.html . d2l-filter-menu-content/ demo/ lang/ test/",
     "test:lint:wc": "polymer lint",
-    "test:no-lint": "cross-env LAUNCHPAD_BROWSERS=chrome wct -p"
-  },
-  "config": {
-    "frauPublisher": {
-      "files": "./dist/**",
-      "moduleType": "app",
-      "targetDirectory": "my-courses-widget",
-      "creds": {
-        "key": "AKIAJPPTMUGNIRI3SB6A",
-        "secretVar": "CDN_SECRET"
-      },
-      "devTagVar": "TRAVIS_COMMIT",
-      "versionVar": "TRAVIS_TAG"
-    }
+    "test:no-lint": "cross-env LAUNCHPAD_BROWSERS=chrome wct --skip-plugin sauce -p"
   },
   "homepage": "https://github.com/Brightspace/d2l-my-courses-ui",
   "repository": {
@@ -46,9 +30,7 @@
     "eslint": "^4.5.0",
     "eslint-config-brightspace": "^0.3.1",
     "eslint-plugin-html": "^3.2.0",
-    "frau-publisher": "^2.6.2",
     "polymer-cli": "^1.5.2",
-    "rimraf": "^2.6.1",
     "web-component-tester": "^6.1.3"
   }
 }
