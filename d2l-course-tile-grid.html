@@ -28,6 +28,7 @@
 					tenant-id="[[tenantId]]"
 					telemetry-endpoint="[[telemetryEndpoint]]"
 					show-course-code="[[showCourseCode]]"
+					show-semester="[[showSemester]]"
 					course-updates-config="[[courseUpdatesConfig]]">
 				</d2l-course-tile>
 			</template>
@@ -73,7 +74,9 @@
 				// Types of notifications to include in update count in course tile
 				courseUpdatesConfig: Object,
 				// Set to true if course code should be shown in course tiles
-				showCourseCode: Boolean
+				showCourseCode: Boolean,
+				// Set to true if semester should be shown in course tiles
+				showSemester: Boolean
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileSlidingGridBehavior,
