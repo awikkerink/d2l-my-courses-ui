@@ -290,15 +290,9 @@ the user has in that organization - student, teacher, TA, etc.
 				this.toggleClass('change-image-loading', true, tileContainer);
 
 				this._fetchOrganization()
-					.then(
-						this._onOrganizationResponse.bind(this),
-						function() {
-							this._displaySetImageResult(false);
-						}.bind(this))
-					.then(function() {
-						this._displaySetImageResult(true, true);
-					}.bind(this)
-					);
+					.then(this._onOrganizationResponse.bind(this))
+					.then(this._displaySetImageResult.bind(this, true, true))
+					.catch(this._displaySetImageResult.bind(this, false));
 			},
 			// Sets classes for this tile having the touch menu on it when it is opened/closed
 			setTouchMenuOpen: function(isOpen) {
