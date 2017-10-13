@@ -5,7 +5,7 @@
 <link rel="import" href="../../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="../d2l-utility-behavior.html">
 <link rel="import" href="../localize-behavior.html">
-<link rel="import" href="d2l-list-item-filter.html">
+<link rel="import" href="d2l-filter-list-item.html">
 
 <dom-module id="d2l-filter-menu-tab">
 	<template>
@@ -38,10 +38,10 @@
 
 			<d2l-menu label="[[menuLabelText]]">
 				<template is="dom-repeat" items="[[_allFilters]]">
-					<d2l-list-item-filter
+					<d2l-filter-list-item
 						enrollment-entity="[[item]]"
 						selected="[[_checkSelected(item)]]">
-					</d2l-list-item-filter>
+					</d2l-filter-list-item>
 				</template>
 			</d2l-menu>
 
@@ -105,7 +105,7 @@
 					}.bind(this));
 			},
 			clear: function() {
-				var items = this.$$('d2l-menu').querySelectorAll('d2l-list-item-filter');
+				var items = this.$$('d2l-menu').querySelectorAll('d2l-filter-list-item');
 				items.forEach(function(item) {
 					item.selected = false;
 				});
