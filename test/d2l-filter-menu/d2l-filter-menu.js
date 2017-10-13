@@ -56,7 +56,7 @@ describe('d2l-filter-menu', function() {
 
 			it('should render semester name with 1 filter', function() {
 				component.filterStandardSemesterName = 'foo';
-				component.semesterFilters = [1];
+				component._semesterFilters = [1];
 
 				var button = component.$.semestersTabButton;
 				expect(button.innerText).to.equal('foo (1)');
@@ -71,7 +71,7 @@ describe('d2l-filter-menu', function() {
 
 			it('should render department name with 1 filter', function() {
 				component.filterStandardDepartmentName = 'foo';
-				component.departmentFilters = [1];
+				component._departmentFilters = [1];
 
 				var button = component.$.departmentsTabButton;
 				expect(button.innerText).to.equal('foo (1)');
@@ -95,8 +95,8 @@ describe('d2l-filter-menu', function() {
 
 	describe('clear button', function() {
 		beforeEach(function() {
-			component.semesterFilters = [];
-			component.departmentFilters = [];
+			component._semesterFilters = [];
+			component._departmentFilters = [];
 		});
 
 		it('should be hidden when there are no filters selected', function() {
@@ -104,21 +104,21 @@ describe('d2l-filter-menu', function() {
 		});
 
 		it('should appear when at least one semester filter is selected', function() {
-			component.semesterFilters = [1];
+			component._semesterFilters = [1];
 			component.fire('selected-filters-changed');
 
 			expect(component.$$('.clear-button').getAttribute('hidden')).to.be.null;
 		});
 
 		it('should appear when at least one department filter is selected', function() {
-			component.departmentFilters = [1];
+			component._departmentFilters = [1];
 			component.fire('selected-filters-changed');
 
 			expect(component.$$('.clear-button').getAttribute('hidden')).to.be.null;
 		});
 
 		it('should clear filters when clicked', function() {
-			component.semesterFilters = [1];
+			component._semesterFilters = [1];
 			component.fire('selected-filters-changed');
 
 			expect(component.$$('.clear-button').getAttribute('hidden')).to.be.null;
@@ -130,8 +130,8 @@ describe('d2l-filter-menu', function() {
 
 	describe('currentFilters', function() {
 		it('should update currentFilters when selected-filters-changed is fired', function() {
-			component.semesterFilters = [1];
-			component.departmentFilters = [1];
+			component._semesterFilters = [1];
+			component._departmentFilters = [1];
 			expect(component.currentFilters.length).to.equal(0);
 
 			component.fire('selected-filters-changed');
@@ -147,8 +147,8 @@ describe('d2l-filter-menu', function() {
 
 			component.addEventListener('d2l-filter-menu-change', listener);
 
-			component.semesterFilters = [1];
-			component.departmentFilters = [1];
+			component._semesterFilters = [1];
+			component._departmentFilters = [1];
 			component.fire('selected-filters-changed');
 		});
 	});

@@ -98,6 +98,17 @@
 						[[_departmentsTabText]]
 					</button>
 				</div>
+				<div class="dropdown-content-tab" role="tab" aria-controls="rolesTab">
+					<div class="dropdown-content-tab-highlight" hidden$="[[!_rolesTabVisible]]"></div>
+					<button
+						id="rolesTabButton"
+						class="dropdown-content-tab-button"
+						on-tap="_selectTab"
+						data-tab-name="roles"
+						aria-pressed="false">
+						[[_rolesTabText]]
+					</button>
+				</div>
 			</div>
 		</div>
 
@@ -110,7 +121,7 @@
 				no-filters-text="[[_noFiltersText]]"
 				search-action="[[_searchSemestersAction]]"
 				search-placeholder-text="[[_semestersSearchPlaceholderText]]"
-				selected-filters="{{semesterFilters}}">
+				selected-filters="{{_semesterFilters}}">
 			</d2l-filter-menu-tab>
 
 			<d2l-filter-menu-tab
@@ -121,7 +132,14 @@
 				no-filters-text="[[_noFiltersText]]"
 				search-action="[[_searchDepartmentsAction]]"
 				search-placeholder-text="[[_departmentsSearchPlaceholderText]]"
-				selected-filters="{{departmentFilters}}">
+				selected-filters="{{_departmentFilters}}">
+			</d2l-filter-menu-tab>
+
+			<d2l-filter-menu-tab
+				id="rolesTab"
+				data-tab-name="roles"
+				aria-labelledby="rolesTabButton"
+				no-filters-text="[[_noFiltersText]]">
 			</d2l-filter-menu-tab>
 		</iron-pages>
 	</template>
@@ -136,19 +154,23 @@
 					type: Array,
 					value: function() { return []; }
 				},
-				departmentFilters: {
-					type: Array,
-					value: function() { return []; },
-				},
-				semesterFilters: {
-					type: Array,
-					value: function() { return []; },
-				},
 				filterStandardDepartmentName: String,
 				filterStandardSemesterName: String,
 				myEnrollmentsEntity: {
 					type: Object,
 					observer: '_myEnrollmentsEntityChanged'
+				},
+				_departmentFilters: {
+					type: Array,
+					value: function() { return []; }
+				},
+				_semesterFilters: {
+					type: Array,
+					value: function() { return []; }
+				},
+				_roleFilters: {
+					type: Array,
+					value: function() { return []; }
 				},
 				_searchDepartmentsAction: Object,
 				_searchSemestersAction: Object,
@@ -160,6 +182,10 @@
 					type: Boolean,
 					value: false
 				},
+				_rolesTabVisible: {
+					type: Boolean,
+					value: false
+				},
 				_hasFilters: {
 					type: Boolean,
 					value: false,
@@ -167,11 +193,15 @@
 				},
 				_semestersTabText: {
 					type: String,
-					computed: '_computeTabText(filterStandardSemesterName, semesterFilters.length)'
+					computed: '_computeTabText(filterStandardSemesterName, _semesterFilters.length)'
 				},
 				_departmentsTabText: {
 					type: String,
-					computed: '_computeTabText(filterStandardDepartmentName, departmentFilters.length)'
+					computed: '_computeTabText(filterStandardDepartmentName, _departmentFilters.length)'
+				},
+				_rolesTabText: {
+					type: String,
+					computed: '_computeTabText("Roles", _roleFilters.length)'
 				},
 				_semestersSearchPlaceholderText: {
 					type: String,
@@ -216,7 +246,7 @@
 			},
 
 			_onSelectedFiltersChanged: function() {
-				this.set('currentFilters', this.semesterFilters.concat(this.departmentFilters));
+				this.set('currentFilters', this._semesterFilters.concat(this._departmentFilters));
 				this.fire('d2l-filter-menu-change', {
 					filters: this.currentFilters
 				});
@@ -239,12 +269,14 @@
 
 				this._semestersTabVisible = tabName === 'semesters';
 				this._departmentsTabVisible = tabName === 'departments';
+				this._rolesTabVisible = tabName === 'roles';
 
 				this.$.semestersTab.resize();
 				this.$.departmentsTab.resize();
 
 				this.$.semestersTabButton.setAttribute('aria-pressed', this._semestersTabVisible);
 				this.$.departmentsTabButton.setAttribute('aria-pressed', this._departmentsTabVisible);
+				this.$.rolesTabButton.setAttribute('aria-pressed', this._rolesTabVisible);
 			},
 			_computeHasFilters: function(currentFiltersLength) {
 				return currentFiltersLength > 0;
