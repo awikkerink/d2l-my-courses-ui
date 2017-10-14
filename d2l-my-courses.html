@@ -253,7 +253,7 @@
 			courseImageUploadCompleted: function(success) {
 				if (success) {
 					this.$['basic-image-selector-overlay'].close();
-					// TODO: refresh image for this._setImageOrg
+					this.$$('d2l-course-tile-grid').refreshCourseTileImage(this._setImageOrg);
 				}
 				this.focus();
 			},

@@ -356,6 +356,24 @@ describe('d2l-my-courses', function() {
 					done();
 				});
 			});
+
+			it('should return correct org unit id from various href', function() {
+				var org = window.D2L.Hypermedia.Siren.Parse({
+					links: [{
+						rel: ['self'],
+						href: '/organizations/671'
+					}]
+				});
+				expect(widget._getOrgUnitId(org)).to.equal('671');
+
+				org = window.D2L.Hypermedia.Siren.Parse({
+					links: [{
+						rel: ['self'],
+						href: '/some/other/route/8798734534'
+					}]
+				});
+				expect(widget._getOrgUnitId(org)).to.equal('8798734534');
+			});
 		});
 
 		describe('d2l-course-pinned-change', function() {
