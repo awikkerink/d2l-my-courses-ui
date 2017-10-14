@@ -1,0 +1,263 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-colors/d2l-colors.html">
+<link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
+<link rel="import" href="../../d2l-typography/d2l-typography-shared-styles.html">
+<link rel="import" href="../../iron-pages/iron-pages.html">
+<link rel="import" href="../d2l-utility-behavior.html">
+<link rel="import" href="../localize-behavior.html">
+<link rel="import" href="d2l-filter-menu-tab.html">
+
+<dom-module id="d2l-filter-menu">
+	<template>
+		<style>
+			:host {
+				display: flex;
+				flex-direction: column;
+			}
+			:host([hidden]) {
+				display: none !important;
+			}
+			button:hover,
+			button:focus {
+				text-decoration: underline;
+				color: var(--d2l-color-celestine);
+			}
+			.dropdown-content-header {
+				box-sizing: border-box;
+				display: flex;
+				justify-content: space-between;
+				border-bottom: 1px solid var(--d2l-color-titanius);
+				width: 100%;
+				padding: 20px;
+			}
+			.clear-button {
+				@apply --d2l-body-small-text;
+				color: var(--d2l-color-celestine);
+				background: none;
+				border: none;
+				cursor: pointer;
+				margin: 0 !important;
+				padding: 0;
+			}
+			.dropdown-content-tabs {
+				display: flex;
+				align-items: center;
+			}
+			.dropdown-content-tab {
+				flex: 1;
+			}
+			.dropdown-content-tab-button {
+				@apply --d2l-body-small-text;
+				color: var(--d2l-color-ferrite);
+				background: none;
+				border: none;
+				padding: 10px;
+				cursor: pointer;
+				display: inherit;
+				font-family: inherit;
+			}
+			.dropdown-content-tab-highlight {
+				background-color: var(--d2l-color-celestine);
+				border-bottom-left-radius: 4px;
+				border-bottom-right-radius: 4px;
+				height: 4px;
+				width: 80%;
+				margin: auto;
+			}
+			#contentView {
+				background: linear-gradient(to top, white, var(--d2l-color-regolith));
+			}
+		</style>
+
+		<div class="dropdown-content-header">
+			<span>[[localize('filtering.filterBy')]]</span>
+			<button hidden$="[[!_hasFilters]]" class="clear-button" on-tap="clearFilters">[[localize('filtering.clear')]]</button>
+		</div>
+
+		<div id="contentView">
+			<div class="dropdown-content-tabs" role="tablist">
+				<div class="dropdown-content-tab" role="tab" aria-controls="semestersTab">
+					<div class="dropdown-content-tab-highlight" hidden$="[[!_semestersTabVisible]]"></div>
+					<button
+						id="semestersTabButton"
+						class="dropdown-content-tab-button"
+						on-tap="_selectTab"
+						data-tab-name="semesters"
+						aria-pressed="true">
+						[[_semestersTabText]]
+					</button>
+				</div>
+				<div class="dropdown-content-tab" role="tab" aria-controls="departmentsTab">
+					<div class="dropdown-content-tab-highlight" hidden$="[[!_departmentsTabVisible]]"></div>
+					<button
+						id="departmentsTabButton"
+						class="dropdown-content-tab-button"
+						on-tap="_selectTab"
+						data-tab-name="departments"
+						aria-pressed="false">
+						[[_departmentsTabText]]
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<iron-pages attr-for-selected="data-tab-name" selected="semesters" fallback-selection="semesters">
+			<d2l-filter-menu-tab
+				id="semestersTab"
+				data-tab-name="semesters"
+				aria-labelledby="semestersTabButton"
+				menu-label-text="[[filterStandardSemesterName]]"
+				no-filters-text="[[_noFiltersText]]"
+				search-action="[[_searchSemestersAction]]"
+				search-placeholder-text="[[_semestersSearchPlaceholderText]]"
+				selected-filters="{{semesterFilters}}">
+			</d2l-filter-menu-tab>
+
+			<d2l-filter-menu-tab
+				id="departmentsTab"
+				data-tab-name="departments"
+				aria-labelledby="departmentsTabButton"
+				menu-label-text="[[filterStandardDepartmentName]]"
+				no-filters-text="[[_noFiltersText]]"
+				search-action="[[_searchDepartmentsAction]]"
+				search-placeholder-text="[[_departmentsSearchPlaceholderText]]"
+				selected-filters="{{departmentFilters}}">
+			</d2l-filter-menu-tab>
+		</iron-pages>
+	</template>
+
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-filter-menu',
+			properties: {
+				currentFilters: {
+					type: Array,
+					value: function() { return []; }
+				},
+				departmentFilters: {
+					type: Array,
+					value: function() { return []; },
+				},
+				semesterFilters: {
+					type: Array,
+					value: function() { return []; },
+				},
+				filterStandardDepartmentName: String,
+				filterStandardSemesterName: String,
+				myEnrollmentsEntity: {
+					type: Object,
+					observer: '_myEnrollmentsEntityChanged'
+				},
+				_searchDepartmentsAction: Object,
+				_searchSemestersAction: Object,
+				_semestersTabVisible: {
+					type: Boolean,
+					value: false
+				},
+				_departmentsTabVisible: {
+					type: Boolean,
+					value: false
+				},
+				_hasFilters: {
+					type: Boolean,
+					value: false,
+					computed: '_computeHasFilters(currentFilters.length)'
+				},
+				_semestersTabText: {
+					type: String,
+					computed: '_computeTabText(filterStandardSemesterName, semesterFilters.length)'
+				},
+				_departmentsTabText: {
+					type: String,
+					computed: '_computeTabText(filterStandardDepartmentName, departmentFilters.length)'
+				},
+				_semestersSearchPlaceholderText: {
+					type: String,
+					computed: '_computeSearchPlaceholderText(filterStandardSemesterName)'
+				},
+				_departmentsSearchPlaceholderText: {
+					type: String,
+					computed: '_computeSearchPlaceholderText(filterStandardDepartmentName)'
+				},
+				_noFiltersText: {
+					type: String,
+					computed: '_computeNoFiltersText(filterStandardSemesterName, filterStandardDepartmentName)'
+				}
+			},
+			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
+				window.D2L.MyCourses.LocalizeBehavior,
+				window.D2L.MyCourses.UtilityBehavior
+			],
+			listeners: {
+				'selected-filters-changed': '_onSelectedFiltersChanged'
+			},
+
+			open: function() {
+				this._selectTab({ target: { dataset: { tabName: 'semesters' }}});
+
+				return Promise.all([
+					this.$.semestersTab.load(),
+					this.$.departmentsTab.load()
+				]);
+			},
+			clearFilters: function() {
+				this.$.semestersTab.clear();
+				this.$.departmentsTab.clear();
+
+				// Clear button is removed via dom-if, so need to manually set focus to next element
+				if (this._semestersTabVisible) {
+					this.$.semestersTabButton.focus();
+				} else {
+					this.$.departmentsTabButton.focus();
+				}
+			},
+
+			_onSelectedFiltersChanged: function() {
+				this.set('currentFilters', this.semesterFilters.concat(this.departmentFilters));
+				this.fire('d2l-filter-menu-change', {
+					filters: this.currentFilters
+				});
+			},
+			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
+				myEnrollmentsEntity = this.parseEntity(myEnrollmentsEntity);
+
+				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMySemesters)) {
+					this._searchSemestersAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMySemesters);
+				}
+
+				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyDepartments)) {
+					this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyDepartments);
+				}
+			},
+			_selectTab: function(e) {
+				var tabName = e.target.dataset.tabName;
+
+				this.$$('iron-pages').select(tabName);
+
+				this._semestersTabVisible = tabName === 'semesters';
+				this._departmentsTabVisible = tabName === 'departments';
+
+				this.$.semestersTab.resize();
+				this.$.departmentsTab.resize();
+
+				this.$.semestersTabButton.setAttribute('aria-pressed', this._semestersTabVisible);
+				this.$.departmentsTabButton.setAttribute('aria-pressed', this._departmentsTabVisible);
+			},
+			_computeHasFilters: function(currentFiltersLength) {
+				return currentFiltersLength > 0;
+			},
+			_computeTabText: function(filterLabel, num) {
+				return this.localize('filtering.filterLabel', 'filterLabel', filterLabel, 'num', num);
+			},
+			_computeSearchPlaceholderText: function(name) {
+				return this.localize('filtering.searchBy', 'filter', name);
+			},
+			_computeNoFiltersText: function(semesterName, departmentName) {
+				return this.localize('filtering.noFilterItems', 'semester', semesterName, 'department', departmentName);
+			}
+		});
+	</script>
+</dom-module>

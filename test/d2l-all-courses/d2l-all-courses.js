@@ -7,7 +7,8 @@ describe('d2l-all-courses', function() {
 		widgetNoAdvancedSearch,
 		pinnedEnrollmentEntity,
 		unpinnedEnrollmentEntity,
-		clock;
+		clock,
+		sandbox;
 
 	beforeEach(function() {
 		pinnedEnrollmentEntity = window.D2L.Hypermedia.Siren.Parse({
@@ -34,15 +35,17 @@ describe('d2l-all-courses', function() {
 		});
 
 		clock = sinon.useFakeTimers();
+		sandbox = sinon.sandbox.create();
 
 		widget = fixture('d2l-all-courses-fixture');
-		sinon.stub(widget.$['search-widget'], '_setSearchUrl');
+		widget.$['search-widget']._setSearchUrl = sandbox.stub();
 
 		widgetNoAdvancedSearch = fixture('d2l-all-courses-without-advanced-search-fixture');
 	});
 
 	afterEach(function() {
 		clock.restore();
+		sandbox.restore();
 	});
 
 	describe('when the advancedSearchUrl property has not been set then', function() {
@@ -81,9 +84,13 @@ describe('d2l-all-courses', function() {
 	});
 
 	it('should load filter menu content when filter menu is opened', function() {
-		var stub = sinon.stub(widget.$.filterMenuContent, 'load');
-		widget._onFilterDropdownOpen();
-		expect(stub.called).to.be.true;
+		var semestersTabStub = sandbox.stub(widget.$.filterMenu.$.semestersTab, 'load');
+		var departmentsTabStub = sandbox.stub(widget.$.filterMenu.$.departmentsTab, 'load');
+
+		return widget._onFilterDropdownOpen().then(function() {
+			expect(semestersTabStub.called).to.be.true;
+			expect(departmentsTabStub.called).to.be.true;
+		});
 	});
 
 	describe('d2l-filter-menu-content-change', function() {
@@ -94,7 +101,7 @@ describe('d2l-all-courses', function() {
 		it('should update the parent organizations', function() {
 			expect(widget._parentOrganizations.length).to.equal(0);
 
-			widget.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-change', event);
+			widget.$$('d2l-filter-menu').fire('d2l-filter-menu-change', event);
 
 			expect(widget._parentOrganizations.length).to.equal(1);
 		});
@@ -102,26 +109,25 @@ describe('d2l-all-courses', function() {
 
 	describe('Filter text', function() {
 		it('should read "Filter" when no filters are selected', function() {
-			widget.$.filterMenuContent.currentFilters = [];
+			widget.$.filterMenu.currentFilters = [];
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 			expect(widget._filterText).to.equal('Filter');
 		});
 
 		it('should read "Filter: 1 filter" when any 1 filter is selected', function() {
-			widget.$.filterMenuContent.currentFilters = [1];
+			widget.$.filterMenu.currentFilters = [1];
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 			expect(widget._filterText).to.equal('Filter: 1 Filter');
 		});
 
 		it('should read "Filter: 2 filters" when any 2 filters are selected', function() {
-			widget.$.filterMenuContent.currentFilters = [1, 1];
+			widget.$.filterMenu.currentFilters = [1, 1];
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 			expect(widget._filterText).to.equal('Filter: 2 Filters');
 		});
 	});
 
 	describe('Alerts', function() {
-
 		it('should display appropriate message when there are no pinned enrollments', function() {
 			widget.pinnedEnrollments = [];
 			widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
@@ -130,8 +136,6 @@ describe('d2l-all-courses', function() {
 		});
 
 		it('should update enrollment alerts when an enrollment is pinned', function() {
-			var sandbox = sinon.sandbox.create();
-
 			widget._filteredPinnedEnrollments = [];
 			widget._filteredUnpinnedEnrollments = [unpinnedEnrollmentEntity];
 			expect(widget._hasFilteredPinnedEnrollments).to.equal(false);
@@ -139,8 +143,6 @@ describe('d2l-all-courses', function() {
 			var updateEnrollmentAlertsSpy = sandbox.spy(widget, '_updateEnrollmentAlerts');
 			widget._hasFilteredPinnedEnrollments = true;
 			expect(updateEnrollmentAlertsSpy.called);
-
-			sandbox.restore();
 		});
 
 		it('should remove all existing alerts when enrollment alerts are updated', function() {
@@ -189,48 +191,56 @@ describe('d2l-all-courses', function() {
 			widget._updateEnrollmentAlerts(false, true);
 			expect(widget._noPinnedCoursesInSearch).to.be.true;
 		});
+
 		it('should show no pinned courses in search message when no pinned courses in filter', function() {
 			widget._clearAlerts();
 			widget._parentOrganizations = ['boop'];
 			widget._updateEnrollmentAlerts(false, true);
 			expect(widget._noPinnedCoursesInSelection).to.be.true;
 		});
+
 		it('should show no unpinned courses in search message when no unpinned courses in search', function() {
 			widget._clearAlerts();
 			widget.$['search-widget']._showClearIcon = true;
 			widget._updateEnrollmentAlerts(true, false);
 			expect(widget._noUnpinnedCoursesInSearch).to.be.true;
 		});
+
 		it('should show no unpinned courses in search message when no unpinned courses in filter', function() {
 			widget._clearAlerts();
 			widget._parentOrganizations = ['boop'];
 			widget._updateEnrollmentAlerts(true, false);
 			expect(widget._noUnpinnedCoursesInSelection).to.be.true;
 		});
+
 		it('should not show message when there are pinned courses in search', function() {
 			widget._clearAlerts();
 			widget.$['search-widget']._showClearIcon = true;
 			widget._updateEnrollmentAlerts(true, true);
 			expect(widget._noPinnedCoursesInSearch).to.be.false;
 		});
+
 		it('should not show message when there are pinned courses in filter', function() {
 			widget._clearAlerts();
 			widget._parentOrganizations = ['boop'];
 			widget._updateEnrollmentAlerts(true, true);
 			expect(widget._noPinnedCoursesInSelection).to.be.false;
 		});
+
 		it('should not show message when there are unpinned courses in search', function() {
 			widget._clearAlerts();
 			widget.$['search-widget']._showClearIcon = true;
 			widget._updateEnrollmentAlerts(true, true);
 			expect(widget._noUnpinnedCoursesInSearch).to.be.false;
 		});
+
 		it('should not show message when there are unpinned courses in filter', function() {
 			widget._clearAlerts();
 			widget._parentOrganizations = ['boop'];
 			widget._updateEnrollmentAlerts(true, true);
 			expect(widget._noUnpinnedCoursesInSelection).to.be.false;
 		});
+
 		it('should not show message if there is already an alert for no pinned courses', function() {
 			widget._clearAlerts();
 			widget._addAlert('call-to-action', 'noPinnedCourses', 'no pinned courses bruh');
@@ -238,6 +248,7 @@ describe('d2l-all-courses', function() {
 			widget._updateEnrollmentAlerts(false, true);
 			expect(widget._noPinnedCoursesInSearch).to.be.false;
 		});
+
 		it('should not show messages if not searching', function() {
 			widget._clearAlerts();
 			widget.$['search-widget']._showClearIcon = false;
@@ -248,8 +259,6 @@ describe('d2l-all-courses', function() {
 	});
 
 	describe('closing the overlay', function() {
-		var sandbox = sinon.sandbox.create();
-
 		it('should clear search text', function() {
 			var spy = sandbox.spy(widget, '_clearSearchWidget');
 			var searchField = widget.$['search-widget'];
@@ -261,11 +270,9 @@ describe('d2l-all-courses', function() {
 		});
 
 		it('should clear filters', function() {
-			var spy = sandbox.spy(widget.$.filterMenuContent, '_clearFilters');
+			var spy = sandbox.spy(widget.$.filterMenu, 'clearFilters');
 
-			widget._hasManyEnrollments = true;
-
-			widget.$.filterMenuContent.currentFilters = [1];
+			widget.$.filterMenu.currentFilters = [1];
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 
 			expect(widget._filterText).to.equal('Filter: 1 Filter');
