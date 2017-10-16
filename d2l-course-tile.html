@@ -498,7 +498,7 @@ the user has in that organization - student, teacher, TA, etc.
 				var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
 				this._courseInfoUrl = courseInfoUrl ? courseInfoUrl.href : null;
 
-				var semesterUrl = organization && organization.getLinkByRel('https://api.brightspace.com/rels/parent-semester');
+				var semesterUrl = organization && organization.getLinkByRel(this.HypermediaRels.parentSemester);
 				this._semesterUrl = semesterUrl ? semesterUrl.href : null;
 
 				this._setCourseImageSrc();
