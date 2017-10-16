@@ -61,7 +61,7 @@ the user has in that organization - student, teacher, TA, etc.
 								<span class="course-code-text">[[_organization.properties.code]]</span>
 							</template>
 
-							<template id="courseSemesterTemplate" is="dom-if" if="[[showSemester]]">
+							<template id="courseSemesterTemplate" is="dom-if" if="[[_semesterName]]">
 								<template is="dom-if" if="[[showCourseCode]]">
 									<d2l-icon class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
 								</template>
@@ -366,10 +366,6 @@ the user has in that organization - student, teacher, TA, etc.
 				return this.fetchSirenEntity(this._notificationsUrl);
 			},
 			_fetchSemester: function() {
-				if (!this._semesterUrl) {
-					return;
-				}
-
 				return this.fetchSirenEntity(this._semesterUrl);
 			},
 			_enrollmentChanged: function() {
@@ -388,9 +384,11 @@ the user has in that organization - student, teacher, TA, etc.
 								fetchNotificationsFunction()
 									.then(this._onNotificationsResponse.bind(this));
 
-								var fetchSemesterFunction = this._fetchSemester.bind(this);
-								fetchSemesterFunction()
-									.then(this._onSemesterResponse.bind(this));
+								if (this._semesterUrl && this.showSemester) {
+									var fetchSemesterFunction = this._fetchSemester.bind(this);
+									fetchSemesterFunction()
+										.then(this._onSemesterResponse.bind(this))
+								}
 							}.bind(this));
 					}
 				}
@@ -404,9 +402,11 @@ the user has in that organization - student, teacher, TA, etc.
 							fetchNotificationsFunction()
 								.then(this._onNotificationsResponse.bind(this));
 
-							var fetchSemesterFunction = this._fetchSemester.bind(this)
-							fetchSemesterFunction()
-								.then(this._onSemesterResponse.bind(this));
+							if (this._semesterUrl && this.showSemester) {
+								var fetchSemesterFunction = this._fetchSemester.bind(this);
+								fetchSemesterFunction()
+									.then(this._onSemesterResponse.bind(this))
+							}
 						}.bind(this));
 				}
 			},
