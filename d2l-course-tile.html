@@ -366,7 +366,11 @@ the user has in that organization - student, teacher, TA, etc.
 				return this.fetchSirenEntity(this._notificationsUrl);
 			},
 			_fetchSemester: function() {
-				return this.fetchSirenEntity(this._semesterUrl);
+				if (this._semesterUrl && this.showSemester) {
+					return this.fetchSirenEntity(this._semesterUrl)
+						.then(this._onSemesterResponse.bind(this));
+				}
+				return Promise.resolve();
 			},
 			_enrollmentChanged: function() {
 				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
@@ -384,11 +388,7 @@ the user has in that organization - student, teacher, TA, etc.
 								fetchNotificationsFunction()
 									.then(this._onNotificationsResponse.bind(this));
 
-								if (this._semesterUrl && this.showSemester) {
-									var fetchSemesterFunction = this._fetchSemester.bind(this);
-									fetchSemesterFunction()
-										.then(this._onSemesterResponse.bind(this))
-								}
+								this._fetchSemester();
 							}.bind(this));
 					}
 				}
@@ -398,15 +398,11 @@ the user has in that organization - student, teacher, TA, etc.
 					return this._fetchOrganization()
 						.then(this._onOrganizationResponse.bind(this))
 						.then(function() {
-							var fetchNotificationsFunction = this._fetchNotifications.bind(this)
+							var fetchNotificationsFunction = this._fetchNotifications.bind(this);
 							fetchNotificationsFunction()
 								.then(this._onNotificationsResponse.bind(this));
 
-							if (this._semesterUrl && this.showSemester) {
-								var fetchSemesterFunction = this._fetchSemester.bind(this);
-								fetchSemesterFunction()
-									.then(this._onSemesterResponse.bind(this))
-							}
+							this._fetchSemester();
 						}.bind(this));
 				}
 			},
@@ -502,7 +498,7 @@ the user has in that organization - student, teacher, TA, etc.
 				var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
 				this._courseInfoUrl = courseInfoUrl ? courseInfoUrl.href : null;
 
-				var semesterUrl = organization && organization.getLinkByRel("https://api.brightspace.com/rels/parent-semester");
+				var semesterUrl = organization && organization.getLinkByRel('https://api.brightspace.com/rels/parent-semester');
 				this._semesterUrl = semesterUrl ? semesterUrl.href : null;
 
 				this._setCourseImageSrc();
@@ -549,6 +545,7 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_onSemesterResponse: function(semester) {
 				this._semesterName = semester.properties.name;
+				return Promise.resolve();
 			},
 			_setCourseUpdates: function(updates) {
 				this._courseUpdates = updates > 99 ? '99+' : Math.max(updates, 0);

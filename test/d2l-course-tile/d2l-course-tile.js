@@ -43,6 +43,48 @@ describe('<d2l-course-tile>', function() {
 			}, {
 				rel: ['https://notifications.api.brightspace.com/rels/organization-notifications'],
 				href: '/organizations/1/my-notifications'
+			}, {
+				rel: ['https://api.brightspace.com/rels/parent-semester'],
+				href: '/organizations/2'
+			}],
+			entities: [{
+				class: ['course-image'],
+				propeties: {
+					name: '1.jpg',
+					type: 'image/jpeg'
+				},
+				rel: ['https://api.brightspace.com/rels/organization-image'],
+				links: [{
+					rel: ['self'],
+					href: '/organizations/1/image'
+				}, {
+					rel: ['alternate'],
+					href: ''
+				}]
+			}, {
+				class: ['relative-uri'],
+				rel: ['item', 'https://api.brightspace.com/rels/organization-homepage'],
+				properties: {
+					path: 'http://example.com/2/home'
+				}
+			}]
+		},
+		semesterOrganization = {
+			class: ['active', 'semester'],
+			properties: {
+				name: 'Test Semester',
+				code: 'SEM169'
+			},
+			links: [{
+				rel: ['https://api.brightspace.com/rels/organization-homepage'],
+				href: 'http://example.com/1/home',
+				type: 'text/html'
+			}, {
+				rel: ['https://notifications.api.brightspace.com/rels/organization-notifications'],
+				href: '/organizations/1/my-notifications'
+			}, {
+				rel: ['self'],
+				href: '/organizations/2'
 			}],
 			entities: [{
 				class: ['course-image'],
@@ -67,11 +109,13 @@ describe('<d2l-course-tile>', function() {
 			}]
 		},
 		enrollmentEntity,
-		organizationEntity;
+		organizationEntity,
+		semesterOrganizationEntity;
 
 	before(function() {
 		enrollmentEntity = window.D2L.Hypermedia.Siren.Parse(enrollment);
 		organizationEntity = window.D2L.Hypermedia.Siren.Parse(organization);
+		semesterOrganizationEntity = window.D2L.Hypermedia.Siren.Parse(semesterOrganization);
 	});
 
 	beforeEach(function() {
@@ -149,6 +193,68 @@ describe('<d2l-course-tile>', function() {
 			widget.$.courseCodeTemplate.render();
 			var courseCode = widget.$$('.course-code-text');
 			expect(courseCode).to.be.null;
+		});
+
+		it('should show the semester if the semseterName is set', function() {
+			widget._semesterName = 'Test Semester';
+			widget.$$('#courseSemesterTemplate').render();
+			var semester = widget.$$('.course-semester-text');
+			expect(semester.innerText).to.equal(semesterOrganizationEntity.properties.name);
+		});
+
+		it('should not show the semester if the semseterName is not set', function() {
+			widget._semesterName = '';
+			widget.$$('#courseSemesterTemplate').render();
+			var semester = widget.$$('.course-semester-text');
+			expect(semester).to.be.null;
+		});
+
+		it('should not show the seperator if the course code is off', function() {
+			widget.showCourseCode = false;
+			widget._semesterName = 'Doop';
+			widget.$$('#courseSemesterTemplate').render();
+			var separator = widget.$$('.separator-icon');
+			expect(separator).to.be.null;
+		});
+
+		it('should show the seperator if the course code is on', function() {
+			widget.showCourseCode = true;
+			widget._semesterName = 'Doop';
+			widget.$$('#courseSemesterTemplate').render();
+			var separator = widget.$$('.separator-icon');
+			expect(separator).to.not.be.null;
+		});
+
+		it('should not set the semester name if the show semester config is false', function() {
+			widget.fetchSirenEntity = sinon.stub().returns(Promise.resolve(semesterOrganizationEntity));
+
+			widget.showSemester = false;
+			widget._semesterUrl = '/organizations/2';
+			widget._fetchSemester().then(function() {
+				expect(widget.fetchSirenEntity).to.have.not.been.called;
+			});
+
+		});
+
+		it('should set the semester name if the show semester config is set to true', function() {
+			widget.fetchSirenEntity = sinon.stub().returns(Promise.resolve(semesterOrganizationEntity));
+
+			widget.showSemester = true;
+			widget._semesterUrl = '/organizations/2';
+			widget._fetchSemester().then(function() {
+				expect(widget.fetchSirenEntity).to.have.been.called;
+				expect(widget._semesterName).to.equal(semesterOrganizationEntity.properties.name);
+			});
+
+		});
+
+		it('should not show the semester if the show semester config is not configured', function() {
+			widget.fetchSirenEntity = sinon.stub().returns(Promise.resolve(semesterOrganizationEntity));
+
+			widget._semesterUrl = '/organizations/2';
+			widget._fetchSemester().then(function() {
+				expect(widget.fetchSirenEntity).to.have.not.been.called;
+			});
 		});
 
 		it('should set the internal pinned state correctly', function() {
