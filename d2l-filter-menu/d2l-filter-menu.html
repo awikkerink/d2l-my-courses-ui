@@ -107,7 +107,7 @@
 						on-tap="_selectTab"
 						data-tab-name="roles"
 						aria-pressed="false">
-						Role
+						[[_rolesTabText]]
 					</button>
 				</div>
 			</div>
@@ -152,12 +152,9 @@
 		Polymer({
 			is: 'd2l-filter-menu',
 			properties: {
-				currentFilters: {
-					type: Array,
-					value: function() { return []; }
-				},
 				filterStandardDepartmentName: String,
 				filterStandardSemesterName: String,
+				filterRolesName: String,
 				myEnrollmentsEntity: {
 					type: Object,
 					observer: '_myEnrollmentsEntityChanged'
@@ -169,6 +166,10 @@
 				_semesterFilters: {
 					type: Array,
 					value: function() { return []; }
+				},
+				_roleFiltersCount: {
+					type: Number,
+					value: 0
 				},
 				_searchDepartmentsAction: Object,
 				_searchSemestersAction: Object,
@@ -188,7 +189,7 @@
 				_hasFilters: {
 					type: Boolean,
 					value: false,
-					computed: '_computeHasFilters(currentFilters.length)'
+					computed: '_computeHasFilters(_departmentFilters.length, _semesterFilters.length, _roleFiltersCount)'
 				},
 				_semestersTabText: {
 					type: String,
@@ -197,6 +198,10 @@
 				_departmentsTabText: {
 					type: String,
 					computed: '_computeTabText(filterStandardDepartmentName, _departmentFilters.length)'
+				},
+				_rolesTabText: {
+					type: String,
+					computed: '_computeTabText(filterRolesName, _roleFiltersCount)'
 				},
 				_semestersSearchPlaceholderText: {
 					type: String,
@@ -220,6 +225,9 @@
 				'role-filters-changed': '_onRoleFiltersChanged',
 				'selected-filters-changed': '_onDepartmentOrSemesterFiltersChanged'
 			},
+			ready: function() {
+				this.filterRolesName = 'Roles';
+			},
 
 			open: function() {
 				this._selectTab({ target: { dataset: { tabName: 'semesters' }}});
@@ -232,6 +240,9 @@
 			clearFilters: function() {
 				this.$.semestersTab.clear();
 				this.$.departmentsTab.clear();
+				this.$.rolesTab.clear();
+
+				this._roleFiltersCount = 0;
 
 				// Clear button is removed via dom-if, so need to manually set focus to next element
 				if (this._semestersTabVisible) {
@@ -241,22 +252,46 @@
 				} else {
 					this.$.rolesTabButton.focus();
 				}
+
+				if (!this._searchMyEnrollmentsAction) {
+					// When initially loading, everything is already cleared anyway
+					return;
+				}
+
+				var searchUrl = this.createActionUrl(this._searchMyEnrollmentsAction, {
+					parentOrganizations: '',
+					roles: ''
+				});
+
+				this.fire('d2l-filter-menu-change', {
+					url: searchUrl,
+					filterCount: 0
+				});
 			},
 
 			_onRoleFiltersChanged: function(e) {
-				this.fire('d2l-filter-menu-change', e.detail);
+				this._roleFiltersCount = e.detail.filterCount;
+
+				this.fire('d2l-filter-menu-change', {
+					url: e.detail.url,
+					filterCount: this._roleFiltersCount + this._semesterFilters.concat(this._departmentFilters).length
+				});
 			},
 			_onDepartmentOrSemesterFiltersChanged: function() {
 				if (!this._semesterFilters || !this._departmentFilters || !this._searchMyEnrollmentsAction) {
 					return;
 				}
 
-				this.set('currentFilters', this._semesterFilters.concat(this._departmentFilters));
+				var departmentSemesterFilters = this._semesterFilters.concat(this._departmentFilters);
 
 				var searchUrl = this.createActionUrl(this._searchMyEnrollmentsAction, {
-					parentOrganizations: this.currentFilters.join(',')
+					parentOrganizations: departmentSemesterFilters.join(',')
 				});
-				this.fire('d2l-filter-menu-change', searchUrl);
+
+				this.fire('d2l-filter-menu-change', {
+					url: searchUrl,
+					filterCount: this._roleFiltersCount + departmentSemesterFilters.length
+				});
 			},
 			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
 				myEnrollmentsEntity = this.parseEntity(myEnrollmentsEntity);
@@ -290,8 +325,8 @@
 				this.$.departmentsTabButton.setAttribute('aria-pressed', this._departmentsTabVisible);
 				this.$.rolesTabButton.setAttribute('aria-pressed', this._rolesTabVisible);
 			},
-			_computeHasFilters: function(currentFiltersLength) {
-				return currentFiltersLength > 0;
+			_computeHasFilters: function(departmentFiltersLength, semesterFiltersLength, roleFiltersCount) {
+				return departmentFiltersLength + semesterFiltersLength + roleFiltersCount > 0;
 			},
 			_computeTabText: function(filterLabel, num) {
 				return this.localize('filtering.filterLabel', 'filterLabel', filterLabel, 'num', num);

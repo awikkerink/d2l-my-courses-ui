@@ -111,8 +111,7 @@
 				});
 
 				this.$$('d2l-search-widget').clear();
-				this.set('selectedFilters', []);
-				this.fire('selected-filters-changed');
+				this.selectedFilters = [];
 			},
 			resize: function() {
 				this.$$('d2l-menu').resize();
