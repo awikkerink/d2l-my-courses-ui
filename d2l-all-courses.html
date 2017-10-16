@@ -48,10 +48,7 @@
 							search-button-label="{{localize('search')}}"
 							clear-button-label="{{localize('search.clearSearch')}}"
 							search-action="[[_enrollmentsSearchAction]]"
-							search-field-name="search"
-							cache-responses
-							parent-organizations="[[_parentOrganizations]]"
-							sort="[[_sortParameter]]">
+							search-url="[[_searchUrl]]">
 						</d2l-search-widget-custom>
 
 						<div id="filterAndSort">
@@ -257,10 +254,6 @@
 				_noUnpinnedCoursesInSearch: Boolean,
 				_noUnpinnedCoursesInSelection: Boolean,
 				_noUnpinnedCourses: Boolean,
-				_parentOrganizations: {
-					type: Array,
-					value: function() { return []; }
-				},
 				// Object containing the IDs of previously loaded pinned enrollments, to avoid duplicates
 				_pinnedCoursesMap: {
 					type: Object,
@@ -270,10 +263,8 @@
 					type: Array,
 					value: function() { return []; }
 				},
-				_sortParameter: {
-					type: String,
-					value: '-PinDate,OrgUnitName,OrgUnitId'
-				},
+				// URL passed to search widget, called for searching
+				_searchUrl: String,
 				_tileSizes: Object,
 				// Object containing the IDs of previously loaded unpinned enrollments, to avoid duplicates
 				_unpinnedCoursesMap: {
@@ -314,10 +305,9 @@
 
 				this._filterText = this.localize('filtering.filter');
 				this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').selected = true;
-				this._sortParameter = this._sortOptions[this.defaultSortValue].queryParameter;
 			},
 			attached: function() {
-				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_onMenuItemChange');
+				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_onSortOrderChanged');
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
 				this.listen(this.$.filterMenu, 'd2l-filter-menu-change', '_onFilterChanged');
@@ -326,7 +316,7 @@
 				window.addEventListener('resize', this._onResize.bind(this));
 			},
 			detached: function() {
-				this.unlisten(this.$.sortDropdown, 'd2l-menu-item-change', '_onMenuItemChange');
+				this.unlisten(this.$.sortDropdown, 'd2l-menu-item-change', '_onSortOrderChanged');
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
 				this.unlisten(this.$.filterMenu, 'd2l-filter-menu-change', '_onFilterChanged');
@@ -379,30 +369,6 @@
 			},
 
 			/*
-			* Non-Polymer properties
-			*/
-
-			_sortOptions: {
-				OrgUnitCode: {
-					text: 'sorting.sortCourseCode',
-					queryParameter: '-PinDate,OrgUnitCode,OrgUnitId'
-				},
-				OrgUnitName: {
-					text: 'sorting.sortCourseName',
-					queryParameter: '-PinDate,OrgUnitName,OrgUnitId'
-				},
-				PinDate: {
-					text: 'sorting.sortDatePinned',
-					queryParameter: '-PinDate,OrgUnitId'
-				},
-				LastAccessed: {
-					text: 'sorting.sortLastAccessed',
-					// Note: Sorting by LastAccessed is done differently LMS-side, hence this being different
-					queryParameter: 'LastAccessed'
-				}
-			},
-
-			/*
 			* Listeners
 			*/
 
@@ -423,8 +389,13 @@
 				}
 			},
 			_onFilterChanged: function(e) {
-				this._parentOrganizations = [];
-				this.set('_parentOrganizations', e.detail.filters);
+				if (!this._enrollmentsSearchAction) {
+					return;
+				}
+
+				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
+					parentOrganizations: e.detail.filters.join(',')
+				});
 			},
 			_onFilterDropdownClose: function() {
 				var length = this.$.filterMenu.currentFilters.length;
@@ -442,17 +413,43 @@
 				this.set('_filterText', this.localize('filtering.filter'));
 				return this.$.filterMenu.open();
 			},
-			_onMenuItemChange: function(e) {
-				this.set('_sortParameter', this._sortOptions[e.detail.value].queryParameter);
-				this.$.sortText.textContent = this.localize(this._sortOptions[e.detail.value].text || '');
-				this.$.sortDropdown.toggleOpen();
-			},
 			_onResize: function() {
 				this._updateTileSizes();
+			},
+			_onSortOrderChanged: function(e) {
+				var queryParameter, langterm;
+
+				switch (e.detail.value) {
+					case 'OrgUnitCode':
+						langterm = 'sorting.sortCourseCode';
+						queryParameter = '-PinDate,OrgUnitCode,OrgUnitId';
+						break;
+					case 'PinDate':
+						langterm = 'sorting.sortDatePinned';
+						queryParameter = '-PinDate,OrgUnitId';
+						break;
+					case 'LastAccessed':
+						langterm = 'sorting.sortLastAccessed';
+						// Note: Sorting by LastAccessed is done differently LMS-side, hence this being different
+						queryParameter = 'LastAccessed';
+						break;
+					default: // Includes 'OrgUnitName', which is the default sort order
+						langterm = 'sorting.sortCourseName';
+						queryParameter = '-PinDate,OrgUnitName,OrgUnitId';
+						break;
+				}
+
+				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
+					sort: queryParameter
+				});
+
+				this.$.sortText.textContent = this.localize(langterm || '');
+				this.$.sortDropdown.toggleOpen();
 			},
 			_onSearchResultsChanged: function(e) {
 				this._pinnedCoursesMap = {};
 				this._unpinnedCoursesMap = {};
+				this._enrollmentsSearchAction = e.detail.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 				this._updateFilteredEnrollments(e.detail, false);
 			},
 			_onSimpleOverlayOpening: function() {
@@ -512,7 +509,7 @@
 				this._noUnpinnedCourses = false;
 				var isSearched = this.$['search-widget']._showClearIcon,
 					hasAlert = this._hasAlert('noPinnedCourses'),
-					isFiltered = this._parentOrganizations ? this._parentOrganizations.length > 0 : false;
+					isFiltered = this.$.filterMenu.currentFilters.length > 0;
 				this._clearAlerts();
 				if (!hasPinnedEnrollments) {
 					if (!hasAlert && isSearched) {
@@ -587,11 +584,6 @@
 			},
 			_resetSortDropdown: function() {
 				this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').click();
-
-				// The click will not fire an event if the value is already selected, so need to update the sort manually
-				if (this._sortParameter !== this._sortOptions[this.defaultSortValue].queryParameter) {
-					this._sortParameter = this._sortOptions[this.defaultSortValue].queryParameter;
-				}
 
 				var content = this.$.sortDropdown.queryEffectiveChildren('[d2l-dropdown-content]');
 				if (content) {
