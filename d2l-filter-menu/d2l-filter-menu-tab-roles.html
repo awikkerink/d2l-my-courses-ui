@@ -109,13 +109,11 @@
 					.then(function(roleFiltersEntity) {
 						// Use the apply-role-filters action to create the new searchUrl
 						var applyAction = roleFiltersEntity.getActionByName('apply-role-filters');
-						var roles = applyAction.getFieldByName('roles').value;
-						var searchUrl = this.createActionUrl(applyAction, {
-							roles: roles
-						});
+						var searchUrl = this.createActionUrl(applyAction);
 
 						this._filterItems = roleFiltersEntity.entities || [];
 
+						var roles = applyAction.getFieldByName('roles').value;
 						this.fire('role-filters-changed', {
 							url: searchUrl,
 							filterCount: roles.length ? roles.split(',').length : 0

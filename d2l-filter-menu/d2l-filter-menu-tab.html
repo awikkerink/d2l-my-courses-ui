@@ -94,7 +94,7 @@
 				if (this._allFilters.length > 0) {
 					// We've already loaded, don't load again
 					this.$$('d2l-search-widget').clear();
-					return;
+					return Promise.resolve();
 				}
 
 				return this.fetchSirenEntity(this.searchAction.href)

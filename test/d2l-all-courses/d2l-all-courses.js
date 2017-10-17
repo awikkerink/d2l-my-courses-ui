@@ -107,34 +107,49 @@ describe('d2l-all-courses', function() {
 		});
 	});
 
-	describe('d2l-filter-menu-content-change', function() {
-		var event = {
-			filters: [1]
-		};
+	describe('d2l-filter-menu-change event', function() {
+		it('should set the _searchUrl and _filterCount', function() {
+			widget.$.filterMenu.fire('d2l-filter-menu-change', {
+				url: 'http://example.com',
+				filterCount: 12
+			});
 
-		it('should set the search URL with the correct parentOrganizations', function() {
-			widget.$.filterMenu.fire('d2l-filter-menu-change', event);
+			expect(widget._searchUrl).to.equal('http://example.com');
+			expect(widget._filterCount).to.equal(12);
+		});
+	});
 
-			expect(widget._searchUrl).to.match(/parentOrganizations=1/);
+	describe('d2l-menu-item-change event', function() {
+		it('should set the _searchUrl', function() {
+			widget.$.sortDropdown.fire('d2l-menu-item-change', {
+				value: 'LastAccessed'
+			});
+
+			expect(widget._searchUrl).to.equal('/enrollments/users/169?parentOrganizations=&sort=LastAccessed');
 		});
 	});
 
 	describe('Filter text', function() {
-		it('should read "Filter" when no filters are selected', function() {
-			widget.$.filterMenu.currentFilters = [];
+		function fireEvents(filterCount) {
+			widget.$.filterMenu.fire('d2l-filter-menu-change', {
+				url: 'http://example.com',
+				filterCount: filterCount
+			});
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
+		}
+
+		it('should read "Filter" when no filters are selected', function() {
+			fireEvents(0);
 			expect(widget._filterText).to.equal('Filter');
 		});
 
 		it('should read "Filter: 1 filter" when any 1 filter is selected', function() {
-			widget.$.filterMenu.currentFilters = [1];
-			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
+			fireEvents(1);
 			expect(widget._filterText).to.equal('Filter: 1 Filter');
 		});
 
 		it('should read "Filter: 2 filters" when any 2 filters are selected', function() {
-			widget.$.filterMenu.currentFilters = [1, 1];
-			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
+			fireEvents(2);
 			expect(widget._filterText).to.equal('Filter: 2 Filters');
 		});
 	});
@@ -206,7 +221,7 @@ describe('d2l-all-courses', function() {
 
 		it('should show no pinned courses in search message when no pinned courses in filter', function() {
 			widget._clearAlerts();
-			widget.$.filterMenu.currentFilters.length = 1;
+			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget._updateEnrollmentAlerts(false, true);
 			expect(widget._noPinnedCoursesInSelection).to.be.true;
 		});
@@ -220,7 +235,7 @@ describe('d2l-all-courses', function() {
 
 		it('should show no unpinned courses in search message when no unpinned courses in filter', function() {
 			widget._clearAlerts();
-			widget.$.filterMenu.currentFilters.length = 1;
+			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget._updateEnrollmentAlerts(true, false);
 			expect(widget._noUnpinnedCoursesInSelection).to.be.true;
 		});
@@ -234,7 +249,7 @@ describe('d2l-all-courses', function() {
 
 		it('should not show message when there are pinned courses in filter', function() {
 			widget._clearAlerts();
-			widget.$.filterMenu.currentFilters.length = 1;
+			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget._updateEnrollmentAlerts(true, true);
 			expect(widget._noPinnedCoursesInSelection).to.be.false;
 		});
@@ -248,7 +263,7 @@ describe('d2l-all-courses', function() {
 
 		it('should not show message when there are unpinned courses in filter', function() {
 			widget._clearAlerts();
-			widget.$.filterMenu.currentFilters.length = 1;
+			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget._updateEnrollmentAlerts(true, true);
 			expect(widget._noUnpinnedCoursesInSelection).to.be.false;
 		});
@@ -284,7 +299,7 @@ describe('d2l-all-courses', function() {
 		it('should clear filters', function() {
 			var spy = sandbox.spy(widget.$.filterMenu, 'clearFilters');
 
-			widget.$.filterMenu.currentFilters = [1];
+			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 
 			expect(widget._filterText).to.equal('Filter: 1 Filter');
