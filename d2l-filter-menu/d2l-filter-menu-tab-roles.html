@@ -43,6 +43,7 @@
 				},
 				menuLabelText: String,
 				noFiltersText: String,
+				_roleFiltersEntity: Object,
 				_filterItems: {
 					type: Array,
 					value: function() { return []; }
@@ -64,6 +65,19 @@
 				for (var i = 0; i < items.length; i++) {
 					items[i].selected = false;
 				}
+
+				// This should instead use a `clear-role-filters` action from the API
+				// (which would do effectively the same thing), but it doesn't exist yet
+				var myEnrollmentsEntity = this.parseEntity(this.myEnrollmentsEntity);
+				if (!myEnrollmentsEntity.hasActionByName('set-role-filters')) {
+					return;
+				}
+				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName('set-role-filters');
+				var clearRoleFiltersUrl = this.createActionUrl(setRoleFiltersAction, {
+					include: ''
+				});
+
+				return this._fetchFilterItems(clearRoleFiltersUrl);
 			},
 			resize: function() {
 				this.$$('d2l-menu').resize();
@@ -86,11 +100,7 @@
 				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName('set-role-filters');
 				var setRoleFiltersUrl = this.createActionUrl(setRoleFiltersAction);
 
-				this.fetchSirenEntity(setRoleFiltersUrl)
-					.then(function(roleFiltersEntity) {
-						this._filterItems = roleFiltersEntity.entities || [];
-						this._showContent = this._filterItems.length > 0;
-					}.bind(this));
+				this._fetchFilterItems(setRoleFiltersUrl);
 			},
 			_onMenuItemChange: function(e) {
 				var changeFilterAction;
@@ -100,21 +110,26 @@
 					changeFilterAction = e.detail.value.getActionByName('remove-filter');
 				}
 				// Create the URL to add/remove the filter to overall filter
-				var url = this.createActionUrl(changeFilterAction);
+				var addRemoveUrl = this.createActionUrl(changeFilterAction);
 
-				this.fetchSirenEntity(url)
-					.then(function(roleFiltersEntity) {
+				this._fetchFilterItems(addRemoveUrl)
+					.then(function() {
 						// Use the apply-role-filters action to create the new searchUrl
-						var applyAction = roleFiltersEntity.getActionByName('apply-role-filters');
+						var applyAction = this._roleFiltersEntity.getActionByName('apply-role-filters');
 						var searchUrl = this.createActionUrl(applyAction);
-
-						this._filterItems = roleFiltersEntity.entities || [];
-
 						var roles = applyAction.getFieldByName('roles').value;
 						this.fire('role-filters-changed', {
 							url: searchUrl,
 							filterCount: roles.length ? roles.split(',').length : 0
 						});
+					}.bind(this));
+			},
+			_fetchFilterItems: function(url) {
+				return this.fetchSirenEntity(url)
+					.then(function(roleFiltersEntity) {
+						this._roleFiltersEntity = roleFiltersEntity;
+						this._filterItems = this._roleFiltersEntity.entities || [];
+						this._showContent = this._filterItems.length > 0;
 					}.bind(this));
 			}
 		});

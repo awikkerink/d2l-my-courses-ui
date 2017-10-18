@@ -17,7 +17,11 @@ beforeEach(function() {
 	myEnrollmentsEntity = {
 		actions: [{
 			name: 'set-role-filters',
-			href: 'http://example.com'
+			href: 'http://example.com',
+			fields: [{
+				name: 'include',
+				value: ''
+			}]
 		}]
 	};
 	roleFilterEntity = parse({
@@ -40,6 +44,7 @@ beforeEach(function() {
 		}]
 	});
 	component = fixture('d2l-filter-menu-tab-roles-fixture');
+	component.fetchSirenEntity = sandbox.stub().returns(Promise.resolve({}));
 	component.myEnrollmentsEntity = myEnrollmentsEntity;
 });
 
@@ -62,6 +67,7 @@ describe('d2l-filter-menu-tab-roles', function() {
 			setTimeout(function() {
 				expect(component._showContent).to.be.false;
 				expect(component.$$('.no-items-text').getAttribute('hidden')).to.be.null;
+				expect(component.fetchSirenEntity).to.have.been.called;
 				done();
 			});
 		});
@@ -126,10 +132,16 @@ describe('d2l-filter-menu-tab-roles', function() {
 				item.selected = true;
 			});
 
-			component.clear();
+			return component.clear().then(function() {
+				filters.forEach(function(item) {
+					expect(item.selected).to.be.false;
+				});
+			});
+		});
 
-			filters.forEach(function(item) {
-				expect(item.selected).to.be.false;
+		it('should re-fetch the role filters with their updated states (all "off")', function() {
+			return component.clear().then(function() {
+				expect(component.fetchSirenEntity).to.have.been.calledWith(sinon.match(/\?include=$/));
 			});
 		});
 	});
