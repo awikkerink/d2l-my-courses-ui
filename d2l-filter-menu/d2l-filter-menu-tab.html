@@ -14,9 +14,6 @@
 				display: flex;
 				flex-direction: column;
 			}
-			:host([hidden]) {
-				display: none !important;
-			}
 			d2l-search-widget {
 				--d2l-search-widget-height: 45px;
 				margin: 10px 20px;
@@ -106,9 +103,9 @@
 			},
 			clear: function() {
 				var items = this.$$('d2l-menu').querySelectorAll('d2l-filter-list-item');
-				items.forEach(function(item) {
-					item.selected = false;
-				});
+				for (var i = 0; i < items.length; i++) {
+					items[i].selected = false;
+				}
 
 				this.$$('d2l-search-widget').clear();
 				this.selectedFilters = [];

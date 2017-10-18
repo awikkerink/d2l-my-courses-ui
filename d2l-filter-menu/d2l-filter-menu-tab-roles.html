@@ -11,9 +11,6 @@
 				display: flex;
 				flex-direction: column;
 			}
-			:host([hidden]) {
-				display: none !important;
-			}
 			.no-items-text {
 				@apply --d2l-body-compact-text;
 				margin: 10px;
@@ -64,9 +61,9 @@
 
 			clear: function() {
 				var items = this.$$('d2l-menu').querySelectorAll('d2l-filter-list-item-role');
-				items.forEach(function(item) {
-					item.selected = false;
-				}.bind(this));
+				for (var i = 0; i < items.length; i++) {
+					items[i].selected = false;
+				}
 			},
 			resize: function() {
 				this.$$('d2l-menu').resize();

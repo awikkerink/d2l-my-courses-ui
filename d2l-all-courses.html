@@ -285,7 +285,10 @@
 					value: function() { return []; }
 				},
 				// Number of filters currently selected; used to change opener text when menu closes
-				_filterCount: Number
+				_filterCount: {
+					type: Number,
+					value: 0
+				}
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
