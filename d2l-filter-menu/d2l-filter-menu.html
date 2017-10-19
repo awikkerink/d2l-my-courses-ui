@@ -222,8 +222,8 @@
 				'role-filters-changed': '_onRoleFiltersChanged',
 				'selected-filters-changed': '_onDepartmentOrSemesterFiltersChanged'
 			},
-			ready: function() {
-				this.filterRolesName = 'Roles';
+			attached: function() {
+				this.filterRolesName = this.localize('filtering.roles');
 			},
 
 			open: function() {
