@@ -230,7 +230,7 @@ describe('<d2l-course-tile>', function() {
 
 			widget.showSemester = false;
 			widget._semesterUrl = '/organizations/2';
-			widget._fetchSemester().then(function() {
+			return widget._fetchSemester().then(function() {
 				expect(widget.fetchSirenEntity).to.have.not.been.called;
 			});
 
@@ -241,7 +241,7 @@ describe('<d2l-course-tile>', function() {
 
 			widget.showSemester = true;
 			widget._semesterUrl = '/organizations/2';
-			widget._fetchSemester().then(function() {
+			return widget._fetchSemester().then(function() {
 				expect(widget.fetchSirenEntity).to.have.been.called;
 				expect(widget._semesterName).to.equal(semesterOrganizationEntity.properties.name);
 			});
@@ -252,7 +252,7 @@ describe('<d2l-course-tile>', function() {
 			widget.fetchSirenEntity = sinon.stub().returns(Promise.resolve(semesterOrganizationEntity));
 
 			widget._semesterUrl = '/organizations/2';
-			widget._fetchSemester().then(function() {
+			return widget._fetchSemester().then(function() {
 				expect(widget.fetchSirenEntity).to.have.not.been.called;
 			});
 		});
