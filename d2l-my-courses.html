@@ -23,9 +23,6 @@
 			:host {
 				display: block;
 			}
-			:host [hidden] {
-				display: none !important;
-			}
 			@media not all and (hover: hover) {
 				:host {
 					-webkit-user-select: none;
@@ -34,9 +31,6 @@
 			}
 			.my-courses-content {
 				padding-top: 10px;
-			}
-			.d2l-my-courses-hidden {
-				display: none;
 			}
 			.spinner-container {
 				display: flex;
@@ -52,12 +46,12 @@
 
 		<div class="spinner-container">
 			<d2l-loading-spinner
-				id="initialLoadingSpinner"
+				hidden$="[[_showContent]]"
 				size="100">
 			</d2l-loading-spinner>
 		</div>
 
-		<div class="my-courses-content d2l-my-courses-hidden">
+		<div hidden$="[[!_showContent]]" class="my-courses-content">
 			<template is="dom-repeat" items="{{_alerts}}">
 				<d2l-alert type="[[item.alertType]]">
 					{{item.alertMessage}}
@@ -182,6 +176,10 @@
 				_semestersUrl: String,
 				// The organization which the user is selecting the image of
 				_setImageOrg: Object,
+				_showContent: {
+					type: Boolean,
+					value: false
+				},
 				_startedInactive: Boolean,
 				// Size the tile should render with respect to vw
 				_tileSizes: Object,
@@ -238,8 +236,6 @@
 			],
 			ready: function() {
 				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
-				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseTiles);
-				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseList);
 			},
 			attached: function() {
 				this.performanceMark('my-courses.attached');
@@ -420,9 +416,15 @@
 			},
 			_fetchRoot: function() {
 				this.performanceMark('my-courses.root-enrollments.request');
+
+				var showContent = function() {
+					this._showContent = true;
+				}.bind(this);
+
 				return this.fetchSirenEntity(this.enrollmentsUrl)
 					.then(this._fetchEnrollments.bind(this))
-					.catch(this._showContent.bind(this));
+					.then(showContent)
+					.catch(showContent);
 			},
 			_fetchEnrollments: function(enrollmentsRootEntity) {
 
@@ -449,8 +451,7 @@
 
 				this.performanceMark('my-courses.search-enrollments.request');
 				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
-					.then(this._populateEnrollments.bind(this))
-					.catch(this._showContent.bind(this));
+					.then(this._populateEnrollments.bind(this));
 			},
 			_populateEnrollments: function(enrollmentsEntity) {
 
@@ -491,8 +492,6 @@
 					{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
 
 				this.fire('recalculate-columns');
-
-				this._showContent();
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				var enrollmentId, enrollmentEntity;
@@ -573,10 +572,6 @@
 			},
 			_refreshPage: function() {
 				document.location.reload(true);
-			},
-			_showContent: function() {
-				this.toggleClass('d2l-my-courses-hidden', true, this.$.initialLoadingSpinner);
-				this.toggleClass('d2l-my-courses-hidden', false, this.$$('.my-courses-content'));
 			},
 			_getOrgUnitId: function(organization) {
 				var match = /[0-9]+$/.exec(this.getEntityIdentifier(organization));

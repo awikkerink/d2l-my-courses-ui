@@ -605,7 +605,7 @@ describe('<d2l-course-tile>', function() {
 
 		it('should show update number when less than 99', function() {
 			widget._setCourseUpdates(85);
-			expect(widget.$.courseUpdates.getAttribute('class')).to.not.contain('d2l-updates-hidden');
+			expect(widget.$.courseUpdates.hasAttribute('hidden')).to.be.false;
 			expect(widget._courseUpdates).to.equal(85);
 			expect(widget.$$('.update-text-box').innerText).to.equal('85');
 
@@ -613,14 +613,14 @@ describe('<d2l-course-tile>', function() {
 
 		it('should show 99 when 99 updates', function() {
 			widget._setCourseUpdates(99);
-			expect(widget.$.courseUpdates.getAttribute('class')).to.not.contain('d2l-updates-hidden');
+			expect(widget.$.courseUpdates.hasAttribute('hidden')).to.be.false;
 			expect(widget._courseUpdates).to.equal(99);
 			expect(widget.$$('.update-text-box').innerText).to.equal('99');
 		});
 
 		it('should show 99+ when more than 99 updates', function() {
 			widget._setCourseUpdates(100);
-			expect(widget.$.courseUpdates.getAttribute('class')).to.not.contain('d2l-updates-hidden');
+			expect(widget.$.courseUpdates.hasAttribute('hidden')).to.be.false;
 			expect(widget._courseUpdates).to.equal('99+');
 			expect(widget.$$('.update-text-box').innerText).to.equal('99+');
 
@@ -628,13 +628,13 @@ describe('<d2l-course-tile>', function() {
 
 		it('should not show updates number when 0', function() {
 			widget._setCourseUpdates(0);
-			expect(widget.$.courseUpdates.getAttribute('class')).to.contain('d2l-updates-hidden');
+			expect(widget.$.courseUpdates.hasAttribute('hidden')).to.be.true;
 			expect(widget.$$('.update-text-box').innerText).to.equal('0');
 		});
 
 		it('should not display when given less than 0', function() {
 			widget._setCourseUpdates(-1);
-			expect(widget.$.courseUpdates.getAttribute('class')).to.contain('d2l-updates-hidden');
+			expect(widget.$.courseUpdates.hasAttribute('hidden')).to.be.true;
 			expect(widget.$$('.update-text-box').innerText).to.equal('0');
 		});
 	});

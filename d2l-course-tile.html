@@ -63,7 +63,7 @@ the user has in that organization - student, teacher, TA, etc.
 						</div>
 						<d2l-offscreen id="courseNotificationLabel" aria-hidden="true">[[_courseNotificationLabel]]</d2l-offscreen>
 					</div>
-					<div id="courseUpdates" class="d2l-updates-hidden" aria-hidden="true">
+					<div id="courseUpdates" hidden$="[[!_hasCourseUpdates]]" aria-hidden="true">
 						<d2l-offscreen>{{localize('courseTile.updates')}}</d2l-offscreen>
 						<span class="update-text-box">{{_courseUpdates}}</span>
 					</div>
@@ -183,6 +183,10 @@ the user has in that organization - student, teacher, TA, etc.
 				_courseNotificationLabel: String,
 				_canChangeCourseImage: Boolean,
 				_forceImageRefresh: Boolean,
+				_hasCourseUpdates: {
+					type: Boolean,
+					value: false
+				},
 				_image: Object,
 				_nextImage: Object,
 				// The icon we want to show when you select an image
@@ -547,8 +551,8 @@ the user has in that organization - student, teacher, TA, etc.
 				return Promise.resolve();
 			},
 			_setCourseUpdates: function(updates) {
+				this._hasCourseUpdates = updates > 0;
 				this._courseUpdates = updates > 99 ? '99+' : Math.max(updates, 0);
-				this.toggleClass('d2l-updates-hidden', updates <= 0, this.$.courseUpdates);
 				this.$$('#courseUpdates').setAttribute( 'aria-hidden', updates === 0 ? 'true' : 'false' );
 			},
 			_checkDateBounds: function(organization) {
