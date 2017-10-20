@@ -58,7 +58,7 @@ the user has in that organization - student, teacher, TA, etc.
 						[[_organization.properties.name]]
 						<div>
 							<span show-course-code class="course-code-text uppercase">[[_organization.properties.code]]</span>
-							<d2l-icon hidden="{{_hideSeparator}}" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
+							<d2l-icon hidden$="{{_hideSeparator}}" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
 							<span class="course-semester-text">[[_semesterName]]</span>
 						</div>
 						<d2l-offscreen id="courseNotificationLabel" aria-hidden="true">[[_courseNotificationLabel]]</d2l-offscreen>
@@ -206,7 +206,7 @@ the user has in that organization - student, teacher, TA, etc.
 				_hideSeparator: {
 					type: Boolean,
 					value: true,
-					computed: '_computeHideSeperator(_semesterName)'
+					computed: '_computeHideSeparator(_semesterName)'
 				}
 			},
 			behaviors: [
@@ -521,7 +521,7 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_onNotificationsResponse: function(notifications) {
 				if (!this.courseUpdatesConfig || !notifications) {
-					return;
+					return Promise.resolve();
 				}
 
 				var total = 0;
@@ -677,7 +677,7 @@ the user has in that organization - student, teacher, TA, etc.
 					this._setCourseTileHovered(false);
 				}
 			},
-			_computeHideSeperator: function(semesterName) {
+			_computeHideSeparator: function(semesterName) {
 				return semesterName.length === 0;
 			}
 		});
