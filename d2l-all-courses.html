@@ -559,9 +559,6 @@
 						break;
 					}
 				}
-
-				// DE24337 - If a course changes pin state, stored /enrollments response may no longer be valid
-				this.$['search-widget'].clearCache();
 			},
 			_moveEnrollmentToUnpinnedList: function(enrollment) {
 				// Remove enrollment from pinned list, add to unpinned
@@ -578,9 +575,6 @@
 						break;
 					}
 				}
-
-				// DE24337 - If a course changes pin state, stored /enrollments response may no longer be valid
-				this.$['search-widget'].clearCache();
 			},
 			_resetSortDropdown: function() {
 				this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').click();
