@@ -43,6 +43,48 @@ describe('<d2l-course-tile>', function() {
 			}, {
 				rel: ['https://notifications.api.brightspace.com/rels/organization-notifications'],
 				href: '/organizations/1/my-notifications'
+			}, {
+				rel: ['https://api.brightspace.com/rels/parent-semester'],
+				href: '/organizations/2'
+			}],
+			entities: [{
+				class: ['course-image'],
+				propeties: {
+					name: '1.jpg',
+					type: 'image/jpeg'
+				},
+				rel: ['https://api.brightspace.com/rels/organization-image'],
+				links: [{
+					rel: ['self'],
+					href: '/organizations/1/image'
+				}, {
+					rel: ['alternate'],
+					href: ''
+				}]
+			}, {
+				class: ['relative-uri'],
+				rel: ['item', 'https://api.brightspace.com/rels/organization-homepage'],
+				properties: {
+					path: 'http://example.com/2/home'
+				}
+			}]
+		},
+		semesterOrganization = {
+			class: ['active', 'semester'],
+			properties: {
+				name: 'Test Semester',
+				code: 'SEM169'
+			},
+			links: [{
+				rel: ['https://api.brightspace.com/rels/organization-homepage'],
+				href: 'http://example.com/1/home',
+				type: 'text/html'
+			}, {
+				rel: ['https://notifications.api.brightspace.com/rels/organization-notifications'],
+				href: '/organizations/1/my-notifications'
+			}, {
+				rel: ['self'],
+				href: '/organizations/2'
 			}],
 			entities: [{
 				class: ['course-image'],
@@ -67,11 +109,13 @@ describe('<d2l-course-tile>', function() {
 			}]
 		},
 		enrollmentEntity,
-		organizationEntity;
+		organizationEntity,
+		semesterOrganizationEntity;
 
 	before(function() {
 		enrollmentEntity = window.D2L.Hypermedia.Siren.Parse(enrollment);
 		organizationEntity = window.D2L.Hypermedia.Siren.Parse(organization);
+		semesterOrganizationEntity = window.D2L.Hypermedia.Siren.Parse(semesterOrganization);
 	});
 
 	beforeEach(function() {
@@ -133,22 +177,97 @@ describe('<d2l-course-tile>', function() {
 
 		it('should show the course code if configured true', function() {
 			widget.showCourseCode = true;
-			widget.$$('#courseCodeTemplate').render();
 			var courseCode = widget.$$('.course-code-text');
-			expect(courseCode.innerText).to.equal(organizationEntity.properties.code);
+			expect(window.getComputedStyle(courseCode).getPropertyValue('display')).to.equal('inline-block');
 		});
 
 		it('should not show the course code if not configured', function() {
-			widget.$.courseCodeTemplate.render();
 			var courseCode = widget.$$('.course-code-text');
-			expect(courseCode).to.be.null;
+			expect(window.getComputedStyle(courseCode).getPropertyValue('display')).to.equal('none');
 		});
 
 		it('should not show the course code if configured false', function() {
 			widget.showCourseCode = false;
-			widget.$.courseCodeTemplate.render();
 			var courseCode = widget.$$('.course-code-text');
-			expect(courseCode).to.be.null;
+			expect(window.getComputedStyle(courseCode).getPropertyValue('display')).to.equal('none');
+		});
+
+		it('should show the semester if the showSemester is set', function() {
+			widget._semesterName = 'Test Semester';
+			widget.showSemester = true;
+			var semester = widget.$$('.course-semester-text');
+			expect(semester.innerText).to.equal(semesterOrganizationEntity.properties.name);
+			expect(window.getComputedStyle(semester).getPropertyValue('display')).to.equal('inline-block');
+		});
+
+		it('should not show the semester if the showSemester is not set', function() {
+			widget._semesterName = '';
+			var semester = widget.$$('.course-semester-text');
+			expect(semester.innerText).to.equal('');
+		});
+
+		it('should not show the seperator if the course code is on and semester name is null', function() {
+			widget.showCourseCode = true;
+			widget._semesterName = '';
+			widget.showSemester = true;
+			var separator = widget.$$('.separator-icon');
+			expect(separator.hasAttribute('hidden')).to.be.true;
+		});
+
+		it('should show the seperator if the course code is on and semester name is a real thing', function() {
+			widget.showCourseCode = true;
+			widget._semesterName = 'Doop';
+			widget.showSemester = true;
+			var separator = widget.$$('.separator-icon');
+			expect(separator.hasAttribute('hidden')).to.be.false;
+		});
+
+		it('should hide the separator if course code is off', function() {
+			widget.showCourseCode = false;
+			widget._semesterName = 'Doop';
+			widget.showSemester = true;
+			var separator = widget.$$('.separator-icon');
+			expect(window.getComputedStyle(separator).getPropertyValue('display')).to.equal('none');
+		});
+
+		it('should not hide the separator if course code is off', function() {
+			widget.showCourseCode = true;
+			widget._semesterName = 'Doop';
+			widget.showSemester = true;
+			var separator = widget.$$('.separator-icon');
+			expect(window.getComputedStyle(separator).getPropertyValue('display')).to.equal('inline-block');
+		});
+
+		it('should not set the semester name if the show semester config is false', function() {
+			widget.fetchSirenEntity = sinon.stub().returns(Promise.resolve(semesterOrganizationEntity));
+
+			widget.showSemester = false;
+			widget._semesterUrl = '/organizations/2';
+			return widget._fetchSemester().then(function() {
+				expect(widget.fetchSirenEntity).to.have.not.been.called;
+			});
+
+		});
+
+		it('should set the semester name if the show semester config is set to true', function() {
+			widget.fetchSirenEntity = sinon.stub().returns(Promise.resolve(semesterOrganizationEntity));
+
+			widget.showSemester = true;
+			widget._semesterUrl = '/organizations/2';
+			return widget._fetchSemester().then(function() {
+				expect(widget.fetchSirenEntity).to.have.been.called;
+				expect(widget._semesterName).to.equal(semesterOrganizationEntity.properties.name);
+			});
+
+		});
+
+		it('should not show the semester if the show semester config is not configured', function() {
+			widget.fetchSirenEntity = sinon.stub().returns(Promise.resolve(semesterOrganizationEntity));
+
+			widget._semesterUrl = '/organizations/2';
+			return widget._fetchSemester().then(function() {
+				expect(widget.fetchSirenEntity).to.have.not.been.called;
+			});
 		});
 
 		it('should set the internal pinned state correctly', function() {

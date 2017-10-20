@@ -56,9 +56,11 @@ the user has in that organization - student, teacher, TA, etc.
 				<div class="course-info">
 					<div class="course-text">
 						[[_organization.properties.name]]
-						<template id="courseCodeTemplate" is="dom-if" if="[[showCourseCode]]">
-							<span class="course-code-text">[[_organization.properties.code]]</span>
-						</template>
+						<div>
+							<span show-course-code class="course-code-text uppercase">[[_organization.properties.code]]</span>
+							<d2l-icon hidden$="[[_hideSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
+							<span class="course-semester-text">[[_semesterName]]</span>
+						</div>
 						<d2l-offscreen id="courseNotificationLabel" aria-hidden="true">[[_courseNotificationLabel]]</d2l-offscreen>
 					</div>
 					<div id="courseUpdates" class="d2l-updates-hidden" aria-hidden="true">
@@ -152,7 +154,15 @@ the user has in that organization - student, teacher, TA, etc.
 				},
 				userId: String,
 				// Configuration value passed in to toggle course code
-				showCourseCode: Boolean,
+				showCourseCode: {
+					type: Boolean,
+					reflectToAttribute: true
+				},
+				// Configuration value passed in to toggle course code
+				showSemester: {
+					type: Boolean,
+					reflectToAttribute: true
+				},
 				isStartedInactive: {
 					type: Boolean,
 					value: false
@@ -191,6 +201,12 @@ the user has in that organization - student, teacher, TA, etc.
 				_showHoverMenu: {
 					type: Boolean,
 					value: false
+				},
+				_semesterName: String,
+				_hideSeparator: {
+					type: Boolean,
+					value: true,
+					computed: '_computeHideSeparator(_semesterName)'
 				}
 			},
 			behaviors: [
@@ -348,10 +364,28 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_fetchNotifications: function() {
 				if (!this._notificationsUrl) {
-					return;
+					return Promise.resolve();
 				}
 
 				return this.fetchSirenEntity(this._notificationsUrl);
+			},
+			_fetchSemester: function() {
+				if (this._semesterUrl && this.showSemester) {
+					return this.fetchSirenEntity(this._semesterUrl)
+						.then(this._onSemesterResponse.bind(this));
+				}
+				return Promise.resolve();
+			},
+			_fetchEnrollmentData: function() {
+				return this._fetchOrganization()
+					.then(this._onOrganizationResponse.bind(this))
+					.then(function() {
+						return Promise.all([
+							this._fetchSemester(),
+							this._fetchNotifications()
+								.then(this._onNotificationsResponse.bind(this))
+						]);
+					}.bind(this));
 			},
 			_enrollmentChanged: function() {
 				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
@@ -362,19 +396,13 @@ the user has in that organization - student, teacher, TA, etc.
 					this._organizationUrl = organizationLink.href + '?embedDepth=1';
 
 					if (!this.delayLoad) {
-						return this._fetchOrganization()
-							.then(this._onOrganizationResponse.bind(this))
-							.then(this._fetchNotifications.bind(this))
-							.then(this._onNotificationsResponse.bind(this));
+						this._fetchEnrollmentData();
 					}
 				}
 			},
 			_delayLoadChanged: function(delayLoad) {
 				if (this.isAttached && !delayLoad && !this._organization) {
-					return this._fetchOrganization()
-						.then(this._onOrganizationResponse.bind(this))
-						.then(this._fetchNotifications.bind(this))
-						.then(this._onNotificationsResponse.bind(this));
+					this._fetchEnrollmentData();
 				}
 			},
 			_displaySetImageResult: function(success, skipSetImage) {
@@ -469,6 +497,9 @@ the user has in that organization - student, teacher, TA, etc.
 				var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
 				this._courseInfoUrl = courseInfoUrl ? courseInfoUrl.href : null;
 
+				var semesterUrl = organization && organization.getLinkByRel(this.HypermediaRels.parentSemester);
+				this._semesterUrl = semesterUrl ? semesterUrl.href : null;
+
 				this._setCourseImageSrc();
 
 				var homepageEntity = organization.getSubEntityByRel(this.HypermediaRels.organizationHomepage);
@@ -489,8 +520,8 @@ the user has in that organization - student, teacher, TA, etc.
 				return Promise.resolve();
 			},
 			_onNotificationsResponse: function(notifications) {
-				if (!this.courseUpdatesConfig) {
-					return;
+				if (!this.courseUpdatesConfig || !notifications) {
+					return Promise.resolve();
 				}
 
 				var total = 0;
@@ -510,6 +541,10 @@ the user has in that organization - student, teacher, TA, etc.
 					total += notifications.properties.UnreadAssignmentSubmissions;
 				}
 				this._setCourseUpdates(total);
+			},
+			_onSemesterResponse: function(semester) {
+				this._semesterName = (semester.properties || {}).name;
+				return Promise.resolve();
 			},
 			_setCourseUpdates: function(updates) {
 				this._courseUpdates = updates > 99 ? '99+' : Math.max(updates, 0);
@@ -641,6 +676,9 @@ the user has in that organization - student, teacher, TA, etc.
 					dropdown.close();
 					this._setCourseTileHovered(false);
 				}
+			},
+			_computeHideSeparator: function(semesterName) {
+				return semesterName.length === 0;
 			}
 		});
 	</script>

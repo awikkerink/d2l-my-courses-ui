@@ -119,10 +119,27 @@
 					filter: none;
 				}
 			}
-			.course-code-text {
+			.course-code-text,
+			.separator-icon,
+			.course-semester-text {
+				display: none;
+			}
+			:host([show-course-code]) .course-code-text,
+			:host([show-course-code]) .separator-icon,
+			:host([show-semester]) .course-semester-text {
+				display: inline-block;
+			}
+
+			.course-code-text, .course-semester-text  {
 				@apply --d2l-body-small-text;
-				display: block;
+			}
+
+			.uppercase {
 				text-transform: uppercase;
+			}
+
+			.separator-icon {
+				color: var(--d2l-color-tungsten)
 			}
 			.course-text {
 				margin-top: 0.6rem;

@@ -76,6 +76,7 @@
 				locale="[[locale]]"
 				telemetry-endpoint="[[telemetryEndpoint]]"
 				show-course-code="[[showCourseCode]]"
+				show-semester="[[showSemester]]"
 				course-updates-config="[[courseUpdatesConfig]]">
 			</d2l-course-tile-grid>
 			<a
@@ -135,6 +136,8 @@
 				imageCatalogLocation: String,
 				// Configuration value passed in to toggle course code
 				showCourseCode: Boolean,
+				// Configuration value passed in to toggle semester on course tile
+				showSemester: Boolean,
 				// Standard Semester OU Type name to be displayed in the all-courses filter dropdown
 				standardDepartmentName: String,
 				// Standard Department OU Type name to be displayed in the all-courses filter dropdown
@@ -556,6 +559,7 @@
 					allCourses.lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
 					allCourses.locale = this.locale;
 					allCourses.showCourseCode = this.showCourseCode;
+					allCourses.showSemester = this.showSemester;
 					allCourses.advancedSearchUrl = this.advancedSearchUrl;
 					allCourses.filterStandardSemesterName = this.standardSemesterName;
 					allCourses.filterStandardDepartmentName = this.standardDepartmentName;
