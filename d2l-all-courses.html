@@ -32,10 +32,7 @@
 			with-backdrop
 			restore-focus-on-close>
 
-			<div
-				id="overlayContent"
-				class="d2l-all-courses-hidden">
-
+			<div hidden$="[[!_showContent]]">
 				<iron-scroll-threshold
 					id="all-courses-scroll-threshold"
 					on-lower-threshold="_onAllCoursesLowerThreshold">
@@ -90,10 +87,8 @@
 							</d2l-dropdown>
 						</div>
 					</div>
-					<div id="advancedSearchLink" class="search-and-filter-row d2l-all-courses-hidden">
-						<div class="advanced-search-link">
-							<a is="d2l-link" href$="[[advancedSearchUrl]]">{{localize('advancedSearch')}}</a>
-						</div>
+					<div class="search-and-filter-row advanced-search-link" hidden$="[[!_showAdvancedSearchLink]]" >
+						<a is="d2l-link" href$="[[advancedSearchUrl]]">{{localize('advancedSearch')}}</a>
 					</div>
 				</div>
 
@@ -156,12 +151,12 @@
 
 				<d2l-loading-spinner
 					id="lazyLoadSpinner"
-					class="d2l-all-courses-hidden"
+					hidden$="[[!_hasMoreEnrollments]]"
 					size="100">
 				</d2l-loading-spinner>
 			</div>
 			<d2l-loading-spinner
-				id="overlayLoadingSpinner"
+				hidden$="[[_showContent]]"
 				size="100">
 			</d2l-loading-spinner>
 		</d2l-simple-overlay>
@@ -178,10 +173,7 @@
 				*/
 
 				// URL that directs to the advanced search page
-				advancedSearchUrl: {
-					type: String,
-					observer: '_advancedSearchUrlChanged'
-				},
+				advancedSearchUrl: String,
 				// Types of notifications to include in update count in course tile
 				courseUpdatesConfig: Object,
 				// Default option in Sort menu
@@ -252,6 +244,11 @@
 				_hasFilteredPinnedEnrollments: Boolean,
 				// True when there are filtered unpinned enrollments (i.e. `_filteredUnpinnedEnrollments.length > 0`)
 				_hasFilteredUnpinnedEnrollments: Boolean,
+				// True when there are more enrollments to fetch (i.e. current page of enrollments has a `next` link)
+				_hasMoreEnrollments: {
+					type: Boolean,
+					computed: '_computeHasMoreEnrollments(lastEnrollmentsSearchResponse)'
+				},
 				_noPinnedCoursesInSearch: Boolean,
 				_noPinnedCoursesInSelection: Boolean,
 				_noUnpinnedCoursesInSearch: Boolean,
@@ -268,6 +265,15 @@
 				},
 				// URL passed to search widget, called for searching
 				_searchUrl: String,
+				_showAdvancedSearchLink: {
+					type: Boolean,
+					value: false,
+					computed: '_computeShowAdvancedSearchLink(advancedSearchUrl)'
+				},
+				_showContent: {
+					type: Boolean,
+					value: false
+				},
 				_tileSizes: Object,
 				// Object containing the IDs of previously loaded unpinned enrollments, to avoid duplicates
 				_unpinnedCoursesMap: {
@@ -347,13 +353,10 @@
 				}, this);
 				this.set('delayLoad', false);
 
-				setTimeout(function() {
-					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
+				requestAnimationFrame(function() {
 					this.fire('recalculate-columns');
-
-					this.toggleClass('d2l-all-courses-hidden', false, this.$.overlayContent);
-					this.toggleClass('d2l-all-courses-hidden', true, this.$.overlayLoadingSpinner);
-				}.bind(this), 50);
+					this._showContent = true;
+				}.bind(this));
 			},
 			open: function() {
 				this.$$('#all-courses').open();
@@ -381,7 +384,6 @@
 
 					if (lastResponseEntity && lastResponseEntity.hasLinkByRel('next')) {
 						this._enrollmentsSearchUrl = lastResponseEntity.getLinkByRel('next').href;
-						this.toggleClass('d2l-all-courses-hidden', false, this.$.lazyLoadSpinner);
 						this.$.lazyLoadSpinner.scrollIntoView();
 
 						return this.fetchSirenEntity(this._enrollmentsSearchUrl)
@@ -474,9 +476,6 @@
 			* Observers
 			*/
 
-			_advancedSearchUrlChanged: function() {
-				this.toggleClass('d2l-all-courses-hidden', !this.advancedSearchUrl, this.$.advancedSearchLink);
-			},
 			_enrollmentsChanged: function() {
 				this._hasFilteredPinnedEnrollments = this._filteredPinnedEnrollments.length > 0;
 				this._hasFilteredUnpinnedEnrollments = this._filteredUnpinnedEnrollments.length > 0;
@@ -546,6 +545,13 @@
 			_clearSearchWidget: function() {
 				this.$['search-widget'].clear();
 				this._clearFilteredCourses();
+			},
+			_computeHasMoreEnrollments: function(lastResponse) {
+				lastResponse = this.parseEntity(lastResponse);
+				return lastResponse.hasLinkByRel('next');
+			},
+			_computeShowAdvancedSearchLink: function(link) {
+				return !!link;
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				// Remove enrollment from unpinned list, add to pinned
@@ -621,7 +627,6 @@
 					this._filteredUnpinnedEnrollments = newUnpinnedEnrollments;
 				}
 
-				this.toggleClass('d2l-all-courses-hidden', true, this.$.lazyLoadSpinner);
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 				this.lastEnrollmentsSearchResponse = enrollments;
 			},

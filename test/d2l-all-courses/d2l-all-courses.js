@@ -4,7 +4,6 @@
 
 describe('d2l-all-courses', function() {
 	var widget,
-		widgetNoAdvancedSearch,
 		pinnedEnrollmentEntity,
 		unpinnedEnrollmentEntity,
 		clock,
@@ -50,8 +49,6 @@ describe('d2l-all-courses', function() {
 				value: ''
 			}]
 		};
-
-		widgetNoAdvancedSearch = fixture('d2l-all-courses-without-advanced-search-fixture');
 	});
 
 	afterEach(function() {
@@ -59,19 +56,25 @@ describe('d2l-all-courses', function() {
 		sandbox.restore();
 	});
 
-	describe('when the advancedSearchUrl property has not been set then', function() {
-		it('should not render the advanced search link', function() {
-			var link = widgetNoAdvancedSearch.querySelector('.advanced-search-link > a');
-			expect(link.getAttribute('href')).to.equal(null);
-			expect(widgetNoAdvancedSearch.$.advancedSearchLink.getAttribute('class')).to.contain('d2l-all-courses-hidden');
+	describe('loading spinner', function() {
+		it('should show before content has loaded', function() {
+			expect(widget.$$('d2l-loading-spinner:not(#lazyLoadSpinner)').hasAttribute('hidden')).to.be.false;
 		});
 	});
 
-	describe('when the advancedSearchUrl property has been set then', function() {
-		it('should render the advanced search link', function() {
-			var link = widget.querySelector('.advanced-search-link > a');
-			expect(link.getAttribute('href')).length.to.be.above(0);
-			expect(widget.$.advancedSearchLink.getAttribute('class')).to.not.contain('d2l-all-courses-hidden');
+	describe('advanced search link', function() {
+		it('should not render when advancedSearchUrl is not set', function() {
+			widget.advancedSearchUrl = null;
+
+			expect(widget._showAdvancedSearchLink).to.be.false;
+			expect(widget.$$('.advanced-search-link').hasAttribute('hidden')).to.be.true;
+		});
+
+		it('should render when advancedSearchUrl is set', function() {
+			widget.advancedSearchUrl = '/test/url';
+
+			expect(widget._showAdvancedSearchLink).to.be.true;
+			expect(widget.$$('.advanced-search-link').hasAttribute('hidden')).to.be.false;
 		});
 	});
 
