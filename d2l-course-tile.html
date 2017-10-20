@@ -58,7 +58,7 @@ the user has in that organization - student, teacher, TA, etc.
 						[[_organization.properties.name]]
 						<div>
 							<span show-course-code class="course-code-text uppercase">[[_organization.properties.code]]</span>
-							<d2l-icon class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
+							<d2l-icon hidden="{{_hideSeparator}}" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
 							<span class="course-semester-text">[[_semesterName]]</span>
 						</div>
 						<d2l-offscreen id="courseNotificationLabel" aria-hidden="true">[[_courseNotificationLabel]]</d2l-offscreen>
@@ -202,7 +202,12 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: false
 				},
-				_semesterName: String
+				_semesterName: String,
+				_hideSeparator: {
+					type: Boolean,
+					value: true,
+					computed: '_computeHideSeperator(_semesterName)'
+				}
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
@@ -671,6 +676,9 @@ the user has in that organization - student, teacher, TA, etc.
 					dropdown.close();
 					this._setCourseTileHovered(false);
 				}
+			},
+			_computeHideSeperator: function(semesterName) {
+				return semesterName.length === 0;
 			}
 		});
 	</script>
