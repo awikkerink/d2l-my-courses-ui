@@ -385,7 +385,7 @@ the user has in that organization - student, teacher, TA, etc.
 							this._fetchNotifications()
 								.then(this._onNotificationsResponse.bind(this))
 						]);
-					}.bind(this))
+					}.bind(this));
 			},
 			_enrollmentChanged: function() {
 				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
@@ -402,7 +402,7 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_delayLoadChanged: function(delayLoad) {
 				if (this.isAttached && !delayLoad && !this._organization) {
-					return this._fetchEnrollmentData();
+					this._fetchEnrollmentData();
 				}
 			},
 			_displaySetImageResult: function(success, skipSetImage) {

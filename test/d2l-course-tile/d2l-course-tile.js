@@ -177,52 +177,65 @@ describe('<d2l-course-tile>', function() {
 
 		it('should show the course code if configured true', function() {
 			widget.showCourseCode = true;
-			widget.$$('#courseCodeTemplate').render();
 			var courseCode = widget.$$('.course-code-text');
-			expect(courseCode.innerText).to.equal(organizationEntity.properties.code);
+			expect(window.getComputedStyle(courseCode).getPropertyValue('display')).to.equal('inline-block');
 		});
 
 		it('should not show the course code if not configured', function() {
-			widget.$.courseCodeTemplate.render();
 			var courseCode = widget.$$('.course-code-text');
-			expect(courseCode).to.be.null;
+			expect(window.getComputedStyle(courseCode).getPropertyValue('display')).to.equal('none');
 		});
 
 		it('should not show the course code if configured false', function() {
 			widget.showCourseCode = false;
-			widget.$.courseCodeTemplate.render();
 			var courseCode = widget.$$('.course-code-text');
-			expect(courseCode).to.be.null;
+			expect(window.getComputedStyle(courseCode).getPropertyValue('display')).to.equal('none');
 		});
 
-		it('should show the semester if the semseterName is set', function() {
+		it('should show the semester if the showSemester is set', function() {
 			widget._semesterName = 'Test Semester';
-			widget.$$('#courseSemesterTemplate').render();
+			widget.showSemester = true;
 			var semester = widget.$$('.course-semester-text');
 			expect(semester.innerText).to.equal(semesterOrganizationEntity.properties.name);
+			expect(window.getComputedStyle(semester).getPropertyValue('display')).to.equal('inline-block');
 		});
 
-		it('should not show the semester if the semseterName is not set', function() {
+		it('should not show the semester if the showSemester is not set', function() {
 			widget._semesterName = '';
-			widget.$$('#courseSemesterTemplate').render();
 			var semester = widget.$$('.course-semester-text');
-			expect(semester).to.be.null;
+			expect(semester.innerText).to.equal('');
 		});
 
-		it('should not show the seperator if the course code is off', function() {
-			widget.showCourseCode = false;
-			widget._semesterName = 'Doop';
-			widget.$$('#courseSemesterTemplate').render();
+		it('should not show the seperator if the course code is on and semester name is null', function() {
+			widget.showCourseCode = true;
+			widget._semesterName = '';
+			widget.showSemester = true;
 			var separator = widget.$$('.separator-icon');
-			expect(separator).to.be.null;
+			expect(separator.getAttribute('hidden')).to.not.be.null;
 		});
 
-		it('should show the seperator if the course code is on', function() {
+		it('should show the seperator if the course code is on and semester name is a real thing', function() {
 			widget.showCourseCode = true;
 			widget._semesterName = 'Doop';
-			widget.$$('#courseSemesterTemplate').render();
+			widget.showSemester = true;
 			var separator = widget.$$('.separator-icon');
-			expect(separator).to.not.be.null;
+			expect(separator.getAttribute('hidden')).to.be.null;
+		});
+
+		it('should hide the separator if course code is off', function() {
+			widget.showCourseCode = false;
+			widget._semesterName = 'Doop';
+			widget.showSemester = true;
+			var separator = widget.$$('.separator-icon');
+			expect(window.getComputedStyle(separator).getPropertyValue('display')).to.equal('none');
+		});
+
+		it('should not hide the separator if course code is off', function() {
+			widget.showCourseCode = true;
+			widget._semesterName = 'Doop';
+			widget.showSemester = true;
+			var separator = widget.$$('.separator-icon');
+			expect(window.getComputedStyle(separator).getPropertyValue('display')).to.equal('inline-block');
 		});
 
 		it('should not set the semester name if the show semester config is false', function() {
