@@ -353,11 +353,10 @@
 				}, this);
 				this.set('delayLoad', false);
 
-				setTimeout(function() {
-					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
+				requestAnimationFrame(function() {
 					this.fire('recalculate-columns');
 					this._showContent = true;
-				}.bind(this), 50);
+				}.bind(this));
 			},
 			open: function() {
 				this.$$('#all-courses').open();

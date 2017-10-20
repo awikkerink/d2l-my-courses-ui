@@ -60,6 +60,7 @@
   },
   "resolutions": {
     "d2l-search-widget": "^2.0.0",
-    "d2l-polymer-behaviors": "^1.0.0"
+    "d2l-polymer-behaviors": "^1.0.0",
+    "webcomponentsjs": "^0.7.24"
   }
 }
