@@ -1,0 +1,355 @@
+
+> d2l-my-courses@ postinstall C:\D2L\GIT\d2l-my-courses-ui
+> bower install
+
+bower d2l-alert#1.0.2           cached git://github.com/Brightspace/alert.git#1.0.2
+bower d2l-alert#1.0.2         validate 1.0.2 against git://github.com/Brightspace/alert.git#1.0.2
+bower d2l-search-widget#1.1.3   cached git://github.com/Brightspace/d2l-search-widget-ui.git#1.1.3
+bower d2l-search-widget#1.1.3 validate 1.1.3 against git://github.com/Brightspace/d2l-search-widget-ui.git#1.1.3
+bower d2l-image-selector#1.0.4  cached git://github.com/Brightspace/image-selector.git#1.0.4
+bower d2l-image-selector#1.0.4         validate 1.0.4 against git://github.com/Brightspace/image-selector.git#1.0.4
+bower d2l-simple-overlay#1.1.1           cached git://github.com/Brightspace/simple-overlay.git#1.1.1
+bower d2l-simple-overlay#1.1.1         validate 1.1.1 against git://github.com/Brightspace/simple-overlay.git#1.1.1
+bower d2l-organization-hm-behavior#1.0.1 cached git://github.com/Brightspace/organization-hm-behavior.git#1.0.1
+bower d2l-organization-hm-behavior#1.0.1         validate 1.0.1 against git://github.com/Brightspace/organization-hm-behavior.git#1.0.1
+bower app-localize-behavior#1.0.2                  cached https://github.com/PolymerElements/app-localize-behavior.git#1.0.2
+bower app-localize-behavior#1.0.2                validate 1.0.2 against https://github.com/PolymerElements/app-localize-behavior.git#1.0.2
+bower d2l-hm-constants-behavior#1.0.14             cached https://github.com/Brightspace/d2l-hm-constants-behavior.git#1.0.14
+bower d2l-hm-constants-behavior#1.0.14           validate 1.0.14 against https://github.com/Brightspace/d2l-hm-constants-behavior.git#1.0.14
+bower iron-scroll-threshold#1.0.2                  cached https://github.com/PolymerElements/iron-scroll-threshold.git#1.0.2
+bower iron-scroll-threshold#1.0.2                validate 1.0.2 against https://github.com/PolymerElements/iron-scroll-threshold.git#1.0.2
+bower d2l-course-image#1.0.3                       cached git://github.com/Brightspace/course-image.git#1.0.3
+bower d2l-course-image#1.0.3                     validate 1.0.3 against git://github.com/Brightspace/course-image.git#1.0.3
+bower d2l-dropdown#5.0.6                           cached https://github.com/BrightspaceUI/dropdown.git#5.0.6
+bower d2l-dropdown#5.0.6                         validate 5.0.6 against https://github.com/BrightspaceUI/dropdown.git#5.0.6
+bower d2l-ajax#3.4.1                               cached https://github.com/BrightspaceUI/ajax.git#3.4.1
+bower d2l-ajax#3.4.1                             validate 3.4.1 against https://github.com/BrightspaceUI/ajax.git#3.4.1
+bower d2l-icons#3.2.0                              cached https://github.com/BrightspaceUI/icons.git#3.2.0
+bower d2l-icons#3.2.0                            validate 3.2.0 against https://github.com/BrightspaceUI/icons.git#3.2.0
+bower d2l-link#3.5.0                               cached https://github.com/BrightspaceUI/link.git#3.5.0
+bower d2l-link#3.5.0                             validate 3.5.0 against https://github.com/BrightspaceUI/link.git#3.5.0
+bower d2l-menu#0.3.5                               cached https://github.com/BrightspaceUI/menu.git#0.3.5
+bower d2l-menu#0.3.5                             validate 0.3.5 against https://github.com/BrightspaceUI/menu.git#0.3.5
+bower d2l-offscreen#2.2.4                          cached https://github.com/BrightspaceUI/offscreen.git#2.2.4
+bower d2l-offscreen#2.2.4                        validate 2.2.4 against https://github.com/BrightspaceUI/offscreen.git#2.2.4
+bower d2l-polymer-behaviors#<1.0.0                 cached https://github.com/Brightspace/d2l-polymer-behaviors-ui.git#0.0.5
+bower d2l-polymer-behaviors#<1.0.0               validate 0.0.5 against https://github.com/Brightspace/d2l-polymer-behaviors-ui.git#<1.0.0
+bower d2l-typography#5.4.0                         cached https://github.com/BrightspaceUI/typography.git#5.4.0
+bower d2l-typography#5.4.0                       validate 5.4.0 against https://github.com/BrightspaceUI/typography.git#5.4.0
+bower iron-a11y-announcer#1.0.5                    cached https://github.com/PolymerElements/iron-a11y-announcer.git#1.0.5
+bower iron-a11y-announcer#1.0.5                  validate 1.0.5 against https://github.com/PolymerElements/iron-a11y-announcer.git#1.0.5
+bower iron-input#1.0.10                            cached https://github.com/PolymerElements/iron-input.git#1.0.10
+bower iron-input#1.0.10                          validate 1.0.10 against https://github.com/PolymerElements/iron-input.git#1.0.10
+bower iron-menu-behavior#1.1.9                     cached https://github.com/PolymerElements/iron-menu-behavior.git#1.1.9
+bower iron-menu-behavior#1.1.9                   validate 1.1.9 against https://github.com/PolymerElements/iron-menu-behavior.git#1.1.9
+bower d2l-colors#2.3.0                             cached https://github.com/BrightspaceUI/colors.git#2.3.0
+bower d2l-colors#2.3.0                           validate 2.3.0 against https://github.com/BrightspaceUI/colors.git#2.3.0
+bower iron-a11y-keys#1.0.6                         cached https://github.com/PolymerElements/iron-a11y-keys.git#1.0.6
+bower iron-a11y-keys#1.0.6                       validate 1.0.6 against https://github.com/PolymerElements/iron-a11y-keys.git#1.0.6
+bower iron-overlay-behavior#1.10.1                 cached https://github.com/PolymerElements/iron-overlay-behavior.git#1.10.1
+bower iron-overlay-behavior#1.10.1               validate 1.10.1 against https://github.com/PolymerElements/iron-overlay-behavior.git#1.10.1
+bower iron-pages#1.0.8                             cached https://github.com/PolymerElements/iron-pages.git#1.0.8
+bower iron-pages#1.0.8                           validate 1.0.8 against https://github.com/PolymerElements/iron-pages.git#1.0.8
+bower polymer#1.7.0                                cached https://github.com/Polymer/polymer.git#1.7.0
+bower polymer#1.7.0                              validate 1.7.0 against https://github.com/Polymer/polymer.git#1.7.0
+bower d2l-loading-spinner#5.0.4                    cached https://github.com/BrightspaceUI/loading-spinner.git#5.0.4
+bower d2l-loading-spinner#5.0.4                  validate 5.0.4 against https://github.com/BrightspaceUI/loading-spinner.git#5.0.4
+bower polymer#^1.7.1                               cached https://github.com/Polymer/polymer.git#1.11.0
+bower polymer#^1.7.1                             validate 1.11.0 against https://github.com/Polymer/polymer.git#^1.7.1
+bower d2l-polymer-behaviors#^0.0.5                 cached https://github.com/Brightspace/d2l-polymer-behaviors-ui.git#0.0.5
+bower d2l-polymer-behaviors#^0.0.5               validate 0.0.5 against https://github.com/Brightspace/d2l-polymer-behaviors-ui.git#^0.0.5
+bower iron-overlay-behavior#^1.10.2                cached https://github.com/PolymerElements/iron-overlay-behavior.git#1.10.4
+bower iron-overlay-behavior#^1.10.2              validate 1.10.4 against https://github.com/PolymerElements/iron-overlay-behavior.git#^1.10.2
+bower d2l-button#^3.0.8                            cached https://github.com/BrightspaceUI/button.git#3.3.1
+bower d2l-button#^3.0.8                          validate 3.3.1 against https://github.com/BrightspaceUI/button.git#^3.0.8
+bower d2l-polymer-behaviors#~0.0.5                 cached https://github.com/Brightspace/d2l-polymer-behaviors-ui.git#0.0.5
+bower d2l-polymer-behaviors#~0.0.5               validate 0.0.5 against https://github.com/Brightspace/d2l-polymer-behaviors-ui.git#~0.0.5
+bower iron-ajax#^1.0.0                             cached https://github.com/PolymerElements/iron-ajax.git#1.4.4
+bower iron-ajax#^1.0.0                           validate 1.4.4 against https://github.com/PolymerElements/iron-ajax.git#^1.0.0
+bower intl-messageformat#^1.0.0                    cached https://github.com/yahoo/intl-messageformat.git#1.3.0
+bower intl-messageformat#^1.0.0                  validate 1.3.0 against https://github.com/yahoo/intl-messageformat.git#^1.0.0
+bower iron-iconset-svg#^1.0.0                      cached https://github.com/PolymerElements/iron-iconset-svg.git#1.1.2
+bower iron-iconset-svg#^1.0.0                    validate 1.1.2 against https://github.com/PolymerElements/iron-iconset-svg.git#^1.0.0
+bower iron-scroll-target-behavior#^1.0.0           cached https://github.com/PolymerElements/iron-scroll-target-behavior.git#1.1.1
+bower iron-scroll-target-behavior#^1.0.0         validate 1.1.1 against https://github.com/PolymerElements/iron-scroll-target-behavior.git#^1.0.0
+bower d2l-hierarchical-view#^0.1.2                 cached https://github.com/BrightspaceUI/hierarchical-view.git#0.1.4
+bower d2l-hierarchical-view#^0.1.2               validate 0.1.4 against https://github.com/BrightspaceUI/hierarchical-view.git#^0.1.2
+bower iron-a11y-keys-behavior#^1.0.0           not-cached https://github.com/polymerelements/iron-a11y-keys-behavior.git#^1.0.0
+bower iron-a11y-keys-behavior#^1.0.0              resolve https://github.com/polymerelements/iron-a11y-keys-behavior.git#^1.0.0
+bower iron-selector#^1.0.0                         cached https://github.com/PolymerElements/iron-selector.git#1.5.3
+bower iron-selector#^1.0.0                       validate 1.5.3 against https://github.com/PolymerElements/iron-selector.git#^1.0.0
+bower iron-validatable-behavior#^1.0.0             cached https://github.com/PolymerElements/iron-validatable-behavior.git#1.1.2
+bower iron-validatable-behavior#^1.0.0           validate 1.1.2 against https://github.com/PolymerElements/iron-validatable-behavior.git#^1.0.0
+bower iron-resizable-behavior#^1.0.0           not-cached https://github.com/polymerelements/iron-resizable-behavior.git#^1.0.0
+bower iron-resizable-behavior#^1.0.0              resolve https://github.com/polymerelements/iron-resizable-behavior.git#^1.0.0
+bower iron-fit-behavior#^1.0.0                     cached https://github.com/PolymerElements/iron-fit-behavior.git#1.2.7
+bower iron-fit-behavior#^1.0.0                   validate 1.2.7 against https://github.com/PolymerElements/iron-fit-behavior.git#^1.0.0
+bower webcomponentsjs#^0.7.24                      cached https://github.com/webcomponents/webcomponentsjs.git#0.7.24
+bower webcomponentsjs#^0.7.24                    validate 0.7.24 against https://github.com/webcomponents/webcomponentsjs.git#^0.7.24
+bower promise-polyfill#^1.0.0                      cached https://github.com/polymerlabs/promise-polyfill.git#1.0.1
+bower promise-polyfill#^1.0.0                    validate 1.0.1 against https://github.com/polymerlabs/promise-polyfill.git#^1.0.0
+bower d2l-colors#^2.4.0                            cached https://github.com/BrightspaceUI/colors.git#2.4.0
+bower d2l-colors#^2.4.0                          validate 2.4.0 against https://github.com/BrightspaceUI/colors.git#^2.4.0
+bower iron-media-query#^1.0.8                      cached https://github.com/PolymerElements/iron-media-query.git#1.0.8
+bower iron-media-query#^1.0.8                    validate 1.0.8 against https://github.com/PolymerElements/iron-media-query.git#^1.0.8
+bower iron-meta#^1.0.0                             cached https://github.com/PolymerElements/iron-meta.git#1.1.3
+bower iron-meta#^1.0.0                           validate 1.1.3 against https://github.com/PolymerElements/iron-meta.git#^1.0.0
+bower iron-a11y-keys-behavior#^1.0.0             download https://github.com/polymerelements/iron-a11y-keys-behavior/archive/v1.1.9.tar.gz
+bower iron-resizable-behavior#^1.0.0             download https://github.com/polymerelements/iron-resizable-behavior/archive/v1.0.6.tar.gz
+bower iron-a11y-keys-behavior#^1.0.0              extract archive.tar.gz
+bower iron-resizable-behavior#^1.0.0              extract archive.tar.gz
+bower iron-a11y-keys-behavior#^1.0.0             resolved https://github.com/polymerelements/iron-a11y-keys-behavior.git#1.1.9
+bower iron-resizable-behavior#^1.0.0             resolved https://github.com/polymerelements/iron-resizable-behavior.git#1.0.6
+
+Please note that,
+    d2l-alert#1.0.2, d2l-dropdown#5.0.6, d2l-icons#3.2.0, d2l-link#3.5.0, d2l-loading-spinner#5.0.4, d2l-menu#0.3.5, d2l-simple-overlay#1.1.1, d2l-typography#5.4.0 depends on d2l-colors#^2.2.3 which resolved to d2l-colors#2.3.0
+    d2l-image-selector#1.0.4, d2l-search-widget#1.1.3 depends on d2l-colors#^2.3.0 which resolved to d2l-colors#2.3.0
+    d2l-my-courses depends on d2l-colors#2.3.0 which resolved to d2l-colors#2.3.0
+    d2l-button#3.3.1 depends on d2l-colors#^2.4.0 which resolved to d2l-colors#2.4.0
+Resort to using d2l-colors#2.4.0 which resolved to d2l-colors#2.4.0
+Code incompatibilities may occur.
+
+
+Please note that,
+    d2l-my-courses depends on iron-overlay-behavior#1.10.1 which resolved to iron-overlay-behavior#1.10.1
+    d2l-simple-overlay#1.1.1 depends on iron-overlay-behavior#^1.10.2 which resolved to iron-overlay-behavior#1.10.4
+Resort to using iron-overlay-behavior#1.10.4 which resolved to iron-overlay-behavior#1.10.4
+Code incompatibilities may occur.
+
+
+Please note that,
+    d2l-my-courses depends on polymer#1.7.0 which resolved to polymer#1.7.0
+    d2l-colors#2.3.0, d2l-colors#2.4.0, d2l-dropdown#5.0.6, d2l-hierarchical-view#0.1.4, d2l-hm-constants-behavior#1.0.14, d2l-icons#3.2.0, d2l-link#3.5.0, d2l-menu#0.3.5, d2l-offscreen#2.2.4, d2l-organization-hm-behavior#1.0.1, d2l-search-widget#1.1.3, d2l-typography#5.4.0 depends on polymer#^1.7.0 which resolved to polymer#1.11.0
+    iron-a11y-announcer#1.0.5, iron-a11y-keys#1.0.6, iron-a11y-keys-behavior#1.1.9, iron-fit-behavior#1.2.7, iron-overlay-behavior#1.10.4, iron-overlay-behavior#1.10.1, iron-pages#1.0.8, iron-resizable-behavior#1.0.6, iron-scroll-target-behavior#1.1.1, iron-scroll-threshold#1.0.2 depends on polymer#^1.1.0 which resolved to polymer#1.11.0
+    iron-iconset-svg#1.1.2, iron-input#1.0.10, iron-media-query#1.0.8, iron-meta#1.1.3, iron-validatable-behavior#1.1.2, promise-polyfill#1.0.1 depends on polymer#^1.0.0 which resolved to polymer#1.11.0
+    d2l-polymer-behaviors#0.0.5, d2l-polymer-behaviors#0.0.5, d2l-polymer-behaviors#0.0.5, iron-ajax#1.4.4 depends on polymer#^1.5.0 which resolved to polymer#1.11.0
+    d2l-alert#1.0.2, d2l-loading-spinner#5.0.4, d2l-simple-overlay#1.1.1 depends on polymer#^1.7.1 which resolved to polymer#1.11.0
+    d2l-course-image#1.0.3, d2l-image-selector#1.0.4 depends on polymer#^1.8.0 which resolved to polymer#1.11.0
+    app-localize-behavior#1.0.2 depends on polymer#^1.3.0 which resolved to polymer#1.11.0
+    iron-menu-behavior#1.1.9 depends on polymer#^1.2.4 which resolved to polymer#1.11.0
+    d2l-button#3.3.1 depends on polymer#^1.9.0 which resolved to polymer#1.11.0
+    d2l-ajax#3.4.1 depends on polymer#^1.4.0 which resolved to polymer#1.11.0
+    iron-selector#1.5.3 depends on polymer#^1.2.0 which resolved to polymer#1.11.0
+Resort to using polymer#1.7.0 which resolved to polymer#1.7.0
+Code incompatibilities may occur.
+
+bower d2l-alert#1.0.2                             install d2l-alert#1.0.2
+bower d2l-search-widget#1.1.3                     install d2l-search-widget#1.1.3
+bower d2l-image-selector#1.0.4                    install d2l-image-selector#1.0.4
+bower d2l-organization-hm-behavior#1.0.1          install d2l-organization-hm-behavior#1.0.1
+bower d2l-simple-overlay#1.1.1                    install d2l-simple-overlay#1.1.1
+bower d2l-course-image#1.0.3                      install d2l-course-image#1.0.3
+bower d2l-hm-constants-behavior#1.0.14            install d2l-hm-constants-behavior#1.0.14
+bower app-localize-behavior#1.0.2                 install app-localize-behavior#1.0.2
+bower d2l-dropdown#5.0.6                          install d2l-dropdown#5.0.6
+bower iron-scroll-threshold#1.0.2                 install iron-scroll-threshold#1.0.2
+bower d2l-ajax#3.4.1                              install d2l-ajax#3.4.1
+bower d2l-offscreen#2.2.4                         install d2l-offscreen#2.2.4
+bower d2l-icons#3.2.0                             install d2l-icons#3.2.0
+bower d2l-menu#0.3.5                              install d2l-menu#0.3.5
+bower d2l-link#3.5.0                              install d2l-link#3.5.0
+bower d2l-polymer-behaviors#^0.0.5                install d2l-polymer-behaviors#0.0.5
+bower iron-menu-behavior#1.1.9                    install iron-menu-behavior#1.1.9
+bower iron-a11y-announcer#1.0.5                   install iron-a11y-announcer#1.0.5
+bower d2l-typography#5.4.0                        install d2l-typography#5.4.0
+bower iron-input#1.0.10                           install iron-input#1.0.10
+bower d2l-colors#^2.4.0                           install d2l-colors#2.4.0
+bower iron-a11y-keys#1.0.6                        install iron-a11y-keys#1.0.6
+bower iron-pages#1.0.8                            install iron-pages#1.0.8
+bower iron-overlay-behavior#^1.10.2               install iron-overlay-behavior#1.10.4
+bower d2l-loading-spinner#5.0.4                   install d2l-loading-spinner#5.0.4
+bower polymer#1.7.0                               install polymer#1.7.0
+bower iron-ajax#^1.0.0                            install iron-ajax#1.4.4
+bower d2l-button#^3.0.8                           install d2l-button#3.3.1
+bower iron-iconset-svg#^1.0.0                     install iron-iconset-svg#1.1.2
+bower intl-messageformat#^1.0.0                   install intl-messageformat#1.3.0
+bower iron-scroll-target-behavior#^1.0.0          install iron-scroll-target-behavior#1.1.1
+bower d2l-hierarchical-view#^0.1.2                install d2l-hierarchical-view#0.1.4
+bower iron-selector#^1.0.0                        install iron-selector#1.5.3
+bower iron-validatable-behavior#^1.0.0            install iron-validatable-behavior#1.1.2
+bower iron-fit-behavior#^1.0.0                    install iron-fit-behavior#1.2.7
+bower promise-polyfill#^1.0.0                     install promise-polyfill#1.0.1
+bower iron-media-query#^1.0.8                     install iron-media-query#1.0.8
+bower webcomponentsjs#^0.7.24                     install webcomponentsjs#0.7.24
+bower iron-meta#^1.0.0                            install iron-meta#1.1.3
+bower iron-a11y-keys-behavior#^1.0.0              install iron-a11y-keys-behavior#1.1.9
+bower iron-resizable-behavior#^1.0.0              install iron-resizable-behavior#1.0.6
+
+d2l-alert#1.0.2 bower_components\d2l-alert
+├── d2l-button#3.3.1
+├── d2l-colors#2.4.0
+├── d2l-icons#3.2.0
+├── d2l-typography#5.4.0
+└── polymer#1.7.0
+
+d2l-search-widget#1.1.3 bower_components\d2l-search-widget
+├── app-localize-behavior#1.0.2
+├── d2l-ajax#3.4.1
+├── d2l-colors#2.4.0
+├── d2l-icons#3.2.0
+├── iron-input#1.0.10
+└── polymer#1.7.0
+
+d2l-image-selector#1.0.4 bower_components\d2l-image-selector
+├── d2l-ajax#3.4.1
+├── d2l-colors#2.4.0
+├── d2l-course-image#1.0.3
+├── d2l-icons#3.2.0
+├── d2l-loading-spinner#5.0.4
+├── d2l-organization-hm-behavior#1.0.1
+├── d2l-search-widget#1.1.3
+└── polymer#1.7.0
+
+d2l-organization-hm-behavior#1.0.1 bower_components\d2l-organization-hm-behavior
+└── polymer#1.7.0
+
+d2l-simple-overlay#1.1.1 bower_components\d2l-simple-overlay
+├── d2l-colors#2.4.0
+├── d2l-icons#3.2.0
+├── d2l-polymer-behaviors#0.0.5
+├── d2l-typography#5.4.0
+├── iron-overlay-behavior#1.10.4
+└── polymer#1.7.0
+
+d2l-course-image#1.0.3 bower_components\d2l-course-image
+├── d2l-organization-hm-behavior#1.0.1
+└── polymer#1.7.0
+
+d2l-hm-constants-behavior#1.0.14 bower_components\d2l-hm-constants-behavior
+└── polymer#1.7.0
+
+app-localize-behavior#1.0.2 bower_components\app-localize-behavior
+├── intl-messageformat#1.3.0
+├── iron-ajax#1.4.4
+└── polymer#1.7.0
+
+d2l-dropdown#5.0.6 bower_components\d2l-dropdown
+├── d2l-button#3.3.1
+├── d2l-colors#2.4.0
+├── d2l-icons#3.2.0
+├── d2l-menu#0.3.5
+├── d2l-offscreen#2.2.4
+├── d2l-polymer-behaviors#0.0.5
+├── iron-iconset-svg#1.1.2
+└── polymer#1.7.0
+
+iron-scroll-threshold#1.0.2 bower_components\iron-scroll-threshold
+├── iron-scroll-target-behavior#1.1.1
+└── polymer#1.7.0
+
+d2l-ajax#3.4.1 bower_components\d2l-ajax
+├── iron-ajax#1.4.4
+└── polymer#1.7.0
+
+d2l-offscreen#2.2.4 bower_components\d2l-offscreen
+└── polymer#1.7.0
+
+d2l-icons#3.2.0 bower_components\d2l-icons
+├── d2l-colors#2.4.0
+├── d2l-offscreen#2.2.4
+├── iron-iconset-svg#1.1.2
+└── polymer#1.7.0
+
+d2l-menu#0.3.5 bower_components\d2l-menu
+├── d2l-colors#2.4.0
+├── d2l-hierarchical-view#0.1.4
+├── d2l-icons#3.2.0
+└── polymer#1.7.0
+
+d2l-link#3.5.0 bower_components\d2l-link
+├── d2l-colors#2.4.0
+└── polymer#1.7.0
+
+d2l-polymer-behaviors#0.0.5 bower_components\d2l-polymer-behaviors
+└── polymer#1.7.0
+
+iron-menu-behavior#1.1.9 bower_components\iron-menu-behavior
+├── iron-a11y-keys-behavior#1.1.9
+├── iron-selector#1.5.3
+└── polymer#1.7.0
+
+iron-a11y-announcer#1.0.5 bower_components\iron-a11y-announcer
+└── polymer#1.7.0
+
+d2l-typography#5.4.0 bower_components\d2l-typography
+├── d2l-colors#2.4.0
+└── polymer#1.7.0
+
+iron-input#1.0.10 bower_components\iron-input
+├── iron-a11y-announcer#1.0.5
+├── iron-validatable-behavior#1.1.2
+└── polymer#1.7.0
+
+d2l-colors#2.4.0 bower_components\d2l-colors
+└── polymer#1.7.0
+
+iron-a11y-keys#1.0.6 bower_components\iron-a11y-keys
+├── iron-a11y-keys-behavior#1.1.9
+└── polymer#1.7.0
+
+iron-pages#1.0.8 bower_components\iron-pages
+├── iron-resizable-behavior#1.0.6
+├── iron-selector#1.5.3
+└── polymer#1.7.0
+
+iron-overlay-behavior#1.10.4 bower_components\iron-overlay-behavior
+├── iron-a11y-keys-behavior#1.1.9
+├── iron-fit-behavior#1.2.7
+├── iron-resizable-behavior#1.0.6
+└── polymer#1.7.0
+
+d2l-loading-spinner#5.0.4 bower_components\d2l-loading-spinner
+├── d2l-colors#2.4.0
+└── polymer#1.7.0
+
+polymer#1.7.0 bower_components\polymer
+└── webcomponentsjs#0.7.24
+
+iron-ajax#1.4.4 bower_components\iron-ajax
+├── polymer#1.7.0
+└── promise-polyfill#1.0.1
+
+d2l-button#3.3.1 bower_components\d2l-button
+├── d2l-colors#2.4.0
+├── iron-media-query#1.0.8
+└── polymer#1.7.0
+
+iron-iconset-svg#1.1.2 bower_components\iron-iconset-svg
+├── iron-meta#1.1.3
+└── polymer#1.7.0
+
+intl-messageformat#1.3.0 bower_components\intl-messageformat
+
+iron-scroll-target-behavior#1.1.1 bower_components\iron-scroll-target-behavior
+└── polymer#1.7.0
+
+d2l-hierarchical-view#0.1.4 bower_components\d2l-hierarchical-view
+├── d2l-polymer-behaviors#0.0.5
+└── polymer#1.7.0
+
+iron-selector#1.5.3 bower_components\iron-selector
+└── polymer#1.7.0
+
+iron-validatable-behavior#1.1.2 bower_components\iron-validatable-behavior
+├── iron-meta#1.1.3
+└── polymer#1.7.0
+
+iron-fit-behavior#1.2.7 bower_components\iron-fit-behavior
+└── polymer#1.7.0
+
+promise-polyfill#1.0.1 bower_components\promise-polyfill
+└── polymer#1.7.0
+
+iron-media-query#1.0.8 bower_components\iron-media-query
+└── polymer#1.7.0
+
+webcomponentsjs#0.7.24 bower_components\webcomponentsjs
+
+iron-meta#1.1.3 bower_components\iron-meta
+└── polymer#1.7.0
+
+iron-a11y-keys-behavior#1.1.9 bower_components\iron-a11y-keys-behavior
+└── polymer#1.7.0
+
+iron-resizable-behavior#1.0.6 bower_components\iron-resizable-behavior
+└── polymer#1.7.0
