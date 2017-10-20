@@ -211,7 +211,7 @@ describe('<d2l-course-tile>', function() {
 			widget._semesterName = '';
 			widget.showSemester = true;
 			var separator = widget.$$('.separator-icon');
-			expect(separator.getAttribute('hidden')).to.not.be.null;
+			expect(separator.hasAttribute('hidden')).to.be.true;
 		});
 
 		it('should show the seperator if the course code is on and semester name is a real thing', function() {
@@ -219,7 +219,7 @@ describe('<d2l-course-tile>', function() {
 			widget._semesterName = 'Doop';
 			widget.showSemester = true;
 			var separator = widget.$$('.separator-icon');
-			expect(separator.getAttribute('hidden')).to.be.null;
+			expect(separator.hasAttribute('hidden')).to.be.false;
 		});
 
 		it('should hide the separator if course code is off', function() {
