@@ -116,7 +116,7 @@
 				data-tab-name="semesters"
 				aria-labelledby="semestersTabButton"
 				menu-label-text="[[filterStandardSemesterName]]"
-				no-filters-text="[[_noFiltersText]]"
+				no-filters-text="[[localize('filtering.noSemesters', 'semester', filterStandardSemesterName)]]"
 				search-action="[[_searchSemestersAction]]"
 				search-placeholder-text="[[_semestersSearchPlaceholderText]]"
 				selected-filters="{{_semesterFilters}}">
@@ -127,7 +127,7 @@
 				data-tab-name="departments"
 				aria-labelledby="departmentsTabButton"
 				menu-label-text="[[filterStandardDepartmentName]]"
-				no-filters-text="[[_noFiltersText]]"
+				no-filters-text="[[localize('filtering.noDepartments', 'department', filterStandardDepartmentName)]]"
 				search-action="[[_searchDepartmentsAction]]"
 				search-placeholder-text="[[_departmentsSearchPlaceholderText]]"
 				selected-filters="{{_departmentFilters}}">
@@ -137,7 +137,7 @@
 				id="rolesTab"
 				data-tab-name="roles"
 				aria-labelledby="rolesTabButton"
-				no-filters-text="[[_noFiltersText]]"
+				no-filters-text="[[localize('filtering.noRoles')]]"
 				my-enrollments-entity="[[myEnrollmentsEntity]]">
 			</d2l-filter-menu-tab-roles>
 		</iron-pages>
@@ -207,10 +207,6 @@
 				_departmentsSearchPlaceholderText: {
 					type: String,
 					computed: '_computeSearchPlaceholderText(filterStandardDepartmentName)'
-				},
-				_noFiltersText: {
-					type: String,
-					computed: '_computeNoFiltersText(filterStandardSemesterName, filterStandardDepartmentName)'
 				}
 			},
 			behaviors: [
@@ -330,9 +326,6 @@
 			},
 			_computeSearchPlaceholderText: function(name) {
 				return this.localize('filtering.searchBy', 'filter', name);
-			},
-			_computeNoFiltersText: function(semesterName, departmentName) {
-				return this.localize('filtering.noFilterItems', 'semester', semesterName, 'department', departmentName);
 			}
 		});
 	</script>

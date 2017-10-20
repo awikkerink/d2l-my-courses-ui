@@ -50,12 +50,12 @@ describe('d2l-filter-menu', function() {
 	});
 
 	describe('setting org unit type names', function() {
-		it('should set the noFilterText correctly', function() {
+		it('should set the empty state text correctly for the tabs', function() {
 			component.filterStandardSemesterName = 'foo';
 			component.filterStandardDepartmentName = 'bar';
 
-			var expectedText = 'You do not currently have any filter options as you are not enrolled in a foo or bar.';
-			expect(component._noFiltersText).to.equal(expectedText);
+			expect(component.$.semestersTab.noFiltersText).to.equal('You do not have any foo filters.');
+			expect(component.$.departmentsTab.noFiltersText).to.equal('You do not have any bar filters.');
 		});
 
 		describe('tab text', function() {
