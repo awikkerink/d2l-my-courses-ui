@@ -17,6 +17,13 @@ describe('d2l-utility-behavior', function() {
 					type: 'hidden',
 					value: false
 				}]
+			}, {
+				name: 'action-with-query-params',
+				href: '/enrollments?param1=foo',
+				fields: [{
+					name: 'param2',
+					value: 'bar'
+				}]
 			}],
 			links: [{
 				rel: ['https://api.brightspace.com/rels/organization'],
@@ -59,6 +66,15 @@ describe('d2l-utility-behavior', function() {
 			);
 
 			expect(url).to.not.match(/foo=bar/);
+		});
+
+		it('should work with hrefs that already have query params', function() {
+			var url = component.createActionUrl(
+				enrollmentEntity.getActionByName('action-with-query-params'),
+				{ param2: 'baz' }
+			);
+
+			expect(url).to.equal('/enrollments?param1=foo&param2=baz');
 		});
 	});
 

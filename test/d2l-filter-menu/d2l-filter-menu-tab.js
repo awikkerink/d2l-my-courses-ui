@@ -124,6 +124,53 @@ describe('d2l-filter-menu-tab', function() {
 		});
 	});
 
+	describe('load', function() {
+		it('should not re-fetch data if it has already loaded it, and instead just clear the search', function() {
+			component.$$('d2l-search-widget').clear = sandbox.stub();
+			component.fetchSirenEntity = sandbox.stub().returns(Promise.resolve({}));
+			component._allFilters = [organization];
+
+			return component.load().then(function() {
+				expect(component.$$('d2l-search-widget').clear).to.have.been.called;
+				expect(component.fetchSirenEntity).to.have.not.been.called;
+			});
+		});
+
+		it('should fetch data if it has not already been loaded', function() {
+			component.fetchSirenEntity = sandbox.stub().returns(Promise.resolve({}));
+
+			return component.load().then(function() {
+				expect(component.fetchSirenEntity).to.have.been.called;
+			});
+		});
+
+		it('should set _showContent to false if 0 filters are returned', function() {
+			component.fetchSirenEntity = sandbox.stub().returns(Promise.resolve({
+				entities: []
+			}));
+			expect(component._showContent).to.be.false;
+
+			return component.load().then(function() {
+				expect(component._showContent).to.be.false;
+			});
+		});
+
+		it('should set _showContent to true if >0 filters are returned', function() {
+			component.fetchSirenEntity = sandbox.stub().returns(Promise.resolve({
+				entities: [organization]
+			}));
+			expect(component._showContent).to.be.false;
+
+			return component.load().then(function() {
+				expect(component._showContent).to.be.true;
+			});
+		});
+	});
+
+	describe('clear', function() {
+
+	});
+
 	describe('_checkSelected', function() {
 		it('should return true if item should be selected', function() {
 			component.selectedFilters = [organization.href];

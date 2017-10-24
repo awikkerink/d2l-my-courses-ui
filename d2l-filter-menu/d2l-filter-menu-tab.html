@@ -14,9 +14,6 @@
 				display: flex;
 				flex-direction: column;
 			}
-			:host([hidden]) {
-				display: none !important;
-			}
 			d2l-search-widget {
 				--d2l-search-widget-height: 45px;
 				margin: 10px 20px;
@@ -94,7 +91,7 @@
 				if (this._allFilters.length > 0) {
 					// We've already loaded, don't load again
 					this.$$('d2l-search-widget').clear();
-					return;
+					return Promise.resolve();
 				}
 
 				return this.fetchSirenEntity(this.searchAction.href)
@@ -106,13 +103,12 @@
 			},
 			clear: function() {
 				var items = this.$$('d2l-menu').querySelectorAll('d2l-filter-list-item');
-				items.forEach(function(item) {
-					item.selected = false;
-				});
+				for (var i = 0; i < items.length; i++) {
+					items[i].selected = false;
+				}
 
 				this.$$('d2l-search-widget').clear();
-				this.set('selectedFilters', []);
-				this.fire('selected-filters-changed');
+				this.selectedFilters = [];
 			},
 			resize: function() {
 				this.$$('d2l-menu').resize();

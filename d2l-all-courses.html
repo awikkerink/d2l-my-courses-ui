@@ -283,6 +283,11 @@
 				_unpinnedEnrollmentsToAnimate: {
 					type: Array,
 					value: function() { return []; }
+				},
+				// Number of filters currently selected; used to change opener text when menu closes
+				_filterCount: {
+					type: Number,
+					value: 0
 				}
 			},
 			behaviors: [
@@ -394,23 +399,17 @@
 				}
 			},
 			_onFilterChanged: function(e) {
-				if (!this._enrollmentsSearchAction) {
-					return;
-				}
-
-				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
-					parentOrganizations: e.detail.filters.join(',')
-				});
+				this._searchUrl = e.detail.url;
+				this._filterCount = e.detail.filterCount;
 			},
 			_onFilterDropdownClose: function() {
-				var length = this.$.filterMenu.currentFilters.length;
 				var text;
-				if (length === 0) {
+				if (this._filterCount === 0) {
 					text = this.localize('filtering.filter');
-				} else if (length === 1) {
+				} else if (this._filterCount === 1) {
 					text = this.localize('filtering.filterSingle');
 				} else {
-					text = this.localize('filtering.filterMultiple', 'num', length);
+					text = this.localize('filtering.filterMultiple', 'num', this._filterCount);
 				}
 				this.set('_filterText', text);
 			},
@@ -511,7 +510,7 @@
 				this._noUnpinnedCourses = false;
 				var isSearched = this.$['search-widget']._showClearIcon,
 					hasAlert = this._hasAlert('noPinnedCourses'),
-					isFiltered = this.$.filterMenu.currentFilters.length > 0;
+					isFiltered = this._filterCount > 0;
 				this._clearAlerts();
 				if (!hasPinnedEnrollments) {
 					if (!hasAlert && isSearched) {

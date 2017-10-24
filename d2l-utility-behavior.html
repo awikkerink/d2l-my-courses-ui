@@ -31,7 +31,16 @@
 				return key + '=' + query[key];
 			}).join('&');
 
-			return queryString ? action.href + '?' + queryString : action.href;
+			if (!queryString) {
+				return action.href;
+			}
+
+			if (action.href.indexOf('?') > -1) {
+				// href already has some query params, append ours
+				return action.href + '&' + queryString;
+			}
+
+			return action.href + '?' + queryString;
 		},
 		// Creates a unique identifier for a Siren Entity (really just the self Link href)
 		getEntityIdentifier: function(entity) {
