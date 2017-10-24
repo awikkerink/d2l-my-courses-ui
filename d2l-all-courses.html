@@ -453,8 +453,8 @@
 			_onSearchResultsChanged: function(e) {
 				this._pinnedCoursesMap = {};
 				this._unpinnedCoursesMap = {};
-				this._enrollmentsSearchAction = e.detail.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 				this._updateFilteredEnrollments(e.detail, false);
+				this.myEnrollmentsEntity = e.detail;
 			},
 			_onSimpleOverlayOpening: function() {
 				this._removeAlert('setCourseImageFailure');
@@ -483,15 +483,11 @@
 			},
 			_myEnrollmentsEntityChanged: function(entity) {
 				if (entity) {
-					var enrollmentsRoot = this.parseEntity(entity);
+					var myEnrollmentsEntity = this.parseEntity(entity);
 
-					if (!enrollmentsRoot.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
-						return;
+					if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
+						this._enrollmentsSearchAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 					}
-
-					var searchAction = enrollmentsRoot.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
-
-					this.set('_enrollmentsSearchAction', searchAction);
 				}
 			},
 			_pinnedEnrollmentsChanged: function() {
