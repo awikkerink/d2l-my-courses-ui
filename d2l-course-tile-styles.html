@@ -128,7 +128,9 @@
 			}
 
 			.course-code-text, .course-semester-text  {
-				word-break: break-word;
+				-ms-word-break: break-all;
+				word-break: break-all;
+				word-break: break-word; /* Best case, only works in Chrome though */
 				@apply --d2l-body-small-text;
 			}
 
