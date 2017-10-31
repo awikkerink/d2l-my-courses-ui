@@ -207,6 +207,10 @@
 							startMark: 'd2l.my-courses.tiles.first-organization'
 						}
 					}
+				},
+				orgUnitIdMap: {
+					type: Object,
+					value: function() { return {}; }
 				}
 			},
 			behaviors: [
@@ -236,13 +240,18 @@
 			],
 			ready: function() {
 				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
+				this._onEnrollmentPinnedMessage = this._onEnrollmentPinnedMessage.bind(this);
 			},
 			attached: function() {
 				this.performanceMark('d2l.my-courses.attached');
 				this._fetchRoot();
 
+				document.body.addEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._onStartedInactiveAlert.bind(this));
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
+			},
+			detached: function() {
+ 				document.body.removeEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 			},
 
 			/*
@@ -306,6 +315,25 @@
 					}
 				);
 			},
+			_onEnrollmentPinnedMessage: function(e) {
+ 				if (e.target !== this) {
+					// TODO: Not necessary once parsed down to orgUnitId
+					var orgUnitIdLink = 'http://KLX1-TJONES:44453/d2l/api/hm/organizations/' + e.detail.orgUnitId;
+ 					var enrollment = this.orgUnitIdMap[orgUnitIdLink];
+
+ 					if (enrollment) {
+ 						if (e.detail.isPinned) {
+ 							this._moveEnrollmentToPinnedList(enrollment);
+ 						} else {
+ 							this._moveEnrollmentToUnpinnedList(enrollment);
+ 						}
+ 						setTimeout(this._onStartedInactiveAlert.bind(this), 50);
+ 					} else {
+						this.fetchSirenEntity(this.enrollmentsUrl)
+							.then(this._refetchEnrollments.bind(this))
+ 					}
+ 				}
+ 			},
 			_onStartedInactiveAlert: function(e) {
 				var type = e && e.detail && e.detail.type;
 
@@ -439,6 +467,13 @@
 					return Promise.resolve();
 				}
 
+				this._enrollmentsSearchUrl = this._createFetchEnrollmentsUrl(enrollmentsRootEntity)
+
+				this.performanceMark('d2l.my-courses.search-enrollments.request');
+				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
+					.then(this._populateEnrollments.bind(this));
+			},
+			_createFetchEnrollmentsUrl: function(enrollmentsRootEntity, bustCache) {
 				var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
 
 				var query = {
@@ -447,15 +482,32 @@
 					sort: '-PinDate,OrgUnitName,OrgUnitId',
 					autoPinCourses: true
 				};
-				this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
+				var enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
+				if (bustCache) enrollmentsSearchUrl += '&bustCache=' + Math.random();
 
-				this.performanceMark('d2l.my-courses.search-enrollments.request');
-				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
+				return enrollmentsSearchUrl;
+			},
+			_refetchEnrollments: function(enrollmentsRootEntity) {
+
+				this.performanceMark('my-courses.root-enrollments.response');
+				this.performanceMeasure(
+					'my-courses.root-enrollments',
+					'my-courses.root-enrollments.request',
+					'my-courses.root-enrollments.response'
+				);
+
+				if (!enrollmentsRootEntity.hasAction('search-my-enrollments')) {
+					return Promise.resolve();
+				}
+
+				var enrollmentsSearchUrl = this._createFetchEnrollmentsUrl(enrollmentsRootEntity, true);
+
+				this.performanceMark('d2l.my-courses..search-enrollments.request');
+				return this.fetchSirenEntity(enrollmentsSearchUrl)
 					.then(this._populateEnrollments.bind(this));
 			},
 			_populateEnrollments: function(enrollmentsEntity) {
-
-				this.performanceMark('d2l.my-courses.search-enrollments.response');
+				this.performanceMark('d2l.my-courses..search-enrollments.response');
 				this.performanceMeasure(
 					'd2l.my-courses.search-enrollments',
 					'd2l.my-courses.search-enrollments.request',
@@ -480,6 +532,13 @@
 							newUnpinnedEnrollments.push(enrollment);
 							this._unpinnedCoursesMap[enrollmentId] = true;
 						}
+					}
+
+					// TODO: This should be parsed down to just orgUnitId
+					var orgLink = enrollment.getLinkByRel(this.HypermediaRels.organization);
+					var orgUnitId = (orgLink || {}).href;
+					if (!this.orgUnitIdMap.hasOwnProperty(orgUnitId)) {
+						this.orgUnitIdMap[orgUnitId] = enrollment;
 					}
 				}, this);
 
