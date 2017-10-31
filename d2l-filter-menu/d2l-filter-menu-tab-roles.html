@@ -19,10 +19,10 @@
 
 		<div hidden$="[[!_showContent]]">
 			<d2l-menu label="[[menuLabelText]]">
-				<template is="dom-repeat" items="[[_filterItems]]">
+				<template is="dom-repeat" items="[[_filters]]">
 					<d2l-filter-list-item-role
 						text="[[item.title]]"
-						value="[[item]]">
+						value="[[item.filters]]">
 					</d2l-filter-list-item-role>
 				</template>
 			</d2l-menu>
@@ -44,7 +44,11 @@
 				menuLabelText: String,
 				noFiltersText: String,
 				_roleFiltersEntity: Object,
-				_filterItems: {
+				_filters: {
+					type: Array,
+					value: function() { return []; }
+				},
+				_filterEntities: {
 					type: Array,
 					value: function() { return []; }
 				},
@@ -103,34 +107,81 @@
 				this._fetchFilterItems(setRoleFiltersUrl);
 			},
 			_onMenuItemChange: function(e) {
-				var changeFilterAction;
+				var actionName;
 				if (e.detail.selected) {
-					changeFilterAction = e.detail.value.getActionByName('add-filter');
+					actionName = 'add-filter';
 				} else {
-					changeFilterAction = e.detail.value.getActionByName('remove-filter');
+					actionName = 'remove-filter';
 				}
-				// Create the URL to add/remove the filter to overall filter
-				var addRemoveUrl = this.createActionUrl(changeFilterAction);
 
-				this._fetchFilterItems(addRemoveUrl)
-					.then(function() {
-						// Use the apply-role-filters action to create the new searchUrl
-						var applyAction = this._roleFiltersEntity.getActionByName('apply-role-filters');
-						var searchUrl = this.createActionUrl(applyAction);
-						var roles = applyAction.getFieldByName('roles').value;
-						this.fire('role-filters-changed', {
-							url: searchUrl,
-							filterCount: roles.length ? roles.split(',').length : 0
+				var filters = e.detail.value;
+
+				// Create the URL to add/remove the (first) filter
+				var changeFilterAction = filters[0].getActionByName(actionName);
+				var addRemoveUrl = this.createActionUrl(changeFilterAction);
+				var request = this.fetchSirenEntity(addRemoveUrl);
+
+				for (var i = 1; i < filters.length; i++) {
+					var filter = filters[i];
+					request = request.then(function(newFiltersEntity) {
+						// The first fetchSirenEntity will change the entities, so grab the updated
+						// filter from the newly-updated role filters (based on role href)
+						var selfHref = filter.getLinkByRel('related').href;
+						var newFilter = newFiltersEntity.entities.find(function(entity) {
+							return entity.getLinkByRel('related').href === selfHref;
 						});
+						if (!newFilter) {
+							// In the event the next filter from the event no longer appears, skip it
+							return Promise.resolve();
+						}
+
+						var action = newFilter.getActionByName(actionName);
+						var url = this.createActionUrl(action);
+						return this.fetchSirenEntity(url);
 					}.bind(this));
+				}
+
+				request = request.then(this._parseFilterItems.bind(this));
+
+				return request.then(this._applyRoleFilters.bind(this));
+			},
+			_applyRoleFilters: function() {
+				// Use the apply-role-filters action to create the new searchUrl
+				var applyAction = this._roleFiltersEntity.getActionByName('apply-role-filters');
+				var searchUrl = this.createActionUrl(applyAction);
+				var roles = applyAction.getFieldByName('roles').value;
+				this.fire('role-filters-changed', {
+					url: searchUrl,
+					filterCount: roles.length ? roles.split(',').length : 0
+				});
 			},
 			_fetchFilterItems: function(url) {
 				return this.fetchSirenEntity(url)
-					.then(function(roleFiltersEntity) {
-						this._roleFiltersEntity = roleFiltersEntity;
-						this._filterItems = this._roleFiltersEntity.entities || [];
-						this._showContent = this._filterItems.length > 0;
-					}.bind(this));
+					.then(this._parseFilterItems.bind(this));
+			},
+			_parseFilterItems: function(roleFiltersEntity) {
+				this._roleFiltersEntity = roleFiltersEntity;
+				this._filterEntities = this._roleFiltersEntity.entities || [];
+
+				var filters = [];
+				// DE27982 - Filters with the same title should be combined into one item
+				this._filterEntities.forEach(function(filterEntity) {
+					var existingFilter = filters.find(function(filter) {
+						return filter.title === filterEntity.title;
+					});
+
+					if (existingFilter) {
+						existingFilter.filters.push(filterEntity);
+					} else {
+						filters.push({
+							title: filterEntity.title,
+							filters: [filterEntity]
+						});
+					}
+				});
+				this._filters = filters;
+
+				this._showContent = this._filterEntities.length > 0;
 			}
 		});
 	</script>

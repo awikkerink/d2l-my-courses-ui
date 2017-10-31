@@ -102,7 +102,7 @@ describe('d2l-filter-menu-tab-roles', function() {
 
 				component.fire('d2l-menu-item-change', {
 					selected: testCase.selected,
-					value: roleFilterEntity
+					value: [roleFilterEntity]
 				});
 			});
 		});
@@ -119,7 +119,44 @@ describe('d2l-filter-menu-tab-roles', function() {
 
 			component.fire('d2l-menu-item-change', {
 				selected: true,
-				value: roleFilterEntity
+				value: [roleFilterEntity]
+			});
+		});
+
+		it('should work with multiple filters in the event', function(done) {
+			var filter = {
+				actions: [{
+					name: 'add-filter',
+					href: 'http://example.com/add'
+				}],
+				rel: ['foo'],
+				links: [{
+					rel: ['related'],
+					href: 'http://example.com/roles/1'
+				}]
+			};
+			component.fetchSirenEntity = sandbox.stub().returns(Promise.resolve(parse({
+				entities: [filter, filter],
+				actions: [{
+					name: 'apply-role-filters',
+					href: 'http://example.com',
+					fields: [{
+						name: 'roles',
+						value: ''
+					}]
+				}]
+			})));
+			var listener = function() {
+				component.removeEventListener('role-filters-changed', listener);
+				// Once per filter in event.detail.value
+				expect(component.fetchSirenEntity.callCount).to.equal(2);
+				done();
+			};
+			component.addEventListener('role-filters-changed', listener);
+
+			component.fire('d2l-menu-item-change', {
+				selected: true,
+				value: [parse(filter), parse(filter)]
 			});
 		});
 	});
