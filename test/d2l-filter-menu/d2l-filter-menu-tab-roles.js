@@ -182,4 +182,34 @@ describe('d2l-filter-menu-tab-roles', function() {
 			});
 		});
 	});
+
+	describe('_parseFilterItems', function() {
+		it('should have separate entries for filters with different title attributes', function() {
+			component._parseFilterItems({
+				entities: [{
+					title: 'foo',
+					rel: ['filter']
+				}, {
+					title: 'bar',
+					rel: ['filter']
+				}]
+			});
+
+			expect(component._filters.length).to.equal(2);
+		});
+
+		it('should combine entries for filters with the same title attribute', function() {
+			component._parseFilterItems({
+				entities: [{
+					title: 'foo',
+					rel: ['filter']
+				}, {
+					title: 'foo',
+					rel: ['filter']
+				}]
+			});
+
+			expect(component._filters.length).to.equal(1);
+		});
+	});
 });
