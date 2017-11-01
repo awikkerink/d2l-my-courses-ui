@@ -1,4 +1,5 @@
 <link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../../d2l-menu/d2l-menu.html">
 <link rel="import" href="../../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="../d2l-utility-behavior.html">
@@ -58,6 +59,7 @@
 				}
 			},
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
@@ -73,10 +75,11 @@
 				// This should instead use a `clear-role-filters` action from the API
 				// (which would do effectively the same thing), but it doesn't exist yet
 				var myEnrollmentsEntity = this.parseEntity(this.myEnrollmentsEntity);
-				if (!myEnrollmentsEntity.hasActionByName('set-role-filters')) {
+				var actionName = this.HypermediaActions.enrollments.setRoleFilters;
+				if (!myEnrollmentsEntity.hasActionByName(actionName)) {
 					return;
 				}
-				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName('set-role-filters');
+				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName(actionName);
 				var clearRoleFiltersUrl = this.createActionUrl(setRoleFiltersAction, {
 					include: ''
 				});
@@ -97,11 +100,12 @@
 			},
 			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
 				myEnrollmentsEntity = this.parseEntity(myEnrollmentsEntity);
-				if (!myEnrollmentsEntity.hasActionByName('set-role-filters')) {
+				var actionName = this.HypermediaActions.enrollments.setRoleFilters;
+				if (!myEnrollmentsEntity.hasActionByName(actionName)) {
 					return;
 				}
 
-				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName('set-role-filters');
+				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName(actionName);
 				var setRoleFiltersUrl = this.createActionUrl(setRoleFiltersAction);
 
 				this._fetchFilterItems(setRoleFiltersUrl);
@@ -109,9 +113,9 @@
 			_onMenuItemChange: function(e) {
 				var actionName;
 				if (e.detail.selected) {
-					actionName = 'add-filter';
+					actionName = this.HypermediaActions.enrollments.roleFilters.addFilter;
 				} else {
-					actionName = 'remove-filter';
+					actionName = this.HypermediaActions.enrollments.roleFilters.removeFilter;
 				}
 
 				var filters = e.detail.value;
@@ -126,11 +130,16 @@
 					request = request.then(function(newFiltersEntity) {
 						// The first fetchSirenEntity will change the entities, so grab the updated
 						// filter from the newly-updated role filters (based on role href)
-						var selfHref = filter.getLinkByRel('related').href;
+						if (!filter.hasLinkByRel('related')) {
+							return Promise.resolve();
+						}
+						var relatedHref = filter.getLinkByRel('related').href;
+
 						var newFilter = newFiltersEntity.entities.find(function(entity) {
-							return entity.getLinkByRel('related').href === selfHref;
+							var link = entity.getLinkByRel('related');
+							return link ? link.href === relatedHref : false;
 						});
-						if (!newFilter) {
+						if (!newFilter || !newFilter.hasActionByName(actionName)) {
 							// In the event the next filter from the event no longer appears, skip it
 							return Promise.resolve();
 						}
@@ -147,7 +156,9 @@
 			},
 			_applyRoleFilters: function() {
 				// Use the apply-role-filters action to create the new searchUrl
-				var applyAction = this._roleFiltersEntity.getActionByName('apply-role-filters');
+				var applyAction = this._roleFiltersEntity.getActionByName(
+					this.HypermediaActions.enrollments.roleFilters.applyRoleFilters
+				);
 				var searchUrl = this.createActionUrl(applyAction);
 				var roles = applyAction.getFieldByName('roles').value;
 				this.fire('role-filters-changed', {
