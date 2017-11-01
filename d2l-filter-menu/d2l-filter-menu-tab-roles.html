@@ -20,10 +20,10 @@
 
 		<div hidden$="[[!_showContent]]">
 			<d2l-menu label="[[menuLabelText]]">
-				<template is="dom-repeat" items="[[_filters]]">
+				<template is="dom-repeat" items="[[_filterTitles]]">
 					<d2l-filter-list-item-role
-						text="[[item.title]]"
-						value="[[item.filters]]">
+						text="[[item]]"
+						value="[[item]]">
 					</d2l-filter-list-item-role>
 				</template>
 			</d2l-menu>
@@ -45,11 +45,7 @@
 				menuLabelText: String,
 				noFiltersText: String,
 				_roleFiltersEntity: Object,
-				_filters: {
-					type: Array,
-					value: function() { return []; }
-				},
-				_filterEntities: {
+				_filterTitles: {
 					type: Array,
 					value: function() { return []; }
 				},
@@ -118,41 +114,40 @@
 					actionName = this.HypermediaActions.enrollments.roleFilters.removeFilter;
 				}
 
-				var filters = e.detail.value;
+				var filterTitle = e.detail.value;
 
-				// Create the URL to add/remove the (first) filter
-				var changeFilterAction = filters[0].getActionByName(actionName);
-				var addRemoveUrl = this.createActionUrl(changeFilterAction);
-				var request = this.fetchSirenEntity(addRemoveUrl);
+				var filter = this._findNextFilter(this._roleFiltersEntity.entities, filterTitle, actionName);
+				var action = filter.getActionByName(actionName);
+				var url = this.createActionUrl(action);
+				var request = this.fetchSirenEntity(url);
 
-				for (var i = 1; i < filters.length; i++) {
-					var filter = filters[i];
-					request = request.then(function(newFiltersEntity) {
-						// The first fetchSirenEntity will change the entities, so grab the updated
-						// filter from the newly-updated role filters (based on role href)
-						if (!filter.hasLinkByRel('related')) {
-							return Promise.resolve();
-						}
-						var relatedHref = filter.getLinkByRel('related').href;
-
-						var newFilter = newFiltersEntity.entities.find(function(entity) {
-							var link = entity.getLinkByRel('related');
-							return link ? link.href === relatedHref : false;
-						});
-						if (!newFilter || !newFilter.hasActionByName(actionName)) {
-							// In the event the next filter from the event no longer appears, skip it
-							return Promise.resolve();
+				for (var i = 1; i < this._roleFiltersEntity.entities.length; i++) {
+					request = request.then(function(updatedFilters) {
+						var filter = this._findNextFilter(updatedFilters.entities, filterTitle, actionName);
+						// If there aren't any more "off" filters with the desired title, skip through to end
+						if (!filter) {
+							return Promise.resolve(updatedFilters);
 						}
 
-						var action = newFilter.getActionByName(actionName);
+						// Create the URL to enable the next correctly-titled, "off" filter
+						var action = filter.getActionByName(actionName);
 						var url = this.createActionUrl(action);
 						return this.fetchSirenEntity(url);
 					}.bind(this));
 				}
 
-				request = request.then(this._parseFilterItems.bind(this));
-
-				return request.then(this._applyRoleFilters.bind(this));
+				return request
+					.then(this._parseFilterItems.bind(this))
+					.then(this._applyRoleFilters.bind(this));
+			},
+			_findNextFilter: function(array, title, actionName) {
+				// This could easily be replaced with Array.prototype.find, but... IE.
+				for (var i = 0; i < array.length; i++) {
+					var filter = array[i];
+					if (filter.title === title && filter.hasActionByName(actionName)) {
+						return filter;
+					}
+				}
 			},
 			_applyRoleFilters: function() {
 				// Use the apply-role-filters action to create the new searchUrl
@@ -160,10 +155,9 @@
 					this.HypermediaActions.enrollments.roleFilters.applyRoleFilters
 				);
 				var searchUrl = this.createActionUrl(applyAction);
-				var roles = applyAction.getFieldByName('roles').value;
 				this.fire('role-filters-changed', {
 					url: searchUrl,
-					filterCount: roles.length ? roles.split(',').length : 0
+					filterCount: this.querySelectorAll('d2l-filter-list-item-role[selected]').length
 				});
 			},
 			_fetchFilterItems: function(url) {
@@ -172,27 +166,18 @@
 			},
 			_parseFilterItems: function(roleFiltersEntity) {
 				this._roleFiltersEntity = roleFiltersEntity;
-				this._filterEntities = this._roleFiltersEntity.entities || [];
+				this._roleFiltersEntity.entities = this._roleFiltersEntity.entities || [];
 
-				var filters = [];
 				// DE27982 - Filters with the same title should be combined into one item
-				this._filterEntities.forEach(function(filterEntity) {
-					var existingFilter = filters.find(function(filter) {
-						return filter.title === filterEntity.title;
-					});
-
-					if (existingFilter) {
-						existingFilter.filters.push(filterEntity);
-					} else {
-						filters.push({
-							title: filterEntity.title,
-							filters: [filterEntity]
-						});
+				var uniqueTitles = [];
+				this._roleFiltersEntity.entities.forEach(function(filterEntity) {
+					if (uniqueTitles.indexOf(filterEntity.title) === -1) {
+						uniqueTitles.push(filterEntity.title);
 					}
 				});
-				this._filters = filters;
+				this._filterTitles = uniqueTitles;
 
-				this._showContent = this._filterEntities.length > 0;
+				this._showContent = this._roleFiltersEntity.entities.length > 0;
 			}
 		});
 	</script>
