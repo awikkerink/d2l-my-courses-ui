@@ -192,19 +192,19 @@
 					type: Object,
 					value: {
 						'course-tile-first-render': {
-							name: 'my-courses.tiles.rendered',
+							name: 'd2l.my-courses.tiles.rendered',
 							count: 0,
-							startMark: 'my-courses.search-enrollments.response'
+							startMark: 'd2l.my-courses.search-enrollments.response'
 						},
 						'course-tile-organization': {
-							name: 'my-courses.tiles.organizations',
+							name: 'd2l.my-courses.tiles.organizations',
 							count: 0,
-							startMark: 'my-courses.search-enrollments.response'
+							startMark: 'd2l.my-courses.search-enrollments.response'
 						},
 						'course-image-loaded': {
-							name: 'my-courses.tiles.images',
+							name: 'd2l.my-courses.tiles.images',
 							count: 0,
-							startMark: 'my-courses.tiles.first-organization'
+							startMark: 'd2l.my-courses.tiles.first-organization'
 						}
 					}
 				}
@@ -238,7 +238,7 @@
 				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
 			},
 			attached: function() {
-				this.performanceMark('my-courses.attached');
+				this.performanceMark('d2l.my-courses.attached');
 				this._fetchRoot();
 
 				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._onStartedInactiveAlert.bind(this));
@@ -354,7 +354,7 @@
 
 				data.count++;
 				if (e.type === 'course-tile-organization' && data.count === 1) {
-					this.performanceMark('my-courses.tiles.first-organization');
+					this.performanceMark('d2l.my-courses.tiles.first-organization');
 				}
 				if (data.count === this.pinnedEnrollments.length) {
 					this.performanceMark(data.name);
@@ -367,8 +367,8 @@
 						return;
 					}
 				}
-				this.performanceMark('my-courses.complete');
-				this.performanceMeasure('my-courses', 'my-courses.attached', 'my-courses.complete');
+				this.performanceMark('d2l.my-courses.complete');
+				this.performanceMeasure('d2l.my-courses', 'd2l.my-courses.attached', 'd2l.my-courses.complete');
 
 			},
 
@@ -415,7 +415,7 @@
 				}
 			},
 			_fetchRoot: function() {
-				this.performanceMark('my-courses.root-enrollments.request');
+				this.performanceMark('d2l.my-courses.root-enrollments.request');
 
 				var showContent = function() {
 					this._showContent = true;
@@ -428,11 +428,11 @@
 			},
 			_fetchEnrollments: function(enrollmentsRootEntity) {
 
-				this.performanceMark('my-courses.root-enrollments.response');
+				this.performanceMark('d2l.my-courses.root-enrollments.response');
 				this.performanceMeasure(
-					'my-courses.root-enrollments',
-					'my-courses.root-enrollments.request',
-					'my-courses.root-enrollments.response'
+					'd2l.my-courses.root-enrollments',
+					'd2l.my-courses.root-enrollments.request',
+					'd2l.my-courses.root-enrollments.response'
 				);
 
 				if (!enrollmentsRootEntity.hasAction('search-my-enrollments')) {
@@ -449,17 +449,17 @@
 				};
 				this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 
-				this.performanceMark('my-courses.search-enrollments.request');
+				this.performanceMark('d2l.my-courses.search-enrollments.request');
 				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
 					.then(this._populateEnrollments.bind(this));
 			},
 			_populateEnrollments: function(enrollmentsEntity) {
 
-				this.performanceMark('my-courses.search-enrollments.response');
+				this.performanceMark('d2l.my-courses.search-enrollments.response');
 				this.performanceMeasure(
-					'my-courses.search-enrollments',
-					'my-courses.search-enrollments.request',
-					'my-courses.search-enrollments.response'
+					'd2l.my-courses.search-enrollments',
+					'd2l.my-courses.search-enrollments.request',
+					'd2l.my-courses.search-enrollments.response'
 				);
 
 				this._lastEnrollmentsSearchResponse = enrollmentsEntity;
