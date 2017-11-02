@@ -317,9 +317,7 @@
 			},
 			_onEnrollmentPinnedMessage: function(e) {
  				if (e.target !== this) {
-					// TODO: Not necessary once parsed down to orgUnitId
-					var orgUnitIdLink = 'http://KLX1-TJONES:44453/d2l/api/hm/organizations/' + e.detail.orgUnitId;
- 					var enrollment = this.orgUnitIdMap[orgUnitIdLink];
+ 					var enrollment = this.orgUnitIdMap[e.detail.orgUnitId];
 
  					if (enrollment) {
  						if (e.detail.isPinned) {
@@ -534,9 +532,8 @@
 						}
 					}
 
-					// TODO: This should be parsed down to just orgUnitId
 					var orgLink = enrollment.getLinkByRel(this.HypermediaRels.organization);
-					var orgUnitId = (orgLink || {}).href;
+					var orgUnitId = this._getOrgUnitIdFromLink(orgLink);
 					if (!this.orgUnitIdMap.hasOwnProperty(orgUnitId)) {
 						this.orgUnitIdMap[orgUnitId] = enrollment;
 					}
@@ -634,6 +631,14 @@
 			},
 			_getOrgUnitId: function(organization) {
 				var match = /[0-9]+$/.exec(this.getEntityIdentifier(organization));
+
+				if (!match) {
+					return;
+				}
+				return match[0];
+			},
+			_getOrgUnitIdFromLink: function(organizationHref) {
+				var match = /[0-9]+$/.exec((organizationHref || {}).href);
 
 				if (!match) {
 					return;
