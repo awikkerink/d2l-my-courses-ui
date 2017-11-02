@@ -487,11 +487,11 @@
 			},
 			_refetchEnrollments: function(enrollmentsRootEntity) {
 
-				this.performanceMark('my-courses.root-enrollments.response');
+				this.performanceMark('d2l.my-courses.root-enrollments.response');
 				this.performanceMeasure(
-					'my-courses.root-enrollments',
-					'my-courses.root-enrollments.request',
-					'my-courses.root-enrollments.response'
+					'd2l.my-courses.root-enrollments',
+					'd2l.my-courses.root-enrollments.request',
+					'd2l.my-courses.root-enrollments.response'
 				);
 
 				if (!enrollmentsRootEntity.hasAction('search-my-enrollments')) {
