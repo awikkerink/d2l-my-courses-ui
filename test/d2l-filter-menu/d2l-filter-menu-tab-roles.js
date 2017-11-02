@@ -5,11 +5,25 @@
 var sandbox,
 	component,
 	myEnrollmentsEntity,
-	roleFilterEntity,
 	roleFiltersEntity;
 
 function parse(entity) {
 	return window.D2L.Hypermedia.Siren.Parse(entity);
+}
+
+function getFilter(name, onOrOff) {
+	return {
+		rel: ['filter'],
+		class: [onOrOff || 'off'],
+		title: name,
+		actions: [{
+			name: 'add-filter',
+			href: 'http://example.com/add'
+		}, {
+			name: 'remove-filter',
+			href: 'http://example.com/remove'
+		}]
+	};
 }
 
 beforeEach(function() {
@@ -24,16 +38,8 @@ beforeEach(function() {
 			}]
 		}]
 	};
-	roleFilterEntity = parse({
-		actions: [{
-			name: 'add-filter',
-			href: 'http://example.com/add'
-		}, {
-			name: 'remove-filter',
-			href: 'http://example.com/remove'
-		}]
-	});
 	roleFiltersEntity = parse({
+		entities: [getFilter('foo')],
 		actions: [{
 			name: 'apply-role-filters',
 			href: 'http://example.com',
@@ -92,6 +98,7 @@ describe('d2l-filter-menu-tab-roles', function() {
 			{ name: 'should remove the filter when de-selected', url: 'http://example.com/remove', selected: false }
 		].forEach(function(testCase) {
 			it(testCase.name, function(done) {
+				component._roleFiltersEntity = roleFiltersEntity;
 				component.fetchSirenEntity = sandbox.stub().returns(Promise.resolve(roleFiltersEntity));
 				var listener = function() {
 					component.removeEventListener('role-filters-changed', listener);
@@ -102,31 +109,56 @@ describe('d2l-filter-menu-tab-roles', function() {
 
 				component.fire('d2l-menu-item-change', {
 					selected: testCase.selected,
-					value: roleFilterEntity
+					value: 'foo'
 				});
 			});
 		});
 
-		it('should fire a role-filters-changed event with the new URL and filterCount', function(done) {
+		it('should fire a role-filters-changed event with the new URL', function(done) {
+			component._roleFiltersEntity = roleFiltersEntity;
 			component.fetchSirenEntity = sandbox.stub().returns(Promise.resolve(roleFiltersEntity));
 			var listener = function(e) {
 				component.removeEventListener('role-filters-changed', listener);
 				expect(e.detail.url).to.equal('http://example.com?roles=1,2,3,4');
-				expect(e.detail.filterCount).to.equal(4);
 				done();
 			};
 			component.addEventListener('role-filters-changed', listener);
 
 			component.fire('d2l-menu-item-change', {
 				selected: true,
-				value: roleFilterEntity
+				value: 'foo'
+			});
+		});
+
+		it('should work with a filter title that corresponds to more than one filter', function(done) {
+			var filterOn = getFilter('foo', 'on');
+			var filterOff = getFilter('foo', 'off');
+			component._roleFiltersEntity = parse({ entities: [filterOff, filterOff] });
+			component.createActionUrl = sinon.stub();
+
+			var stub = sandbox.stub();
+			stub.onFirstCall().returns(Promise.resolve(parse({ entities: [filterOn, filterOff] })));
+			stub.onSecondCall().returns(Promise.resolve(parse({ entities: [filterOn, filterOn] })));
+			component.fetchSirenEntity = stub;
+
+			var listener = function() {
+				component.removeEventListener('role-filters-changed', listener);
+				// Once per filter with the name 'foo'
+				expect(component.fetchSirenEntity.callCount).to.equal(2);
+				done();
+			};
+			component.addEventListener('role-filters-changed', listener);
+
+			component.fire('d2l-menu-item-change', {
+				selected: true,
+				value: 'foo'
 			});
 		});
 	});
 
 	describe('clear', function() {
 		it('should reset the "selected" state to false on all filter items', function() {
-			component._filterItems = [{ title: 'one' }, { title: 'two' }, { title: 'three' }];
+			component._filterTitles = [ 'one', 'two', 'three' ];
 			var filters = component.$$('d2l-menu').querySelectorAll('d2l-filter-list-item-role');
 			filters.forEach(function(item) {
 				item.selected = true;
@@ -143,6 +175,20 @@ describe('d2l-filter-menu-tab-roles', function() {
 			return component.clear().then(function() {
 				expect(component.fetchSirenEntity).to.have.been.calledWith(sinon.match(/\?include=$/));
 			});
+		});
+	});
+
+	describe('_parseFilterItems', function() {
+		it('should have separate entries for filters with different title attributes', function() {
+			component._parseFilterItems({ entities: [getFilter('foo'), getFilter('bar')] });
+
+			expect(component._filterTitles.length).to.equal(2);
+		});
+
+		it('should combine entries for filters with the same title attribute', function() {
+			component._parseFilterItems({ entities: [getFilter('foo'), getFilter('foo') ]});
+
+			expect(component._filterTitles.length).to.equal(1);
 		});
 	});
 });

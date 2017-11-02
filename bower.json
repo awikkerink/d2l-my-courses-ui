@@ -33,7 +33,7 @@
     "d2l-course-image": "Brightspace/course-image#^1.2.0",
     "d2l-dropdown": "^5.0.6",
     "d2l-fetch": "Brightspace/d2l-fetch#^1.5.1",
-    "d2l-hm-constants-behavior": "Brightspace/d2l-hm-constants-behavior#^2.8.1",
+    "d2l-hm-constants-behavior": "Brightspace/d2l-hm-constants-behavior#^2.10.0",
     "d2l-icons": "^3.2.0",
     "d2l-image-selector": "git://github.com/Brightspace/image-selector#^2.0.1",
     "d2l-link": "^3.5.0",

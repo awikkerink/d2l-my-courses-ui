@@ -1,4 +1,5 @@
 <link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../../d2l-menu/d2l-menu.html">
 <link rel="import" href="../../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="../d2l-utility-behavior.html">
@@ -19,9 +20,9 @@
 
 		<div hidden$="[[!_showContent]]">
 			<d2l-menu label="[[menuLabelText]]">
-				<template is="dom-repeat" items="[[_filterItems]]">
+				<template is="dom-repeat" items="[[_filterTitles]]">
 					<d2l-filter-list-item-role
-						text="[[item.title]]"
+						text="[[item]]"
 						value="[[item]]">
 					</d2l-filter-list-item-role>
 				</template>
@@ -44,7 +45,7 @@
 				menuLabelText: String,
 				noFiltersText: String,
 				_roleFiltersEntity: Object,
-				_filterItems: {
+				_filterTitles: {
 					type: Array,
 					value: function() { return []; }
 				},
@@ -54,6 +55,7 @@
 				}
 			},
 			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
@@ -69,10 +71,11 @@
 				// This should instead use a `clear-role-filters` action from the API
 				// (which would do effectively the same thing), but it doesn't exist yet
 				var myEnrollmentsEntity = this.parseEntity(this.myEnrollmentsEntity);
-				if (!myEnrollmentsEntity.hasActionByName('set-role-filters')) {
+				var actionName = this.HypermediaActions.enrollments.setRoleFilters;
+				if (!myEnrollmentsEntity.hasActionByName(actionName)) {
 					return;
 				}
-				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName('set-role-filters');
+				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName(actionName);
 				var clearRoleFiltersUrl = this.createActionUrl(setRoleFiltersAction, {
 					include: ''
 				});
@@ -93,44 +96,88 @@
 			},
 			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
 				myEnrollmentsEntity = this.parseEntity(myEnrollmentsEntity);
-				if (!myEnrollmentsEntity.hasActionByName('set-role-filters')) {
+				var actionName = this.HypermediaActions.enrollments.setRoleFilters;
+				if (!myEnrollmentsEntity.hasActionByName(actionName)) {
 					return;
 				}
 
-				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName('set-role-filters');
+				var setRoleFiltersAction = myEnrollmentsEntity.getActionByName(actionName);
 				var setRoleFiltersUrl = this.createActionUrl(setRoleFiltersAction);
 
 				this._fetchFilterItems(setRoleFiltersUrl);
 			},
 			_onMenuItemChange: function(e) {
-				var changeFilterAction;
+				var actionName;
 				if (e.detail.selected) {
-					changeFilterAction = e.detail.value.getActionByName('add-filter');
+					actionName = this.HypermediaActions.enrollments.roleFilters.addFilter;
 				} else {
-					changeFilterAction = e.detail.value.getActionByName('remove-filter');
+					actionName = this.HypermediaActions.enrollments.roleFilters.removeFilter;
 				}
-				// Create the URL to add/remove the filter to overall filter
-				var addRemoveUrl = this.createActionUrl(changeFilterAction);
 
-				this._fetchFilterItems(addRemoveUrl)
-					.then(function() {
-						// Use the apply-role-filters action to create the new searchUrl
-						var applyAction = this._roleFiltersEntity.getActionByName('apply-role-filters');
-						var searchUrl = this.createActionUrl(applyAction);
-						var roles = applyAction.getFieldByName('roles').value;
-						this.fire('role-filters-changed', {
-							url: searchUrl,
-							filterCount: roles.length ? roles.split(',').length : 0
-						});
+				var filterTitle = e.detail.value;
+
+				var filter = this._findNextFilter(this._roleFiltersEntity.entities, filterTitle, actionName);
+				var action = filter.getActionByName(actionName);
+				var url = this.createActionUrl(action);
+				var request = this.fetchSirenEntity(url);
+
+				for (var i = 1; i < this._roleFiltersEntity.entities.length; i++) {
+					request = request.then(function(updatedFilters) {
+						var filter = this._findNextFilter(updatedFilters.entities, filterTitle, actionName);
+						// If there aren't any more "off" filters with the desired title, skip through to end
+						if (!filter) {
+							return Promise.resolve(updatedFilters);
+						}
+
+						// Create the URL to enable the next correctly-titled, "off" filter
+						var action = filter.getActionByName(actionName);
+						var url = this.createActionUrl(action);
+						return this.fetchSirenEntity(url);
 					}.bind(this));
+				}
+
+				return request
+					.then(this._parseFilterItems.bind(this))
+					.then(this._applyRoleFilters.bind(this));
+			},
+			_findNextFilter: function(array, title, actionName) {
+				// This could easily be replaced with Array.prototype.find, but... IE.
+				for (var i = 0; i < array.length; i++) {
+					var filter = array[i];
+					if (filter.title === title && filter.hasActionByName(actionName)) {
+						return filter;
+					}
+				}
+			},
+			_applyRoleFilters: function() {
+				// Use the apply-role-filters action to create the new searchUrl
+				var applyAction = this._roleFiltersEntity.getActionByName(
+					this.HypermediaActions.enrollments.roleFilters.applyRoleFilters
+				);
+				var searchUrl = this.createActionUrl(applyAction);
+				this.fire('role-filters-changed', {
+					url: searchUrl,
+					filterCount: this.querySelectorAll('d2l-filter-list-item-role[selected]').length
+				});
 			},
 			_fetchFilterItems: function(url) {
 				return this.fetchSirenEntity(url)
-					.then(function(roleFiltersEntity) {
-						this._roleFiltersEntity = roleFiltersEntity;
-						this._filterItems = this._roleFiltersEntity.entities || [];
-						this._showContent = this._filterItems.length > 0;
-					}.bind(this));
+					.then(this._parseFilterItems.bind(this));
+			},
+			_parseFilterItems: function(roleFiltersEntity) {
+				this._roleFiltersEntity = roleFiltersEntity;
+				this._roleFiltersEntity.entities = this._roleFiltersEntity.entities || [];
+
+				// DE27982 - Filters with the same title should be combined into one item
+				var uniqueTitles = [];
+				this._roleFiltersEntity.entities.forEach(function(filterEntity) {
+					if (uniqueTitles.indexOf(filterEntity.title) === -1) {
+						uniqueTitles.push(filterEntity.title);
+					}
+				});
+				this._filterTitles = uniqueTitles;
+
+				this._showContent = this._roleFiltersEntity.entities.length > 0;
 			}
 		});
 	</script>
