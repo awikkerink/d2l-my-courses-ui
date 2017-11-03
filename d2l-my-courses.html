@@ -316,20 +316,19 @@
 				);
 			},
 			_onEnrollmentPinnedMessage: function(e) {
-				if (e.target !== this) {
-					var enrollment = this.orgUnitIdMap[e.detail.orgUnitId];
+				if (e.target === this) return;
 
-					if (enrollment) {
-						if (e.detail.isPinned) {
-							this._moveEnrollmentToPinnedList(enrollment);
-						} else {
-							this._moveEnrollmentToUnpinnedList(enrollment);
-						}
-						setTimeout(this._onStartedInactiveAlert.bind(this), 50);
+				var enrollment = this.orgUnitIdMap[e.detail.orgUnitId];
+				if (enrollment) {
+					if (e.detail.isPinned) {
+						this._moveEnrollmentToPinnedList(enrollment);
 					} else {
-						this.fetchSirenEntity(this.enrollmentsUrl)
-							.then(this._refetchEnrollments.bind(this));
+						this._moveEnrollmentToUnpinnedList(enrollment);
 					}
+					setTimeout(this._onStartedInactiveAlert.bind(this), 50);
+				} else {
+					this.fetchSirenEntity(this.enrollmentsUrl)
+						.then(this._refetchEnrollments.bind(this));
 				}
 			},
 			_onStartedInactiveAlert: function(e) {
@@ -469,7 +468,18 @@
 
 				this.performanceMark('d2l.my-courses.search-enrollments.request');
 				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
+					.then(this._enrollmentsResponsePerfMeasures.bind(this))
 					.then(this._populateEnrollments.bind(this));
+			},
+			_enrollmentsResponsePerfMeasures: function(enrollmentsEntity) {
+				this.performanceMark('d2l.my-courses.search-enrollments.response');
+				this.performanceMeasure(
+					'd2l.my-courses.search-enrollments',
+					'd2l.my-courses.search-enrollments.request',
+					'd2l.my-courses.search-enrollments.response'
+				);
+
+				return Promise.resolve(enrollmentsEntity);
 			},
 			_createFetchEnrollmentsUrl: function(enrollmentsRootEntity, bustCache) {
 				var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
@@ -487,30 +497,16 @@
 			},
 			_refetchEnrollments: function(enrollmentsRootEntity) {
 
-				this.performanceMark('d2l.my-courses.root-enrollments.response');
-				this.performanceMeasure(
-					'd2l.my-courses.root-enrollments',
-					'd2l.my-courses.root-enrollments.request',
-					'd2l.my-courses.root-enrollments.response'
-				);
-
 				if (!enrollmentsRootEntity.hasAction('search-my-enrollments')) {
 					return Promise.resolve();
 				}
 
 				var enrollmentsSearchUrl = this._createFetchEnrollmentsUrl(enrollmentsRootEntity, true);
 
-				this.performanceMark('d2l.my-courses..search-enrollments.request');
 				return this.fetchSirenEntity(enrollmentsSearchUrl)
 					.then(this._populateEnrollments.bind(this));
 			},
 			_populateEnrollments: function(enrollmentsEntity) {
-				this.performanceMark('d2l.my-courses..search-enrollments.response');
-				this.performanceMeasure(
-					'd2l.my-courses.search-enrollments',
-					'd2l.my-courses.search-enrollments.request',
-					'd2l.my-courses.search-enrollments.response'
-				);
 
 				this._lastEnrollmentsSearchResponse = enrollmentsEntity;
 				var enrollmentEntities = enrollmentsEntity.getSubEntitiesByClass('enrollment');
