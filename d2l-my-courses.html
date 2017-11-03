@@ -281,7 +281,7 @@
 				if (!this._setImageOrg) {
 					return;
 				}
-				return this._getOrgUnitId(this._setImageOrg);
+				return this._getOrgUnitIdFromLink(this.getEntityIdentifier(this._setImageOrg));
 			},
 
 			/*
@@ -302,7 +302,7 @@
 			},
 			_onEnrollmentPinAction: function(e) {
 				var isPinned = e.type === 'enrollment-pinned';
-				var orgUnitId = this._getOrgUnitId(e.detail.organization);
+				var orgUnitId = this._getOrgUnitIdFromLink(this.getEntityIdentifier(e.detail.organization));
 
 				if (!orgUnitId) {
 					return;
@@ -624,14 +624,6 @@
 			},
 			_refreshPage: function() {
 				document.location.reload(true);
-			},
-			_getOrgUnitId: function(organization) {
-				var match = /[0-9]+$/.exec(this.getEntityIdentifier(organization));
-
-				if (!match) {
-					return;
-				}
-				return match[0];
 			},
 			_getOrgUnitIdFromLink: function(organizationHref) {
 				var match = /[0-9]+$/.exec((organizationHref || {}).href);
