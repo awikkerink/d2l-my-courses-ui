@@ -239,13 +239,14 @@
 				'_updateEnrollmentAlerts(_hasEnrollments, _hasPinnedEnrollments)'
 			],
 			ready: function() {
+				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
 				this._onEnrollmentPinnedMessage = this._onEnrollmentPinnedMessage.bind(this);
 			},
 			attached: function() {
 				this.performanceMark('d2l.my-courses.attached');
 				this._fetchRoot();
 
-				document.body.addEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage.bind(this), true);
+				document.body.addEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._onStartedInactiveAlert.bind(this));
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
 			},
