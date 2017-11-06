@@ -358,21 +358,17 @@ describe('d2l-my-courses', function() {
 			});
 
 			it('should return correct org unit id from various href', function() {
-				var org = window.D2L.Hypermedia.Siren.Parse({
-					links: [{
-						rel: ['self'],
-						href: '/organizations/671'
-					}]
-				});
-				expect(widget._getOrgUnitId(org)).to.equal('671');
+				var org = {
+					rel: ['self'],
+					href: '/organizations/671'
+				};
+				expect(widget._getOrgUnitIdFromLink(org)).to.equal('671');
 
-				org = window.D2L.Hypermedia.Siren.Parse({
-					links: [{
-						rel: ['self'],
-						href: '/some/other/route/8798734534'
-					}]
-				});
-				expect(widget._getOrgUnitId(org)).to.equal('8798734534');
+				org = {
+					rel: ['self'],
+					href: '/some/other/route/8798734534'
+				};
+				expect(widget._getOrgUnitIdFromLink(org)).to.equal('8798734534');
 			});
 		});
 
@@ -432,6 +428,76 @@ describe('d2l-my-courses', function() {
 							}
 						})
 					));
+					done();
+				});
+			});
+
+			it('should move the correct pinned enrollment to the unpinned list when receiving an external unpin event', function(done) {
+				widget._moveEnrollmentToPinnedList = sinon.stub();
+				widget._moveEnrollmentToUnpinnedList = sinon.stub();
+				var coursePinnedChangeEvent = new CustomEvent(
+					'd2l-course-pinned-change', {
+						detail: {
+							orgUnitId: 1,
+							isPinned: false
+						}
+					});
+
+				widget.orgUnitIdMap['1'] = 'enrollment1';
+
+				document.body.dispatchEvent(coursePinnedChangeEvent);
+
+				setTimeout(function() {
+					expect(widget._moveEnrollmentToUnpinnedList).to.have.been.calledWith('enrollment1');
+					expect(widget._moveEnrollmentToPinnedList).to.not.have.been.called;
+					done();
+				});
+			});
+
+			it('should move the correct unpinned enrollment to the pinned list when receiving an external unpin event', function(done) {
+				widget._moveEnrollmentToPinnedList = sinon.stub();
+				widget._moveEnrollmentToUnpinnedList = sinon.stub();
+				var coursePinnedChangeEvent = new CustomEvent(
+					'd2l-course-pinned-change', {
+						detail: {
+							orgUnitId: 2,
+							isPinned: true
+						}
+					});
+
+				widget.orgUnitIdMap['2'] = 'enrollment2';
+
+				document.body.dispatchEvent(coursePinnedChangeEvent);
+
+				setTimeout(function() {
+					expect(widget._moveEnrollmentToUnpinnedList).to.not.have.been.called;
+					expect(widget._moveEnrollmentToPinnedList).to.have.been.calledWith('enrollment2');
+					done();
+				});
+			});
+
+			it('should refetch enrollments if the pinned enrollment has no previously been fetched', function(done) {
+				widget._moveEnrollmentToPinnedList = sinon.stub();
+				widget._moveEnrollmentToUnpinnedList = sinon.stub();
+				widget.fetchSirenEntity = sandbox.stub();
+				widget.fetchSirenEntity.withArgs(rootHref).returns(Promise.resolve());
+				widget._refetchEnrollments = sandbox.stub();
+				var coursePinnedChangeEvent = new CustomEvent(
+					'd2l-course-pinned-change', {
+						detail: {
+							orgUnitId: 2,
+							isPinned: true
+						}
+					});
+
+				widget.orgUnitIdMap = [];
+
+				document.body.dispatchEvent(coursePinnedChangeEvent);
+
+				setTimeout(function() {
+					expect(widget._moveEnrollmentToUnpinnedList).to.not.have.been.called;
+					expect(widget._moveEnrollmentToPinnedList).to.not.have.been.called;
+					expect(widget._refetchEnrollments).to.have.been.called;
 					done();
 				});
 			});
