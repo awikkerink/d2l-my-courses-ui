@@ -358,17 +358,8 @@ describe('d2l-my-courses', function() {
 			});
 
 			it('should return correct org unit id from various href', function() {
-				var org = {
-					rel: ['self'],
-					href: '/organizations/671'
-				};
-				expect(widget._getOrgUnitIdFromLink(org)).to.equal('671');
-
-				org = {
-					rel: ['self'],
-					href: '/some/other/route/8798734534'
-				};
-				expect(widget._getOrgUnitIdFromLink(org)).to.equal('8798734534');
+				expect(widget._getOrgUnitIdFromHref('/organizations/671')).to.equal('671');
+				expect(widget._getOrgUnitIdFromHref('/some/other/route/8798734534')).to.equal('8798734534');
 			});
 		});
 
