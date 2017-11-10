@@ -104,6 +104,11 @@ the user has in that organization - student, teacher, TA, etc.
 						</template>
 					</d2l-dropdown>
 				</div>
+				<template is="dom-if" if="{{pinned}}">
+					<button class="menu-item static">
+						<d2l-icon icon="d2l-tier1:pin-filled"></d2l-icon>
+					</button>
+				</template>
 			</div>
 
 		</div>
