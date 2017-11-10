@@ -70,39 +70,42 @@ the user has in that organization - student, teacher, TA, etc.
 				</div>
 			</a>
 
-			<div class="hover-menu no-tap-interaction">
-				<d2l-dropdown>
-					<button	class="menu-item no-tap-interaction d2l-dropdown-opener" aria-label$="[[_courseSettingsLabel]]">
-						<d2l-icon icon="d2l-tier1:more"></d2l-icon>
-					</button>
-					<template is="dom-if" if="[[_showHoverMenu]]">
-						<d2l-dropdown-menu id="overflow-dropdown">
-							<d2l-menu label$="[[_courseSettingsLabel]]">
-								<template is="dom-if" if="{{_courseInfoUrl}}" restamp="true">
-									<d2l-menu-item-link id="see-course-info-link"
-										text="{{localize('courseOfferingInformation')}}"
-										href="{{_courseInfoUrl}}">
-									</d2l-menu-item-link>
-								</template>
-								<template is="dom-if" if="{{_canChangeCourseImage}}" restamp="true">
-									<d2l-menu-item id="change-image-button"
-										text="{{localize('changeImage')}}"
-										on-d2l-menu-item-select="_launchCourseTileImageSelector">
+			<div class="menu-bar">
+				<div class="hover-menu no-tap-interaction">
+					<d2l-dropdown>
+						<button	class="menu-item no-tap-interaction d2l-dropdown-opener" aria-label$="[[_courseSettingsLabel]]">
+							<d2l-icon icon="d2l-tier1:more"></d2l-icon>
+						</button>
+						<template is="dom-if" if="[[_showHoverMenu]]">
+							<d2l-dropdown-menu id="overflow-dropdown">
+								<d2l-menu label$="[[_courseSettingsLabel]]">
+									<template is="dom-if" if="{{_courseInfoUrl}}" restamp="true">
+										<d2l-menu-item-link id="see-course-info-link"
+											text="{{localize('courseOfferingInformation')}}"
+											href="{{_courseInfoUrl}}">
+										</d2l-menu-item-link>
+									</template>
+									<template is="dom-if" if="{{_canChangeCourseImage}}" restamp="true">
+										<d2l-menu-item id="change-image-button"
+											text="{{localize('changeImage')}}"
+											on-d2l-menu-item-select="_launchCourseTileImageSelector">
+										</d2l-menu-item>
+									</template>
+									<d2l-menu-item id="pin-button"
+										text$="[[_pinLabel]]"
+										on-d2l-menu-item-select="_hoverPinClickHandler"
+										on-focus="_hoverPinMenuItem"
+										on-blur="_unhoverPinMenuItem"
+										on-mouseover="_hoverPinMenuItem"
+										on-mouseout="_unhoverPinMenuItem">
 									</d2l-menu-item>
-								</template>
-								<d2l-menu-item id="pin-button"
-									text$="[[_pinLabel]]"
-									on-d2l-menu-item-select="_hoverPinClickHandler"
-									on-focus="_hoverPinMenuItem"
-									on-blur="_unhoverPinMenuItem"
-									on-mouseover="_hoverPinMenuItem"
-									on-mouseout="_unhoverPinMenuItem">
-								</d2l-menu-item>
-							</d2l-menu>
-						</d2l-dropdown-menu>
-					</template>
-				</d2l-dropdown>
+								</d2l-menu>
+							</d2l-dropdown-menu>
+						</template>
+					</d2l-dropdown>
+				</div>
 			</div>
+
 		</div>
 	</template>
 	<script>
