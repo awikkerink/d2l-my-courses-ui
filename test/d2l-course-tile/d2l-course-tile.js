@@ -337,7 +337,7 @@ describe('<d2l-course-tile>', function() {
 					json: function() { return Promise.resolve(enrollment); }
 				}));
 
-			widget._hoverPinClickHandler(event);
+			widget._pinClickHandler(event);
 
 			setTimeout(function() {
 				expect(window.d2lfetch.fetch).to.have.been.calledOnce;
@@ -355,7 +355,7 @@ describe('<d2l-course-tile>', function() {
 				}));
 
 			expect(widget.pinned).to.be.true;
-			widget._hoverPinClickHandler(event);
+			widget._pinClickHandler(event);
 			expect(widget.pinned).to.be.false;
 
 			setTimeout(function() {
@@ -378,7 +378,7 @@ describe('<d2l-course-tile>', function() {
 			widget._showHoverMenu = true;
 
 			setTimeout(function() {
-				widget._hoverPinClickHandler(event);
+				widget._pinClickHandler(event);
 				expect(widget.pinned).to.be.false;
 
 				var pinButton = widget.$$('#pin-button');
@@ -402,7 +402,7 @@ describe('<d2l-course-tile>', function() {
 				done();
 			});
 
-			widget._hoverPinClickHandler(event);
+			widget._pinClickHandler(event);
 		});
 	});
 

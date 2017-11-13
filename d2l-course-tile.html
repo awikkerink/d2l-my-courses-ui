@@ -93,7 +93,7 @@ the user has in that organization - student, teacher, TA, etc.
 									</template>
 									<d2l-menu-item id="pin-button"
 										text$="[[_pinLabel]]"
-										on-d2l-menu-item-select="_hoverPinClickHandler"
+										on-d2l-menu-item-select="_pinClickHandler"
 										on-focus="_hoverPinMenuItem"
 										on-blur="_unhoverPinMenuItem"
 										on-mouseover="_hoverPinMenuItem"
@@ -105,7 +105,10 @@ the user has in that organization - student, teacher, TA, etc.
 					</d2l-dropdown>
 				</div>
 				<template is="dom-if" if="{{pinned}}">
-					<button class="menu-item static">
+					<button
+						class="menu-item static"
+						on-tap="_pinClickHandler"
+						on-keypress="_pinPressHandler">
 						<d2l-icon icon="d2l-tier1:pin-filled"></d2l-icon>
 					</button>
 				</template>
@@ -451,7 +454,7 @@ the user has in that organization - student, teacher, TA, etc.
 					this._setCourseTileHovered(true);
 				}
 			},
-			_hoverPinClickHandler: function(e) {
+			_pinClickHandler: function(e) {
 				// Prevent the click from triggering navigation to the course
 				e.preventDefault();
 
@@ -460,6 +463,11 @@ the user has in that organization - student, teacher, TA, etc.
 			_hoverPinMenuItem: function() {
 				this._onUnpinHover({detail: {hoverState: true}});
 				this._hoverCourseTile();
+			},
+			_pinPressHandler: function(e) {
+				if ( e.code === 'Space' || e.code === 'Enter' ) {
+					return this.pinClickHandler(false);
+				}
 			},
 			_onAnimationComplete: function(e) {
 				if (e.target !== this.$$('.tile-container')) {
