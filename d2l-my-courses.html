@@ -65,10 +65,7 @@
 			<d2l-course-tile-grid
 				enrollments="[[pinnedEnrollments]]"
 				tile-sizes="[[_tileSizes]]"
-				user-id="[[userId]]"
-				tenant-id="[[tenantId]]"
 				locale="[[locale]]"
-				telemetry-endpoint="[[telemetryEndpoint]]"
 				show-course-code="[[showCourseCode]]"
 				show-semester="[[showSemester]]"
 				course-updates-config="[[courseUpdatesConfig]]">
@@ -102,9 +99,6 @@
 			<d2l-basic-image-selector
 				image-catalog-location="[[imageCatalogLocation]]"
 				organization="[[_setImageOrg]]"
-				user-id="[[userId]]"
-				tenant-id="[[tenantId]]"
-				telemetry-endpoint="[[telemetryEndpoint]]"
 				course-image-upload-cb="[[courseImageUploadCb]]">
 			</d2l-basic-image-selector>
 		</d2l-simple-overlay>
@@ -136,12 +130,6 @@
 				standardDepartmentName: String,
 				// Standard Department OU Type name to be displayed in the all-courses filter dropdown
 				standardSemesterName: String,
-				// URL to send telemetry to
-				telemetryEndpoint: String,
-				// hashed tenantid to send to telemetry
-				tenantId: String,
-				// hashed userid to send to telemetry
-				userId: String,
 				// Types of notifications to include in update count in course tile
 				courseUpdatesConfig: Object,
 				// Callback for upload in image-selector
@@ -615,9 +603,6 @@
 					allCourses.filterStandardSemesterName = this.standardSemesterName;
 					allCourses.filterStandardDepartmentName = this.standardDepartmentName;
 					allCourses.courseUpdatesConfig = this.courseUpdatesConfig;
-					allCourses.telemetryEndpoint = this.telemetryEndpoint;
-					allCourses.userId = this.userId;
-					allCourses.tenantId = this.tenantId;
 
 					this.$$('d2l-all-courses').load();
 				}.bind(this), 600);
