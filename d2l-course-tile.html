@@ -108,7 +108,8 @@ the user has in that organization - student, teacher, TA, etc.
 					<button
 						class="menu-item static"
 						on-tap="_pinClickHandler"
-						on-keypress="_pinPressHandler">
+						on-keypress="_pinPressHandler"
+						aria-label$="[[_coursePinButtonLabel]]">
 						<d2l-icon icon="d2l-tier1:pin-filled"></d2l-icon>
 					</button>
 				</template>
@@ -185,6 +186,8 @@ the user has in that organization - student, teacher, TA, etc.
 				_pinLabel: String,
 				// The langterm of the course settings label
 				_courseSettingsLabel: String,
+				// The langterm of the course pin button label
+				_coursePinButtonLabel: String,
 				_courseNotificationLabel: String,
 				_canChangeCourseImage: Boolean,
 				_forceImageRefresh: Boolean,
@@ -512,6 +515,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
 				this._pinnedChanged();
 				this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
+				this._coursePinButtonLabel = this.localize('coursePinButton', 'course', this._organization.properties.name);
 
 				var notificationsLink = organization && organization.getLinkByRel(this.HypermediaRels.organizationNotifications);
 				this._notificationsUrl = notificationsLink ? notificationsLink.href : null;
