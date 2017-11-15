@@ -68,30 +68,6 @@ npm test
 
 For details on the performance profile of my-courses and the various timings which are collected, see [Performance Timings](performance-timing.md).
 
-## User Telemetry
-
-My courses and its associated components track various user telemetry events. These are sent to Kibana.
-
-All telemetry payloads include the following parameters:
-- timestamp: UTC timestamp (`Math.round(Date.now() / 1000)`)
-- userId (as a UUID)
-- tenantId (as a UUID)
-
-### My Courses Telemetry
-
-| Event | Description | Parameters |
-| ----- | ----------- | ---------- |
-| LaunchChangeImage | Fired when the "change image" menu item is clicked from a course tile. |  |
-
-### Change Image Overlay Telemetry
-
-| Event | Description | Parameters |
-| ----- | ----------- | ---------- |
-| SearchImageCatalog | Fired when user initiates a search. | search string, total number of results |
-| NextImagePageNavigation | Fired when user views (via infinite scroll) the next page of search results. | search string, total number of results, page number |
-| CourseImageUpload | Fired when the user clicks the "upload" button. |  |
-| SelectedImage | Fired when an image tile is chosen. | image ID, image tags  |
-
 ## Publishing & Releasing
 
 To publish a numbered "release" version, use the "Draft a new release" tool on GitHub.

@@ -116,10 +116,7 @@
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
 					show-semester="[[showSemester]]"
-					course-updates-config="[[courseUpdatesConfig]]"
-					telemetry-endpoint="[[telemetryEndpoint]]"
-					user-id="[[userId]]"
-					tenant-id="[[tenantId]]">
+					course-updates-config="[[courseUpdatesConfig]]">
 				</d2l-course-tile-grid>
 
 				<h2>{{localize('unpinnedCourses')}}</h2>
@@ -143,10 +140,7 @@
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
 					show-semester="[[showSemester]]"
-					course-updates-config="[[courseUpdatesConfig]]"
-					telemetry-endpoint="[[telemetryEndpoint]]"
-					user-id="[[userId]]"
-					tenant-id="[[tenantId]]">
+					course-updates-config="[[courseUpdatesConfig]]">
 				</d2l-course-tile-grid>
 
 				<d2l-loading-spinner
@@ -206,12 +200,6 @@
 				},
 				showCourseCode: Boolean,
 				showSemester: Boolean,
-				// the endpoint for the telemetry service
-				telemetryEndpoint: String,
-				// tenant ID sent with telemetry requests
-				tenantId: String,
-				// user ID sent with telemetry requests
-				userId: String,
 				// Set of unpinned enrollment Entities
 				unpinnedEnrollments: {
 					type: Array,

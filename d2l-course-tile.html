@@ -143,8 +143,6 @@ the user has in that organization - student, teacher, TA, etc.
 					observer: '_pinnedChanged'
 				},
 				locale: String,
-				telemetryEndpoint: String,
-				tenantId: String,
 				// Size the tile should render with respect to vw
 				tileSizes: Object,
 				// Specifies whether the (mobile) touch menu is enabled on the course tile
@@ -152,7 +150,6 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: true
 				},
-				userId: String,
 				// Configuration value passed in to toggle course code
 				showCourseCode: {
 					type: Boolean,
@@ -349,7 +346,6 @@ the user has in that organization - student, teacher, TA, etc.
 			_notificationsUrl: null,
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
-			_telemetryRequest: null,
 			_fetchOrganization: function() {
 				if (!this._organizationUrl) {
 					return;
@@ -443,20 +439,6 @@ the user has in that organization - student, teacher, TA, etc.
 				this.fire('open-change-image-view', {
 					organization: this._organization
 				});
-
-				return window.d2lfetch
-					.fetch(new Request(this.telemetryEndpoint, {
-						method: 'POST',
-						headers: {
-							'content-type': 'application/json'
-						},
-						body: JSON.stringify({
-							name: 'LaunchChangeImage',
-							ts: Math.round(Date.now() / 1000),
-							userId: this.userId,
-							tenantId: this.tenantId
-						})
-					}));
 			},
 			_hoverCourseTile: function() {
 				this._showHoverMenu = true;

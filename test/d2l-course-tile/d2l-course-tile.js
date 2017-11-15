@@ -563,31 +563,6 @@ describe('<d2l-course-tile>', function() {
 		});
 	});
 
-	describe('_launchCourseTileImageSelector', function() {
-		var e;
-		beforeEach(function() {
-			e = {
-				preventDefault: function() {},
-				stopPropagation: function() {}
-			};
-		});
-
-		it('should send a telemetry event', function(done) {
-			widget.telemetryEndpoint = '/foo/bar';
-			window.d2lfetch.fetch = sandbox.stub()
-				.withArgs(sinon.match.has('url', sinon.match(widget.telemetryEndpoint))
-					.and(sinon.match.has('method', 'POST')))
-				.returns(Promise.resolve());
-
-			widget._launchCourseTileImageSelector(e);
-
-			setTimeout(function() {
-				expect(window.d2lfetch.fetch).to.have.been.calledOnce;
-				done();
-			});
-		});
-	});
-
 	describe('setting course updates attribute', function() {
 		it('should set the notifications URL from the organization response', function(done) {
 			server.respondWith(
