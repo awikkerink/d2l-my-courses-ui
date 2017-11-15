@@ -610,6 +610,46 @@ describe('<d2l-course-tile>', function() {
 		});
 	});
 
+	describe('pin indicator button', function() {
+		beforeEach(function() {
+			widget = fixture('d2l-course-tile-fixture');
+		});
+
+		it('should show the pin indicator button when a course is pinned', function(done) {
+			widget.pinned = true;
+			setTimeout(function() {
+				expect(widget.pinned).to.be.true;
+
+				var pinIndicatorButton = widget.$$('#pin-indicator-button');
+				expect(pinIndicatorButton).to.exist;
+				done();
+			});
+		});
+
+		it('should not show the pin indicator button when a course is pinned', function(done) {
+			widget.pinned = false;
+			setTimeout(function() {
+				expect(widget.pinned).to.be.false;
+
+				var pinIndicatorButton = widget.$$('#pin-indicator-button');
+				expect(pinIndicatorButton).to.not.exist;
+				done();
+			});
+		});
+
+		it('should unpin the course when pressed', function(done) {
+			widget = fixture('d2l-course-tile-fixture');
+			widget._pinClickHandler = sinon.stub();
+			widget.pinned = true;
+			setTimeout(function() {
+				var pinIndicatorButton = widget.$$('#pin-indicator-button');
+				pinIndicatorButton.click();
+				expect(widget._pinClickHandler).to.have.been.calledOnce;
+				done();
+			});
+		});
+	});
+
 	var curDate = Date.now();
 	var formattedDate = 'FORMATTED_DATE';
 	var inactiveText = '(Inactive)';

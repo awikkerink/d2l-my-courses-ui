@@ -106,6 +106,7 @@ the user has in that organization - student, teacher, TA, etc.
 				</div>
 				<template is="dom-if" if="{{pinned}}">
 					<button
+						id="pin-indicator-button"
 						class="menu-item static"
 						on-tap="_pinClickHandler"
 						on-keypress="_pinPressHandler"
