@@ -23,10 +23,7 @@
 					enrollment-id="[[getEntityIdentifier(item)]]"
 					delay-load="[[delayLoad]]"
 					tile-sizes="[[tileSizes]]"
-					user-id="[[userId]]"
 					locale="[[locale]]"
-					tenant-id="[[tenantId]]"
-					telemetry-endpoint="[[telemetryEndpoint]]"
 					show-course-code="[[showCourseCode]]"
 					show-semester="[[showSemester]]"
 					course-updates-config="[[courseUpdatesConfig]]">
@@ -67,9 +64,6 @@
 				},
 				// Size the tile should render with respect to vw
 				tileSizes: Object,
-				userId: String,
-				tenantId: String,
-				telemetryEndpoint: String,
 				locale: String,
 				// Types of notifications to include in update count in course tile
 				courseUpdatesConfig: Object,
