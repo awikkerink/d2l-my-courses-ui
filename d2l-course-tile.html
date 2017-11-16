@@ -535,7 +535,7 @@ the user has in that organization - student, teacher, TA, etc.
 			_setCourseUpdates: function(updates) {
 				this._hasCourseUpdates = updates > 0;
 				this._courseUpdates = updates > 99 ? '99+' : Math.max(updates, 0);
-				this.$$('#courseUpdates').setAttribute( 'aria-hidden', updates === 0 ? 'true' : 'false' );
+				this.$$('#courseUpdates').setAttribute('aria-hidden', updates === 0 ? 'true' : 'false');
 			},
 			_checkDateBounds: function(organization) {
 				var nowDate = Date.now();
@@ -571,7 +571,7 @@ the user has in that organization - student, teacher, TA, etc.
 						this._fullDateFormatter.format(dateObj)
 					);
 					this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
-					this.$$('#courseNotificationLabel').setAttribute( 'aria-hidden', 'false');
+					this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
 					this._notificationTitle = this.localize(
 						(type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting'
 					);
@@ -583,7 +583,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._clearOverlayContent();
 				this._notificationTitle = this.localize('overlay.inactive');
 				this._courseNotificationLabel = this.localize('overlay.inactive');
-				this.$$('#courseNotificationLabel').setAttribute( 'aria-hidden', 'false');
+				this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
 			},
 			_setOverlayStartedInactive: function() {
@@ -591,7 +591,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._notificationTitle = this.localize('overlay.courseStarted');
 				this._notificationInactive = this.localize('brackets', 'content', this.localize('overlay.inactive'));
 				this._courseNotificationLabel = this._notificationTitle + ' ' + this._notificationInactive;
-				this.$$('#courseNotificationLabel').setAttribute( 'aria-hidden', 'false');
+				this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
 				this.isStartedInactive = true;
 				this.fire('startedInactiveAlert', { type: 'add' });
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
@@ -600,7 +600,7 @@ the user has in that organization - student, teacher, TA, etc.
 			_clearOverlayContent: function() {
 				this._notificationDate = null;
 				this._courseNotificationLabel = null;
-				this.$$('#courseNotificationLabel').setAttribute( 'aria-hidden', 'true');
+				this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'true');
 				this._notificationTitle = null;
 				this._notificationInactive = null;
 				this.isStartedInactive = false;

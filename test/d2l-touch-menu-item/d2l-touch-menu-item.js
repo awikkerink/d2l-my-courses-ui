@@ -1,7 +1,3 @@
-/* global describe, it, beforeEach, fixture, expect, sinon */
-
-'use strict';
-
 describe('<d2l-touch-menu-item>', function() {
 	var touchMenuItem;
 	var newImageName = 'newImage';

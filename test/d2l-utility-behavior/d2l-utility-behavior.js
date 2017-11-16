@@ -1,7 +1,3 @@
-/* global describe, it, expect, fixture, before, beforeEach */
-
-'use strict';
-
 describe('d2l-utility-behavior', function() {
 	var
 		component,
