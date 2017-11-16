@@ -181,6 +181,11 @@
 				display: flex;
 			}
 
+			:host-context([dir="rtl"]) .menu-bar {
+				left: 10px;
+				right: auto;
+			}
+
 			.hover-menu {
 				opacity: 0;
 				margin-top: 0px;
@@ -207,6 +212,10 @@
 				width: 35px;
 				height: 35px;
 				margin-right: 10px;
+			}
+			:host-context([dir="rtl"]) .menu-item {
+				margin-left: 10px;
+				margin-right: auto;
 			}
 			.menu-item.static {
 				margin-top: 10px;
