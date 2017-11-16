@@ -1,7 +1,3 @@
-/* global describe, it, beforeEach, fixture, expect */
-
-'use strict';
-
 var listItem;
 
 beforeEach(function() {

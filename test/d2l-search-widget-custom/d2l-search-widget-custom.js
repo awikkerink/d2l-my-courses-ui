@@ -1,7 +1,3 @@
-/* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
-
-'use strict';
-
 describe('<d2l-search-widget-custom>', function() {
 	var sandbox,
 		server,

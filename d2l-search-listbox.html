@@ -50,8 +50,6 @@
 		<slot></slot>
 	</template>
 	<script>
-		'use strict';
-
 		Polymer({
 			is: 'd2l-search-listbox',
 
@@ -71,7 +69,7 @@
 			],
 
 			hasItems: function() {
-				var selectableItems = this.items.filter( function(item) {
+				var selectableItems = this.items.filter(function(item) {
 					if (item.hasAttribute('role') &&
 						item.getAttribute('role') === 'option' &&
 						!item.hasAttribute('disabled')) {

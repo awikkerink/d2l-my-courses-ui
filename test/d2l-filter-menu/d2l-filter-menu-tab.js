@@ -1,7 +1,3 @@
-/* global Promise, describe, it, beforeEach, afterEach, fixture, expect, sinon */
-
-'use strict';
-
 var sandbox,
 	component,
 	organization;

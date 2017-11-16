@@ -1,7 +1,3 @@
-/* global describe, it, expect, fixture, beforeEach */
-
-'use strict';
-
 describe('localize behavior', function() {
 	var component;
 

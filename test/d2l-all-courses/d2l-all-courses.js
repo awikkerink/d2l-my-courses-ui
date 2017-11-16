@@ -1,7 +1,3 @@
-/* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
-
-'use strict';
-
 describe('d2l-all-courses', function() {
 	var widget,
 		pinnedEnrollmentEntity,

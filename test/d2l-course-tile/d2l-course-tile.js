@@ -1,7 +1,3 @@
-/* global Promise, describe, it, before, beforeEach, afterEach, fixture, expect, sinon */
-
-'use strict';
-
 describe('<d2l-course-tile>', function() {
 	var sandbox,
 		server,
