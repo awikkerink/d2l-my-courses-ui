@@ -104,7 +104,7 @@ the user has in that organization - student, teacher, TA, etc.
 						</template>
 					</d2l-dropdown>
 				</div>
-				<template is="dom-if" if="{{pinned}}">
+				<template is="dom-if" if$="[[_showPinIndicator]]">
 					<button
 						id="pin-indicator-button"
 						class="menu-item static"
@@ -174,6 +174,8 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: false
 				},
+				// Feature flag (switch) for using the updated sort logic and related fetaures
+				updatedSortLogic: Boolean,
 				// Types of notifications to include in update count
 				courseUpdatesConfig: Object,
 				//number of course updates to show
@@ -220,6 +222,11 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: true,
 					computed: '_computeHideSeparator(_semesterName)'
+				},
+				_showPinIndicator: {
+					type: Boolean,
+					value: false,
+					computed: '_computeShowPinIndicator(pinned, updatedSortLogic)'
 				}
 			},
 			behaviors: [
@@ -683,6 +690,9 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_computeHideSeparator: function(semesterName) {
 				return semesterName.length === 0;
+			},
+			_computeShowPinIndicator: function(pinned, updatedSortLogic) {
+				return pinned && updatedSortLogic;
 			}
 		});
 	</script>

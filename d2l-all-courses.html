@@ -115,7 +115,8 @@
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
 					show-semester="[[showSemester]]"
-					course-updates-config="[[courseUpdatesConfig]]">
+					course-updates-config="[[courseUpdatesConfig]]"
+					updated-sort-logic="[[updatedSortLogic]]">
 				</d2l-course-tile-grid>
 
 				<h2>{{localize('unpinnedCourses')}}</h2>
@@ -139,7 +140,8 @@
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
 					show-semester="[[showSemester]]"
-					course-updates-config="[[courseUpdatesConfig]]">
+					course-updates-config="[[courseUpdatesConfig]]"
+					updated-sort-logic="[[updatedSortLogic]]">
 				</d2l-course-tile-grid>
 
 				<d2l-loading-spinner
@@ -196,6 +198,8 @@
 				},
 				showCourseCode: Boolean,
 				showSemester: Boolean,
+				// Feature flag (switch) for using the updated sort logic and related fetaures
+				updatedSortLogic: Boolean,
 				// Set of unpinned enrollment Entities
 				unpinnedEnrollments: {
 					type: Array,
