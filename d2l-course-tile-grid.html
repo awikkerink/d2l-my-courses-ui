@@ -26,7 +26,8 @@
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
 					show-semester="[[showSemester]]"
-					course-updates-config="[[courseUpdatesConfig]]">
+					course-updates-config="[[courseUpdatesConfig]]"
+					updated-sort-logic="[[updatedSortLogic]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -67,7 +68,9 @@
 				// Set to true if course code should be shown in course tiles
 				showCourseCode: Boolean,
 				// Set to true if semester should be shown in course tiles
-				showSemester: Boolean
+				showSemester: Boolean,
+				// Feature flag (switch) for using the updated sort logic and related fetaures
+				updatedSortLogic: Boolean
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileSlidingGridBehavior,

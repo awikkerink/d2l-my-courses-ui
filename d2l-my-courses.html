@@ -65,7 +65,8 @@
 				locale="[[locale]]"
 				show-course-code="[[showCourseCode]]"
 				show-semester="[[showSemester]]"
-				course-updates-config="[[courseUpdatesConfig]]">
+				course-updates-config="[[courseUpdatesConfig]]"
+				updated-sort-logic="[[updatedSortLogic]]">
 			</d2l-course-tile-grid>
 			<a
 				is="d2l-link"
@@ -128,6 +129,8 @@
 				courseUpdatesConfig: Object,
 				// Callback for upload in image-selector
 				courseImageUploadCb: Function,
+				// Feature flag (switch) for using the updated sort logic and related fetaures
+				updatedSortLogic: Boolean,
 
 				/*
 				* Private Polymer properties
@@ -597,6 +600,7 @@
 					allCourses.filterStandardSemesterName = this.standardSemesterName;
 					allCourses.filterStandardDepartmentName = this.standardDepartmentName;
 					allCourses.courseUpdatesConfig = this.courseUpdatesConfig;
+					allCourses.updatedSortLogic = this.updatedSortLogic;
 
 					this.$$('d2l-all-courses').load();
 				}.bind(this), 600);

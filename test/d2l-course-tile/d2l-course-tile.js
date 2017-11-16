@@ -337,7 +337,7 @@ describe('<d2l-course-tile>', function() {
 					json: function() { return Promise.resolve(enrollment); }
 				}));
 
-			widget._hoverPinClickHandler(event);
+			widget._pinClickHandler(event);
 
 			setTimeout(function() {
 				expect(window.d2lfetch.fetch).to.have.been.calledOnce;
@@ -355,7 +355,7 @@ describe('<d2l-course-tile>', function() {
 				}));
 
 			expect(widget.pinned).to.be.true;
-			widget._hoverPinClickHandler(event);
+			widget._pinClickHandler(event);
 			expect(widget.pinned).to.be.false;
 
 			setTimeout(function() {
@@ -378,7 +378,7 @@ describe('<d2l-course-tile>', function() {
 			widget._showHoverMenu = true;
 
 			setTimeout(function() {
-				widget._hoverPinClickHandler(event);
+				widget._pinClickHandler(event);
 				expect(widget.pinned).to.be.false;
 
 				var pinButton = widget.$$('#pin-button');
@@ -402,7 +402,7 @@ describe('<d2l-course-tile>', function() {
 				done();
 			});
 
-			widget._hoverPinClickHandler(event);
+			widget._pinClickHandler(event);
 		});
 	});
 
@@ -607,6 +607,54 @@ describe('<d2l-course-tile>', function() {
 			widget._setCourseUpdates(-1);
 			expect(widget.$.courseUpdates.hasAttribute('hidden')).to.be.true;
 			expect(widget.$$('.update-text-box').innerText).to.equal('0');
+		});
+	});
+
+	describe('pin indicator button', function() {
+		beforeEach(function() {
+			widget = fixture('d2l-course-tile-fixture');
+		});
+
+		it('should show the pin indicator button when a course is pinned and feature flag is on', function() {
+			widget.pinned = true;
+			widget.updatedSortLogic = true;
+			Polymer.dom.flush();
+
+			expect(widget.pinned).to.be.true;
+			var pinIndicatorButton = widget.$$('#pin-indicator-button');
+			expect(pinIndicatorButton).to.exist;
+		});
+
+		it('should not show the pin indicator button when a course is not pinned', function() {
+			widget.pinned = false;
+			widget.updatedSortLogic = true;
+			Polymer.dom.flush();
+
+			expect(widget.pinned).to.be.false;
+			var pinIndicatorButton = widget.$$('#pin-indicator-button');
+			expect(pinIndicatorButton).to.not.exist;
+		});
+
+		it('should not show the pin indicator button when a course is pinned but the feature flag is off', function() {
+			widget.pinned = true;
+			widget.updatedSortLogic = false;
+			Polymer.dom.flush();
+
+			expect(widget.pinned).to.be.true;
+			var pinIndicatorButton = widget.$$('#pin-indicator-button');
+			expect(pinIndicatorButton).to.not.exist;
+		});
+
+		it('should unpin the course when pressed', function() {
+			widget = fixture('d2l-course-tile-fixture');
+			widget._pinClickHandler = sinon.stub();
+			widget.pinned = true;
+			widget.updatedSortLogic = true;
+			Polymer.dom.flush();
+
+			var pinIndicatorButton = widget.$$('#pin-indicator-button');
+			pinIndicatorButton.click();
+			expect(widget._pinClickHandler).to.have.been.calledOnce;
 		});
 	});
 

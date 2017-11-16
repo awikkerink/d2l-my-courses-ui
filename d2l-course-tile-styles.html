@@ -173,15 +173,24 @@
 			.tile-container.d2l-no-access .course-text {
 				pointer-events: none;
 			}
-			.hover-menu {
+
+			.menu-bar {
 				position: absolute;
 				top: 10px;
 				right: 10px;
+				display: flex;
+			}
+
+			:host-context([dir="rtl"]) .menu-bar {
+				left: 10px;
+				right: auto;
+			}
+
+			.hover-menu {
 				opacity: 0;
 				margin-top: 0px;
 				transition: opacity 0.25s, margin-top 0.25s;
 				line-height: 20px;
-				margin-right: 10px;
 			}
 			.hover-menu.hover {
 				opacity: 1;
@@ -202,6 +211,14 @@
 				cursor: pointer;
 				width: 35px;
 				height: 35px;
+				margin-right: 10px;
+			}
+			:host-context([dir="rtl"]) .menu-item {
+				margin-left: 10px;
+				margin-right: auto;
+			}
+			.menu-item.static {
+				margin-top: 10px;
 			}
 			.menu-item button.span {
 				display: none;

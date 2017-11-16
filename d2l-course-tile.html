@@ -70,39 +70,52 @@ the user has in that organization - student, teacher, TA, etc.
 				</div>
 			</a>
 
-			<div class="hover-menu no-tap-interaction">
-				<d2l-dropdown>
-					<button	class="menu-item no-tap-interaction d2l-dropdown-opener" aria-label$="[[_courseSettingsLabel]]">
-						<d2l-icon icon="d2l-tier1:more"></d2l-icon>
-					</button>
-					<template is="dom-if" if="[[_showHoverMenu]]">
-						<d2l-dropdown-menu id="overflow-dropdown">
-							<d2l-menu label$="[[_courseSettingsLabel]]">
-								<template is="dom-if" if="{{_courseInfoUrl}}" restamp="true">
-									<d2l-menu-item-link id="see-course-info-link"
-										text="{{localize('courseOfferingInformation')}}"
-										href="{{_courseInfoUrl}}">
-									</d2l-menu-item-link>
-								</template>
-								<template is="dom-if" if="{{_canChangeCourseImage}}" restamp="true">
-									<d2l-menu-item id="change-image-button"
-										text="{{localize('changeImage')}}"
-										on-d2l-menu-item-select="_launchCourseTileImageSelector">
+			<div class="menu-bar">
+				<div class="hover-menu no-tap-interaction">
+					<d2l-dropdown>
+						<button	class="menu-item no-tap-interaction d2l-dropdown-opener" aria-label$="[[_courseSettingsLabel]]">
+							<d2l-icon icon="d2l-tier1:more"></d2l-icon>
+						</button>
+						<template is="dom-if" if="[[_showHoverMenu]]">
+							<d2l-dropdown-menu id="overflow-dropdown">
+								<d2l-menu label$="[[_courseSettingsLabel]]">
+									<template is="dom-if" if="{{_courseInfoUrl}}" restamp="true">
+										<d2l-menu-item-link id="see-course-info-link"
+											text="{{localize('courseOfferingInformation')}}"
+											href="{{_courseInfoUrl}}">
+										</d2l-menu-item-link>
+									</template>
+									<template is="dom-if" if="{{_canChangeCourseImage}}" restamp="true">
+										<d2l-menu-item id="change-image-button"
+											text="{{localize('changeImage')}}"
+											on-d2l-menu-item-select="_launchCourseTileImageSelector">
+										</d2l-menu-item>
+									</template>
+									<d2l-menu-item id="pin-button"
+										text$="[[_pinLabel]]"
+										on-d2l-menu-item-select="_pinClickHandler"
+										on-focus="_hoverPinMenuItem"
+										on-blur="_unhoverPinMenuItem"
+										on-mouseover="_hoverPinMenuItem"
+										on-mouseout="_unhoverPinMenuItem">
 									</d2l-menu-item>
-								</template>
-								<d2l-menu-item id="pin-button"
-									text$="[[_pinLabel]]"
-									on-d2l-menu-item-select="_hoverPinClickHandler"
-									on-focus="_hoverPinMenuItem"
-									on-blur="_unhoverPinMenuItem"
-									on-mouseover="_hoverPinMenuItem"
-									on-mouseout="_unhoverPinMenuItem">
-								</d2l-menu-item>
-							</d2l-menu>
-						</d2l-dropdown-menu>
-					</template>
-				</d2l-dropdown>
+								</d2l-menu>
+							</d2l-dropdown-menu>
+						</template>
+					</d2l-dropdown>
+				</div>
+				<template is="dom-if" if$="[[_showPinIndicator]]">
+					<button
+						id="pin-indicator-button"
+						class="menu-item static"
+						on-tap="_pinClickHandler"
+						on-keypress="_pinPressHandler"
+						aria-label$="[[_coursePinButtonLabel]]">
+						<d2l-icon icon="d2l-tier1:pin-filled"></d2l-icon>
+					</button>
+				</template>
 			</div>
+
 		</div>
 	</template>
 	<script>
@@ -161,6 +174,8 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: false
 				},
+				// Feature flag (switch) for using the updated sort logic and related fetaures
+				updatedSortLogic: Boolean,
 				// Types of notifications to include in update count
 				courseUpdatesConfig: Object,
 				//number of course updates to show
@@ -174,6 +189,8 @@ the user has in that organization - student, teacher, TA, etc.
 				_pinLabel: String,
 				// The langterm of the course settings label
 				_courseSettingsLabel: String,
+				// The langterm of the course pin button label
+				_coursePinButtonLabel: String,
 				_courseNotificationLabel: String,
 				_canChangeCourseImage: Boolean,
 				_forceImageRefresh: Boolean,
@@ -205,6 +222,11 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: true,
 					computed: '_computeHideSeparator(_semesterName)'
+				},
+				_showPinIndicator: {
+					type: Boolean,
+					value: false,
+					computed: '_computeShowPinIndicator(pinned, updatedSortLogic)'
 				}
 			},
 			behaviors: [
@@ -443,7 +465,7 @@ the user has in that organization - student, teacher, TA, etc.
 					this._setCourseTileHovered(true);
 				}
 			},
-			_hoverPinClickHandler: function(e) {
+			_pinClickHandler: function(e) {
 				// Prevent the click from triggering navigation to the course
 				e.preventDefault();
 
@@ -452,6 +474,11 @@ the user has in that organization - student, teacher, TA, etc.
 			_hoverPinMenuItem: function() {
 				this._onUnpinHover({detail: {hoverState: true}});
 				this._hoverCourseTile();
+			},
+			_pinPressHandler: function(e) {
+				if (e.code === 'Space' || e.code === 'Enter') {
+					return this.pinClickHandler(false);
+				}
 			},
 			_onAnimationComplete: function(e) {
 				if (e.target !== this.$$('.tile-container')) {
@@ -496,6 +523,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
 				this._pinnedChanged();
 				this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
+				this._coursePinButtonLabel = this.localize('coursePinButton', 'course', this._organization.properties.name);
 
 				var notificationsLink = organization && organization.getLinkByRel(this.HypermediaRels.organizationNotifications);
 				this._notificationsUrl = notificationsLink ? notificationsLink.href : null;
@@ -662,6 +690,9 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_computeHideSeparator: function(semesterName) {
 				return semesterName.length === 0;
+			},
+			_computeShowPinIndicator: function(pinned, updatedSortLogic) {
+				return pinned && updatedSortLogic;
 			}
 		});
 	</script>
