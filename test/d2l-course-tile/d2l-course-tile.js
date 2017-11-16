@@ -615,8 +615,9 @@ describe('<d2l-course-tile>', function() {
 			widget = fixture('d2l-course-tile-fixture');
 		});
 
-		it('should show the pin indicator button when a course is pinned', function(done) {
+		it('should show the pin indicator button when a course is pinned and feature flag is on', function(done) {
 			widget.pinned = true;
+			widget.updatedSortLogic = true;
 			setTimeout(function() {
 				expect(widget.pinned).to.be.true;
 
@@ -626,10 +627,23 @@ describe('<d2l-course-tile>', function() {
 			});
 		});
 
-		it('should not show the pin indicator button when a course is pinned', function(done) {
+		it('should not show the pin indicator button when a course is not pinned', function(done) {
 			widget.pinned = false;
+			widget.updatedSortLogic = true;
 			setTimeout(function() {
 				expect(widget.pinned).to.be.false;
+
+				var pinIndicatorButton = widget.$$('#pin-indicator-button');
+				expect(pinIndicatorButton).to.not.exist;
+				done();
+			});
+		});
+
+		it('should not show the pin indicator button when a course is pinned but the feature flag is off', function(done) {
+			widget.pinned = true;
+			widget.updatedSortLogic = false;
+			setTimeout(function() {
+				expect(widget.pinned).to.be.true;
 
 				var pinIndicatorButton = widget.$$('#pin-indicator-button');
 				expect(pinIndicatorButton).to.not.exist;
@@ -641,6 +655,7 @@ describe('<d2l-course-tile>', function() {
 			widget = fixture('d2l-course-tile-fixture');
 			widget._pinClickHandler = sinon.stub();
 			widget.pinned = true;
+			widget.updatedSortLogic = true;
 			setTimeout(function() {
 				var pinIndicatorButton = widget.$$('#pin-indicator-button');
 				pinIndicatorButton.click();
