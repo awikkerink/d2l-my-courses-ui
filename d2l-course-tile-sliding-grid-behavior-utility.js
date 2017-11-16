@@ -1,5 +1,3 @@
-'use strict';
-
 window.D2L = window.D2L || {};
 window.D2L.MyCourses = window.D2L.MyCourses || {};
 window.D2L.MyCourses.CourseTileSlidingGridBehaviorUtility = {
