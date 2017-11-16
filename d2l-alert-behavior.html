@@ -1,52 +1,47 @@
 <link rel="import" href="../polymer/polymer.html">
-
 <script>
-	'use strict';
+	window.D2L = window.D2L || {};
+	window.D2L.MyCourses = window.D2L.MyCourses || {};
 
-	(function() {
-		window.D2L = window.D2L || {};
-		window.D2L.MyCourses = window.D2L.MyCourses || {};
-
-		/*
-		* Behavior for my courses alert messages
-		*
-		* This contains utility functions for adding and removing alerts
-		*
-		* @polymerBehavior window.D2L.MyCourses.AlertBehavior
-		*/
-		window.D2L.MyCourses.AlertBehavior = {
-			properties: {
-				// Array containing alert objects for display
-				_alerts: {
-					type: Array,
-					value: function() { return []; }
-				}
-			},
-			_addAlert: function(type, name, message) {
-				if (this._alerts) {
-					this.push('_alerts', {
-						alertType: type,
-						alertName: name,
-						alertMessage: message
-					});
-				}
-			},
-			_hasAlert: function(name) {
-				if (!this._alerts || this._alerts.length <= 0) {
-					return false;
-				}
-				return this._alerts.some(function(alert) {
-					return alert.alertName === name;
-				});
-			},
-			_removeAlert: function(name) {
-				if (this._alerts && this._alerts.length > 0 && this._hasAlert(name)) {
-					this.splice('_alerts', this._alerts.map(function(alert) { return alert.name; }).indexOf(name), 1);
-				}
-			},
-			_clearAlerts: function() {
-				this._alerts = [];
+	/*
+	* Behavior for my courses alert messages
+	*
+	* This contains utility functions for adding and removing alerts
+	*
+	* @polymerBehavior window.D2L.MyCourses.AlertBehavior
+	*/
+	window.D2L.MyCourses.AlertBehavior = {
+		properties: {
+			// Array containing alert objects for display
+			_alerts: {
+				type: Array,
+				value: function() { return []; }
 			}
-		};
-	})();
+		},
+		_addAlert: function(type, name, message) {
+			if (this._alerts) {
+				this.push('_alerts', {
+					alertType: type,
+					alertName: name,
+					alertMessage: message
+				});
+			}
+		},
+		_hasAlert: function(name) {
+			if (!this._alerts || this._alerts.length <= 0) {
+				return false;
+			}
+			return this._alerts.some(function(alert) {
+				return alert.alertName === name;
+			});
+		},
+		_removeAlert: function(name) {
+			if (this._alerts && this._alerts.length > 0 && this._hasAlert(name)) {
+				this.splice('_alerts', this._alerts.map(function(alert) { return alert.name; }).indexOf(name), 1);
+			}
+		},
+		_clearAlerts: function() {
+			this._alerts = [];
+		}
+	};
 </script>

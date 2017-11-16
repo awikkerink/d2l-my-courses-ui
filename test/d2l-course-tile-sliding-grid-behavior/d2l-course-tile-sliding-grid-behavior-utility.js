@@ -1,5 +1,3 @@
-'use strict';
-
 describe('d2l-course-tile-sliding-grid-behavior-utility', function() {
 	var utility = window.D2L.MyCourses.CourseTileSlidingGridBehaviorUtility;
 
