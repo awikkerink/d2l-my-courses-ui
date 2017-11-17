@@ -266,16 +266,16 @@ the user has in that organization - student, teacher, TA, etc.
 				// handler (to this same value), but that could take a few hundred ms, so do it before the request too.
 				this.pinned = !this.pinned;
 
-				var body = {};
+				var body = '';
 				var fields = pinAction.fields || [];
 				fields.forEach(function(field) {
-					body[field.name] = field.value;
+					body = body + encodeURIComponent(field.name) + '=' + encodeURIComponent(field.value) + '&';
 				});
 
 				var promise = window.d2lfetch
 					.fetch(new Request(pinAction.href, {
 						method: pinAction.method,
-						body: new URLSearchParams(body),
+						body: body,
 						headers: {
 							'accept':'application/vnd.siren+json',
 							'content-type':'application/x-www-form-urlencoded'
