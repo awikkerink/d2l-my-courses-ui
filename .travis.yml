@@ -4,7 +4,7 @@ script:
 - npm run test:lint:js
 - npm run test:lint:wc
 - xvfb-run wct --skip-plugin sauce
-# - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then wct --skip-plugin local; fi'
+- 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then wct --skip-plugin local; fi'
 env:
   global:
     # SAUCE_USERNAME

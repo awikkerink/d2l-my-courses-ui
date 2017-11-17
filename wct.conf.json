@@ -6,7 +6,6 @@
       }]
     },
     "sauce": {
-      "disabled": true,
       "browsers": [
         {
           "browserName": "chrome",
