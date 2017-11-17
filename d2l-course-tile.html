@@ -127,20 +127,8 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					reflectToAttribute: true
 				},
-				// Delays initial loading of the organization until explicitly triggered by `loadOrganization`
-				delayLoad: {
-					type: Boolean,
-					observer: '_delayLoadChanged'
-				},
-				/*
-				* Course tile enrollment Entity. When the enrollment is set, the course
-				* tile will automatically fetch information about the organization the
-				* enrollment is in.
-				*/
-				enrollment: {
-					type: Object,
-					observer: '_enrollmentChanged'
-				},
+				// Course tile enrollment entity
+				enrollment: Object,
 				enrollmentId: String,
 				// Specifies whether the (desktop) hover menu is enabled on the course tile
 				hoverEnabled: {
@@ -227,7 +215,9 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: false,
 					computed: '_computeShowPinIndicator(pinned, updatedSortLogic)'
-				}
+				},
+				// Set by the IntersectionObserver when tile is first visible in viewport
+				_isVisible: Boolean
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
@@ -238,13 +228,22 @@ the user has in that organization - student, teacher, TA, etc.
 			listeners: {
 				'animationend': '_onAnimationComplete'
 			},
+			observers: [
+				'_fetchEnrollmentData(_isVisible, enrollment)'
+			],
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
 					this.fire('course-tile-first-render');
 					var tileContainerEl = this.$$('.tile-container');
 					document.body.addEventListener('focus', this._onFocus, true);
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
-				}.bind(this));
+
+					var observer = new IntersectionObserver(function() {
+						this._isVisible = true;
+						observer.unobserve(this.$$('.tile-container'));
+					}.bind(this));
+					observer.observe(this.$$('.tile-container'));
+				});
 			},
 			ready: function() {
 				this._onFocus = this._onFocus.bind(this);
@@ -396,6 +395,17 @@ the user has in that organization - student, teacher, TA, etc.
 				return Promise.resolve();
 			},
 			_fetchEnrollmentData: function() {
+				if (!this.enrollment || !this._isVisible) {
+					return;
+				}
+
+				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
+
+				var organizationLink = this.enrollment.getLinkByRel(this.HypermediaRels.organization);
+				if (!this._organizationUrl || this._organizationUrl.indexOf(organizationLink.href) !== 0) {
+					this._organizationUrl = organizationLink.href + '?embedDepth=1';
+				}
+
 				return this._fetchOrganization()
 					.then(this._onOrganizationResponse.bind(this))
 					.then(function() {
@@ -405,24 +415,6 @@ the user has in that organization - student, teacher, TA, etc.
 								.then(this._onNotificationsResponse.bind(this))
 						]);
 					}.bind(this));
-			},
-			_enrollmentChanged: function() {
-				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
-
-				var organizationLink = this.enrollment.getLinkByRel(this.HypermediaRels.organization);
-
-				if (!this._organizationUrl || this._organizationUrl.indexOf(organizationLink.href) !== 0) {
-					this._organizationUrl = organizationLink.href + '?embedDepth=1';
-
-					if (!this.delayLoad) {
-						this._fetchEnrollmentData();
-					}
-				}
-			},
-			_delayLoadChanged: function(delayLoad) {
-				if (this.isAttached && !delayLoad && !this._organization) {
-					this._fetchEnrollmentData();
-				}
 			},
 			_displaySetImageResult: function(success, skipSetImage) {
 				var tileContainer = this.$$('.tile-container');
