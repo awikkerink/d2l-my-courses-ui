@@ -271,6 +271,9 @@ describe('d2l-my-courses', function() {
 				}]
 			});
 
+			// Prevents the _searchPath of the image selector from being null (causes failures in Firefox)
+			widget.imageCatalogLocation = '/foo/bar';
+
 			widget.fetchSirenEntity.withArgs(sinon.match('/enrollments/users/169?search=')).returns(Promise.resolve(
 				window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse)
 			));
