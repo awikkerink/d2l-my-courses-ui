@@ -269,7 +269,7 @@ the user has in that organization - student, teacher, TA, etc.
 				var body = '';
 				var fields = pinAction.fields || [];
 				fields.forEach(function(field) {
-					body = body + field.name + '=' + field.value + '&';
+					body = body + encodeURIComponent(field.name) + '=' + encodeURIComponent(field.value) + '&';
 				});
 
 				var promise = window.d2lfetch
