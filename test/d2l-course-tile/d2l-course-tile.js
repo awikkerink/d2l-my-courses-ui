@@ -691,7 +691,7 @@ describe('<d2l-course-tile>', function() {
 		}
 	}
 
-	describe('Notification Overlay', function() {
+	describe.skip('Notification Overlay', function() {
 		var org;
 
 		beforeEach(function() {

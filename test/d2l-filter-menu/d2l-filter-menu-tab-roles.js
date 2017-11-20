@@ -156,14 +156,14 @@ describe('d2l-filter-menu-tab-roles', function() {
 		it('should reset the "selected" state to false on all filter items', function() {
 			component._filterTitles = [ 'one', 'two', 'three' ];
 			var filters = component.$$('d2l-menu').querySelectorAll('d2l-filter-list-item-role');
-			filters.forEach(function(item) {
-				item.selected = true;
-			});
+			for (var i = 0; i < filters.length; i++) {
+				filters[i].selected = true;
+			}
 
 			return component.clear().then(function() {
-				filters.forEach(function(item) {
-					expect(item.selected).to.be.false;
-				});
+				for (var i = 0; i < filters.length; i++) {
+					expect(filters[i].selected).to.be.false;
+				}
 			});
 		});
 

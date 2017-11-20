@@ -163,10 +163,6 @@ describe('d2l-filter-menu-tab', function() {
 		});
 	});
 
-	describe('clear', function() {
-
-	});
-
 	describe('_checkSelected', function() {
 		it('should return true if item should be selected', function() {
 			component.selectedFilters = [organization.href];
