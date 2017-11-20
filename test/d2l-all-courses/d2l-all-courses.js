@@ -29,7 +29,6 @@ describe('d2l-all-courses', function() {
 			}]
 		});
 
-		clock = sinon.useFakeTimers();
 		sandbox = sinon.sandbox.create();
 
 		widget = fixture('d2l-all-courses-fixture');
@@ -48,7 +47,9 @@ describe('d2l-all-courses', function() {
 	});
 
 	afterEach(function() {
-		clock.restore();
+		if (clock) {
+			clock.restore();
+		}
 		sandbox.restore();
 	});
 
@@ -177,6 +178,7 @@ describe('d2l-all-courses', function() {
 		});
 
 		it('should add a setCourseImageFailure warning alert when a request to set the image fails', function() {
+			clock = sinon.useFakeTimers();
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget.setCourseImage(setCourseImageEvent);
 			clock.tick(1001);
@@ -190,6 +192,7 @@ describe('d2l-all-courses', function() {
 		});
 
 		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
+			clock = sinon.useFakeTimers();
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget.setCourseImage(setCourseImageEvent);
 			clock.tick(1001);

@@ -1,6 +1,5 @@
 describe('d2l-my-courses', function() {
 	var sandbox,
-		server,
 		widget,
 		rootHref = '/enrollments',
 		searchHref = '/enrollments/users/169',
@@ -142,9 +141,6 @@ describe('d2l-my-courses', function() {
 
 	beforeEach(function() {
 		sandbox = sinon.sandbox.create();
-		server = sinon.fakeServer.create();
-		server.respondImmediately = true;
-		clock = sinon.useFakeTimers();
 
 		widget = fixture('d2l-my-courses-fixture');
 
@@ -158,9 +154,11 @@ describe('d2l-my-courses', function() {
 	});
 
 	afterEach(function() {
-		clock.restore();
+		if (clock) {
+			clock.restore();
+		}
+
 		sandbox.restore();
-		server.restore();
 	});
 
 	it('should load', function() {
@@ -291,6 +289,7 @@ describe('d2l-my-courses', function() {
 		});
 
 		it('should add a setCourseImageFailure warning alert when a request to set the image fails', function() {
+			clock = sinon.useFakeTimers();
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget._onSetCourseImage(setCourseImageEvent);
 			clock.tick(1001);
@@ -304,6 +303,7 @@ describe('d2l-my-courses', function() {
 		});
 
 		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
+			clock = sinon.useFakeTimers();
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget._onSetCourseImage(setCourseImageEvent);
 			clock.tick(1001);
@@ -321,10 +321,6 @@ describe('d2l-my-courses', function() {
 					}
 				}
 			);
-
-			beforeEach(function() {
-				clock.restore();
-			});
 
 			it('should focus on view all courses link when focus called initially', function() {
 				widget.focus();
@@ -363,11 +359,6 @@ describe('d2l-my-courses', function() {
 		});
 
 		describe('d2l-course-pinned-change', function() {
-			beforeEach(function() {
-				// Needed to use setTimeout normally here
-				clock.restore();
-			});
-
 			it('should bubble the correct d2l-course-pinned-change event when an enrollment is pinned', function(done) {
 				widget.fire = sinon.stub();
 
@@ -496,6 +487,7 @@ describe('d2l-my-courses', function() {
 
 	describe('User interaction', function() {
 		it('should rescale the all courses view when it is opened', function() {
+			clock = sinon.useFakeTimers();
 			widget.$$('#viewAllCourses').click();
 			var allCoursesRescaleSpy = sinon.spy(widget.$$('d2l-all-courses'), '_rescaleCourseTileRegions');
 
@@ -505,6 +497,7 @@ describe('d2l-my-courses', function() {
 		});
 
 		it('should remove a setCourseImageFailure alert when the all-courses overlay is closed', function() {
+			clock = sinon.useFakeTimers();
 			widget._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
 			widget._openAllCoursesView(new Event('foo'));
 			clock.tick(1001);

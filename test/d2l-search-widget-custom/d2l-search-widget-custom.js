@@ -1,6 +1,5 @@
 describe('<d2l-search-widget-custom>', function() {
 	var sandbox,
-		server,
 		widget,
 		clock,
 		searchAction = {
@@ -33,13 +32,6 @@ describe('<d2l-search-widget-custom>', function() {
 
 	beforeEach(function() {
 		sandbox = sinon.sandbox.create();
-		server = sinon.fakeServer.create();
-		server.respondImmediately = true;
-		server.respondWith(
-			'GET',
-			/\/enrollments\/users\/169*/,
-			[200, {}, '{}']);
-
 		clock = sinon.useFakeTimers();
 
 		widget = fixture('d2l-search-widget-custom-fixture');
@@ -50,7 +42,6 @@ describe('<d2l-search-widget-custom>', function() {
 
 	afterEach(function() {
 		sandbox.restore();
-		server.restore();
 		clock.restore();
 	});
 
