@@ -525,7 +525,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
 				this._coursePinButtonLabel = this.localize('coursePinButton', 'course', this._organization.properties.name);
 
-				var notificationsLink = organization && organization.getLinkByRel(this.HypermediaRels.organizationNotifications);
+				var notificationsLink = organization && organization.getLinkByRel(this.HypermediaRels.Notifications.organizationNotifications);
 				this._notificationsUrl = notificationsLink ? notificationsLink.href : null;
 
 				return Promise.resolve();
