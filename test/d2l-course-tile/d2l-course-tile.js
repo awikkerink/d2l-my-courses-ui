@@ -658,47 +658,43 @@ describe('<d2l-course-tile>', function() {
 		});
 	});
 
-	var curDate = Date.now();
-	var formattedDate = 'FORMATTED_DATE';
-	var inactiveText = '(Inactive)';
+	describe('Notification Overlay', function() {
+		var org,
+			curDate,
+			futureDate,
+			pastDate,
+			formattedDate = 'FORMATTED_DATE',
+			inactiveText = '(Inactive)';
 
-	function getFutureDate() {
-		return new Date(curDate + 8000).toISOString();
-	}
+		function verifyOverlay(params) {
+			var title = params.title;
+			var inactive = params.showInactiveIndicator;
+			var date = params.showDate;
 
-	function getPastDate() {
-		return new Date(curDate - 8000).toISOString();
-	}
+			expect(widget.$$('.overlay-text').textContent.trim()).to.equal(title);
+			var overlayDate = widget.$$('.overlay-date');
+			var overlayInactive = widget.$$('.overlay-inactive');
+			if (date) {
+				expect(overlayDate.textContent).to.equal(formattedDate);
+			} else {
+				expect(overlayDate.textContent).to.not.equal(formattedDate);
+			}
 
-	function verifyOverlay(params) {
-		var title = params.title;
-		var inactive = params.showInactiveIndicator;
-		var date = params.showDate;
-
-		expect(widget.$$('.overlay-text').textContent.trim()).to.equal(title);
-		var overlayDate = widget.$$('.overlay-date');
-		var overlayInactive = widget.$$('.overlay-inactive');
-		if (date) {
-			expect(overlayDate.textContent).to.equal(formattedDate);
-		} else {
-			expect(overlayDate.textContent).to.not.equal(formattedDate);
+			if (inactive) {
+				expect(overlayInactive.textContent).to.equal(inactiveText);
+			} else {
+				expect(overlayInactive.textContent).to.not.equal(inactiveText);
+			}
 		}
-
-		if (inactive) {
-			expect(overlayInactive.textContent).to.equal(inactiveText);
-		} else {
-			expect(overlayInactive.textContent).to.not.equal(inactiveText);
-		}
-	}
-
-	describe.skip('Notification Overlay', function() {
-		var org;
 
 		beforeEach(function() {
+			curDate = Date.now();
+			futureDate = new Date(curDate + 8000).toISOString();
+			pastDate = new Date(curDate - 8000).toISOString();
 			org = {
 				properties: {
-					endDate: getFutureDate(),
-					startDate: getPastDate(),
+					endDate: futureDate,
+					startDate: pastDate,
 					isActive: true
 				}
 			};
@@ -713,10 +709,10 @@ describe('<d2l-course-tile>', function() {
 		describe('given the course not started', function() {
 			describe('when the course is active', function() {
 				it('Adds an overlay with the date', function() {
-					org.properties.startDate = getFutureDate();
+					org.properties.startDate = futureDate;
 					widget._checkDateBounds(org);
 					verifyOverlay({
-						title:'Course Starts',
+						title: 'Course Starts',
 						showDate: true,
 						showInactiveIndicator: false
 					});
@@ -725,7 +721,7 @@ describe('<d2l-course-tile>', function() {
 
 			describe('when the course is inactive', function() {
 				it('Adds an overlay with the date and "inactive"', function() {
-					org.properties.startDate = getFutureDate();
+					org.properties.startDate = futureDate;
 					org.properties.isActive = false;
 					widget._checkDateBounds(org);
 					verifyOverlay({
@@ -740,7 +736,7 @@ describe('<d2l-course-tile>', function() {
 		describe('given the course has ended', function() {
 			describe('when the course is active', function() {
 				it('Adds an overlay with the date', function() {
-					org.properties.endDate = getPastDate();
+					org.properties.endDate = pastDate;
 					widget._checkDateBounds(org);
 					verifyOverlay({
 						title: 'Course Ended',
@@ -752,7 +748,7 @@ describe('<d2l-course-tile>', function() {
 
 			describe('when the course is inactive', function() {
 				it('Adds an overlay with the date', function() {
-					org.properties.endDate = getPastDate();
+					org.properties.endDate = pastDate;
 					org.properties.isActive = false;
 					widget._checkDateBounds(org);
 					verifyOverlay({
