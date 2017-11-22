@@ -141,7 +141,7 @@ describe('<d2l-course-tile>', function() {
 		beforeEach(function(done) {
 			var spy = sandbox.spy(widget, '_onOrganizationResponse');
 
-			widget._isVisible = true;
+			widget._load = true;
 			widget.enrollment = enrollmentEntity;
 
 			setTimeout(function() {
@@ -283,7 +283,7 @@ describe('<d2l-course-tile>', function() {
 		beforeEach(function(done) {
 			var spy = sandbox.spy(widget, '_onOrganizationResponse');
 
-			widget._isVisible = true;
+			widget._load = true;
 			widget.enrollment = enrollmentEntity;
 
 			setTimeout(function() {
@@ -534,7 +534,7 @@ describe('<d2l-course-tile>', function() {
 				'/organizations/1?embedDepth=1',
 				[200, {}, JSON.stringify(organization)]);
 
-			widget._isVisible = true;
+			widget._load = true;
 			widget.enrollment = enrollmentEntity;
 
 			setTimeout(function() {

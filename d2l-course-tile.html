@@ -218,7 +218,7 @@ the user has in that organization - student, teacher, TA, etc.
 					computed: '_computeShowPinIndicator(pinned, updatedSortLogic)'
 				},
 				// Set by the IntersectionObserver when tile is first visible in viewport
-				_isVisible: Boolean
+				_load: Boolean
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
@@ -230,7 +230,7 @@ the user has in that organization - student, teacher, TA, etc.
 				'animationend': '_onAnimationComplete'
 			},
 			observers: [
-				'_fetchEnrollmentData(_isVisible, enrollment)'
+				'_fetchEnrollmentData(_load, enrollment)'
 			],
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
@@ -245,14 +245,27 @@ the user has in that organization - student, teacher, TA, etc.
 							// so we need to also make sure the tile is visible for that first run
 							// see https://bugs.chromium.org/p/chromium/issues/detail?id=713819
 							if (entries[i].intersectionRatio > 0) {
-								this._isVisible = true;
-								observer.unobserve(this.$$('.tile-container'));
+								observer.unobserve(tileContainerEl);
+								this._load = true;
+								break;
 							}
+						}
+
+						if (!this._load) {
+							// Tile isn't visible - schedule it to load via requestIdleCallback
+
+							// Small shim for Edge/IE/Safari
+							var delayFunction = window.requestIdleCallback || setTimeout;
+
+							delayFunction(function() {
+								observer.unobserve(tileContainerEl);
+								this._load = true;
+							}.bind(this));
 						}
 					};
 
 					var observer = new IntersectionObserver(observerCallback.bind(this));
-					observer.observe(this.$$('.tile-container'));
+					observer.observe(tileContainerEl);
 				});
 			},
 			ready: function() {
@@ -405,7 +418,7 @@ the user has in that organization - student, teacher, TA, etc.
 				return Promise.resolve();
 			},
 			_fetchEnrollmentData: function() {
-				if (!this.enrollment || !this._isVisible) {
+				if (!this.enrollment || !this._load) {
 					return;
 				}
 
