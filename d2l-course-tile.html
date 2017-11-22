@@ -239,10 +239,19 @@ the user has in that organization - student, teacher, TA, etc.
 					document.body.addEventListener('focus', this._onFocus, true);
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
 
-					var observer = new IntersectionObserver(function() {
-						this._isVisible = true;
-						observer.unobserve(this.$$('.tile-container'));
-					}.bind(this));
+					var observerCallback = function(entries, observer) {
+						for (var i = 0; i < entries.length; i++) {
+							// Chrome/FF immediately call the callback when we observer.observe()
+							// so we need to also make sure the tile is visible for that first run
+							// see https://bugs.chromium.org/p/chromium/issues/detail?id=713819
+							if (entries[i].intersectionRatio > 0) {
+								this._isVisible = true;
+								observer.unobserve(this.$$('.tile-container'));
+							}
+						}
+					};
+
+					var observer = new IntersectionObserver(observerCallback.bind(this));
 					observer.observe(this.$$('.tile-container'));
 				});
 			},
