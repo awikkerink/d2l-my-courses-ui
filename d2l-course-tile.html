@@ -240,6 +240,11 @@ the user has in that organization - student, teacher, TA, etc.
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
 
 					var observerCallback = function(entries, observer) {
+						if (this._load) {
+							// The tile already loaded via requestIdleCallback/setTimeout
+							return;
+						}
+
 						for (var i = 0; i < entries.length; i++) {
 							// Chrome/FF immediately call the callback when we observer.observe()
 							// so we need to also make sure the tile is visible for that first run
@@ -250,19 +255,20 @@ the user has in that organization - student, teacher, TA, etc.
 								break;
 							}
 						}
-
-						if (!this._load) {
-							// Tile isn't visible - schedule it to load via requestIdleCallback
-
-							// Small shim for Edge/IE/Safari
-							var delayFunction = window.requestIdleCallback || setTimeout;
-
-							delayFunction(function() {
-								observer.unobserve(tileContainerEl);
-								this._load = true;
-							}.bind(this));
-						}
 					};
+
+					// Small shim for Edge/IE/Safari
+					var delayFunction = window.requestIdleCallback || setTimeout;
+					delayFunction(function() {
+						if (this._load) {
+							// The tile already loaded via the IntersectionObserver
+							return;
+						}
+						// Whether we load because the tile became visible, or because we got some
+						// idle time, we want to disconnect the observer either way
+						observer.unobserve(tileContainerEl);
+						this._load = true;
+					}.bind(this));
 
 					var observer = new IntersectionObserver(observerCallback.bind(this));
 					observer.observe(tileContainerEl);
