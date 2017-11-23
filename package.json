@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "postinstall": "polymer install",
-    "test": "npm run test:lint:js && npm run test:lint:wc && wct",
+    "test": "npm run test:lint:js && npm run test:lint:wc && wct --skip-plugin sauce",
     "test:lint:js": "eslint --ext .js,.html .",
     "test:lint:wc": "polymer lint",
-    "test:no-lint": "cross-env LAUNCHPAD_BROWSERS=chrome wct -p"
+    "test:no-lint": "cross-env LAUNCHPAD_BROWSERS=chrome wct -p --skip-plugin sauce"
   },
   "homepage": "https://github.com/Brightspace/d2l-my-courses-ui",
   "repository": {
