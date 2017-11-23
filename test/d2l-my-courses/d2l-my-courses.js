@@ -313,6 +313,20 @@ describe('d2l-my-courses', function() {
 			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
+		it('should show the number of enrollments when there are no new pages of enrollments with the View All Courses link', function() {
+			widget.pinnedEnrollments = new Array(6);
+			widget.unpinnedEnrollments = new Array(9);
+			widget._hasMoreEnrollments = false;
+			expect(widget._viewAllCoursesText).to.equal('View All Courses (15)');
+		});
+
+		it('should show 50+ with the View All Courses link when there are more than 50 courses', function() {
+			widget.pinnedEnrollments = new Array(4);
+			widget.unpinnedEnrollments = new Array(46);
+			widget._hasMoreEnrollments = true;
+			expect(widget._viewAllCoursesText).to.equal('View All Courses (50+)');
+		});
+
 		describe('course image upload', function() {
 			var openChangeImageViewEvent = new CustomEvent(
 				'open-change-image-view', {

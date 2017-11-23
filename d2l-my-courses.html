@@ -78,7 +78,7 @@
 				on-mouseover="_createAllCourses"
 				on-focus="_createAllCourses"
 				tabindex="0" >
-				<h3 class="d2l-body-standard">[[localize('viewAllCourses')]]</h3>
+				<h3 class="d2l-body-standard">[[_viewAllCoursesText]]</h3>
 			</a>
 		</div>
 
@@ -196,6 +196,11 @@
 				orgUnitIdMap: {
 					type: Object,
 					value: function() { return {}; }
+				},
+				_hasMoreEnrollments: Boolean,
+				_viewAllCoursesText: {
+					type: Number,
+					computed: '_getViewAllCoursesCount(_hasMoreEnrollments, pinnedEnrollments, unpinnedEnrollments)'
 				}
 			},
 			behaviors: [
@@ -470,7 +475,7 @@
 				var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
 
 				var query = {
-					pageSize: 25,
+					pageSize: 50,
 					embedDepth: 1,
 					sort: '-PinDate,OrgUnitName,OrgUnitId',
 					autoPinCourses: true
@@ -495,6 +500,7 @@
 
 				this._lastEnrollmentsSearchResponse = enrollmentsEntity;
 				var enrollmentEntities = enrollmentsEntity.getSubEntitiesByClass('enrollment');
+				this._hasMoreEnrollments = enrollmentsEntity.hasLinkByRel('next');
 				var newPinnedEnrollments = [];
 				var newUnpinnedEnrollments = [];
 
@@ -615,6 +621,13 @@
 					return;
 				}
 				return match[0];
+			},
+			_getViewAllCoursesCount: function(_hasMoreEnrollments, pinnedEnrollments, unpinnedEnrollments) {
+				var viewAllCourses = this.localize('viewAllCourses');
+				var count = String(pinnedEnrollments.length + unpinnedEnrollments.length);
+				if (_hasMoreEnrollments) count += '+';
+
+				return count.length > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
 			}
 		});
 	</script>
