@@ -10,6 +10,7 @@
 <link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 <link rel="import" href="../iron-a11y-announcer/iron-a11y-announcer.html">
+<link rel="import" href="../d2l-intersection-observer-polyfill-import/intersection-observer.html">
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
@@ -127,20 +128,8 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					reflectToAttribute: true
 				},
-				// Delays initial loading of the organization until explicitly triggered by `loadOrganization`
-				delayLoad: {
-					type: Boolean,
-					observer: '_delayLoadChanged'
-				},
-				/*
-				* Course tile enrollment Entity. When the enrollment is set, the course
-				* tile will automatically fetch information about the organization the
-				* enrollment is in.
-				*/
-				enrollment: {
-					type: Object,
-					observer: '_enrollmentChanged'
-				},
+				// Course tile enrollment entity
+				enrollment: Object,
 				enrollmentId: String,
 				// Specifies whether the (desktop) hover menu is enabled on the course tile
 				hoverEnabled: {
@@ -227,7 +216,9 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: false,
 					computed: '_computeShowPinIndicator(pinned, updatedSortLogic)'
-				}
+				},
+				// Set by the IntersectionObserver when tile is first visible in viewport
+				_load: Boolean
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
@@ -238,13 +229,50 @@ the user has in that organization - student, teacher, TA, etc.
 			listeners: {
 				'animationend': '_onAnimationComplete'
 			},
+			observers: [
+				'_fetchEnrollmentData(_load, enrollment)'
+			],
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
 					this.fire('course-tile-first-render');
 					var tileContainerEl = this.$$('.tile-container');
 					document.body.addEventListener('focus', this._onFocus, true);
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
-				}.bind(this));
+
+					var observerCallback = function(entries, observer) {
+						if (this._load) {
+							// The tile already loaded via requestIdleCallback/setTimeout
+							return;
+						}
+
+						for (var i = 0; i < entries.length; i++) {
+							// Chrome/FF immediately call the callback when we observer.observe()
+							// so we need to also make sure the tile is visible for that first run
+							// see https://bugs.chromium.org/p/chromium/issues/detail?id=713819
+							if (entries[i].intersectionRatio > 0) {
+								observer.unobserve(tileContainerEl);
+								this._load = true;
+								break;
+							}
+						}
+					};
+
+					// Small shim for Edge/IE/Safari
+					var delayFunction = window.requestIdleCallback || setTimeout;
+					delayFunction(function() {
+						if (this._load) {
+							// The tile already loaded via the IntersectionObserver
+							return;
+						}
+						// Whether we load because the tile became visible, or because we got some
+						// idle time, we want to disconnect the observer either way
+						observer.unobserve(tileContainerEl);
+						this._load = true;
+					}.bind(this));
+
+					var observer = new IntersectionObserver(observerCallback.bind(this));
+					observer.observe(tileContainerEl);
+				});
 			},
 			ready: function() {
 				this._onFocus = this._onFocus.bind(this);
@@ -396,6 +424,17 @@ the user has in that organization - student, teacher, TA, etc.
 				return Promise.resolve();
 			},
 			_fetchEnrollmentData: function() {
+				if (!this.enrollment || !this._load) {
+					return;
+				}
+
+				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
+
+				var organizationLink = this.enrollment.getLinkByRel(this.HypermediaRels.organization);
+				if (!this._organizationUrl || this._organizationUrl.indexOf(organizationLink.href) !== 0) {
+					this._organizationUrl = organizationLink.href + '?embedDepth=1';
+				}
+
 				return this._fetchOrganization()
 					.then(this._onOrganizationResponse.bind(this))
 					.then(function() {
@@ -405,24 +444,6 @@ the user has in that organization - student, teacher, TA, etc.
 								.then(this._onNotificationsResponse.bind(this))
 						]);
 					}.bind(this));
-			},
-			_enrollmentChanged: function() {
-				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
-
-				var organizationLink = this.enrollment.getLinkByRel(this.HypermediaRels.organization);
-
-				if (!this._organizationUrl || this._organizationUrl.indexOf(organizationLink.href) !== 0) {
-					this._organizationUrl = organizationLink.href + '?embedDepth=1';
-
-					if (!this.delayLoad) {
-						this._fetchEnrollmentData();
-					}
-				}
-			},
-			_delayLoadChanged: function(delayLoad) {
-				if (this.isAttached && !delayLoad && !this._organization) {
-					this._fetchEnrollmentData();
-				}
 			},
 			_displaySetImageResult: function(success, skipSetImage) {
 				var tileContainer = this.$$('.tile-container');

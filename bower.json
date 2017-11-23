@@ -35,6 +35,7 @@
     "d2l-hm-constants-behavior": "Brightspace/d2l-hm-constants-behavior#^3.0.0",
     "d2l-icons": "^3.7.0",
     "d2l-image-selector": "git://github.com/Brightspace/image-selector#^2.2.0",
+    "d2l-intersection-observer-polyfill-import": "Brightspace/intersection-observer-polyfill-import",
     "d2l-link": "^3.5.1",
     "d2l-loading-spinner": "^5.0.5",
     "d2l-localize-behavior": "^1.0.1",

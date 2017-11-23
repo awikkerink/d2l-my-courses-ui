@@ -21,7 +21,6 @@
 					animate-insertion="[[_grid_shouldAnimateEnrollmentInsertion(item)]]"
 					class="grid-child"
 					enrollment-id="[[getEntityIdentifier(item)]]"
-					delay-load="[[delayLoad]]"
 					tile-sizes="[[tileSizes]]"
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
@@ -46,8 +45,6 @@
 			is: 'd2l-course-tile-grid',
 
 			properties: {
-				// Sets the delay-load property on the course tiles
-				delayLoad: Boolean,
 				// Set of enrollment Entities for which to display course tiles
 				enrollments: {
 					type: Array,

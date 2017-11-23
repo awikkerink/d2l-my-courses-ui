@@ -110,7 +110,6 @@
 					id="all-courses-pinned"
 					enrollments="[[_filteredPinnedEnrollments]]"
 					enrollments-to-animate="[[_pinnedEnrollmentsToAnimate]]"
-					delay-load="[[delayLoad]]"
 					tile-sizes="[[_tileSizes]]"
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
@@ -135,7 +134,6 @@
 					id="all-courses-unpinned"
 					enrollments="[[_filteredUnpinnedEnrollments]]"
 					enrollments-to-animate="[[_unpinnedEnrollmentsToAnimate]]"
-					delay-load="[[delayLoad]]"
 					tile-sizes="[[_tileSizes]]"
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
@@ -172,11 +170,6 @@
 				defaultSortValue: {
 					type: String,
 					value: 'OrgUnitName'
-				},
-				// Sets the delay-load property on the course tile grid
-				delayLoad: {
-					type: Boolean,
-					value: true
 				},
 				// Standard Department OU Type name to be displayed in the filter dropdown
 				filterStandardDepartmentName: String,
@@ -344,7 +337,6 @@
 				this._filteredPinnedEnrollments.forEach(function(enrollment) {
 					this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 				}, this);
-				this.set('delayLoad', false);
 
 				requestAnimationFrame(function() {
 					this.fire('recalculate-columns');

@@ -137,21 +137,11 @@ describe('<d2l-course-tile>', function() {
 		expect(widget).to.exist;
 	});
 
-	it('should fetch the organization when the enrollment changes', function(done) {
-		var spy = sandbox.spy(widget, '_onOrganizationResponse');
-
-		widget.enrollment = enrollmentEntity;
-
-		setTimeout(function() {
-			expect(spy).to.have.been.calledOnce;
-			done();
-		});
-	});
-
 	describe('setting the enrollment attribute', function() {
 		beforeEach(function(done) {
 			var spy = sandbox.spy(widget, '_onOrganizationResponse');
 
+			widget._load = true;
 			widget.enrollment = enrollmentEntity;
 
 			setTimeout(function() {
@@ -287,39 +277,13 @@ describe('<d2l-course-tile>', function() {
 		});
 	});
 
-	describe('delay-load attribute', function() {
-		it('should not fetch the organization if delay-load=true', function(done) {
-			var delayedWidget = fixture('d2l-course-tile-fixture-delayed');
-			delayedWidget._fetchOrganization = sandbox.stub().returns(Promise.resolve(organizationEntity));
-
-			delayedWidget.enrollment = enrollmentEntity;
-
-			setTimeout(function() {
-				expect(delayedWidget._fetchOrganization).to.have.not.been.called;
-				done();
-			});
-		});
-
-		it('should fetch the organization when delay-load is set to false', function(done) {
-			var delayedWidget = fixture('d2l-course-tile-fixture-delayed');
-			var spy = sandbox.spy(delayedWidget, '_onOrganizationResponse');
-			delayedWidget._fetchOrganization = sandbox.stub().returns(Promise.resolve(organizationEntity));
-
-			delayedWidget.delayLoad = false;
-
-			setTimeout(function() {
-				expect(delayedWidget._fetchOrganization).to.have.been.calledOnce;
-				expect(spy).to.have.been.calledOnce;
-				done();
-			});
-		});
-	});
-
 	describe('changing the pinned state', function() {
 		var event = { preventDefault: function() {} };
 
 		beforeEach(function(done) {
 			var spy = sandbox.spy(widget, '_onOrganizationResponse');
+
+			widget._load = true;
 			widget.enrollment = enrollmentEntity;
 
 			setTimeout(function() {
@@ -340,7 +304,9 @@ describe('<d2l-course-tile>', function() {
 			widget._pinClickHandler(event);
 
 			setTimeout(function() {
-				expect(window.d2lfetch.fetch).to.have.been.calledOnce;
+				expect(window.d2lfetch.fetch).to.have.been
+					.calledWith(sinon.match.has('url', sinon.match('/enrollments/users/169/organizations/1'))
+						.and(sinon.match.has('method', 'PUT')));
 				done();
 			});
 		});
@@ -359,7 +325,9 @@ describe('<d2l-course-tile>', function() {
 			expect(widget.pinned).to.be.false;
 
 			setTimeout(function() {
-				expect(window.d2lfetch.fetch).to.have.been.calledOnce;
+				expect(window.d2lfetch.fetch).to.have.been
+					.calledWith(sinon.match.has('url', sinon.match('/enrollments/users/169/organizations/1'))
+						.and(sinon.match.has('method', 'PUT')));
 				// We responded with pinned = true, so it gets set back to true by the response
 				expect(widget.pinned).to.be.true;
 				done();
@@ -566,6 +534,7 @@ describe('<d2l-course-tile>', function() {
 				'/organizations/1?embedDepth=1',
 				[200, {}, JSON.stringify(organization)]);
 
+			widget._load = true;
 			widget.enrollment = enrollmentEntity;
 
 			setTimeout(function() {
