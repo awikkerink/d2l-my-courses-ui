@@ -473,9 +473,10 @@
 			},
 			_createFetchEnrollmentsUrl: function(enrollmentsRootEntity, bustCache) {
 				var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
+				var pageSize = this.updatedSortLogic ? 50 : 25;
 
 				var query = {
-					pageSize: 50,
+					pageSize: pageSize,
 					embedDepth: 1,
 					sort: '-PinDate,OrgUnitName,OrgUnitId',
 					autoPinCourses: true
@@ -624,6 +625,8 @@
 			},
 			_getViewAllCoursesCount: function(_hasMoreEnrollments, pinnedEnrollments, unpinnedEnrollments) {
 				var viewAllCourses = this.localize('viewAllCourses');
+				if (!this.updatedSortLogic) return viewAllCourses;
+
 				var count = String(pinnedEnrollments.length + unpinnedEnrollments.length);
 				if (_hasMoreEnrollments) count += '+';
 

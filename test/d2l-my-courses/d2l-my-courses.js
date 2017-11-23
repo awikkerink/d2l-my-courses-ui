@@ -314,6 +314,7 @@ describe('d2l-my-courses', function() {
 		});
 
 		it('should show the number of enrollments when there are no new pages of enrollments with the View All Courses link', function() {
+			widget.updatedSortLogic = true;
 			widget.pinnedEnrollments = new Array(6);
 			widget.unpinnedEnrollments = new Array(9);
 			widget._hasMoreEnrollments = false;
@@ -321,10 +322,19 @@ describe('d2l-my-courses', function() {
 		});
 
 		it('should show 50+ with the View All Courses link when there are more than 50 courses', function() {
+			widget.updatedSortLogic = true;
 			widget.pinnedEnrollments = new Array(4);
 			widget.unpinnedEnrollments = new Array(46);
 			widget._hasMoreEnrollments = true;
 			expect(widget._viewAllCoursesText).to.equal('View All Courses (50+)');
+		});
+
+		it('should not show the count in the View All Courses link when the updated sortfeature flag is off', function() {
+			widget.updatedSortLogic = false;
+			widget.pinnedEnrollments = new Array(4);
+			widget.unpinnedEnrollments = new Array(46);
+			widget._hasMoreEnrollments = true;
+			expect(widget._viewAllCoursesText).to.equal('View All Courses');
 		});
 
 		describe('course image upload', function() {
