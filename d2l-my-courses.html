@@ -173,26 +173,6 @@
 					type: Object,
 					value: function() { return {}; }
 				},
-				_performanceTracking: {
-					type: Object,
-					value: {
-						'course-tile-first-render': {
-							name: 'd2l.my-courses.tiles.rendered',
-							count: 0,
-							startMark: 'd2l.my-courses.search-enrollments.response'
-						},
-						'course-tile-organization': {
-							name: 'd2l.my-courses.tiles.organizations',
-							count: 0,
-							startMark: 'd2l.my-courses.search-enrollments.response'
-						},
-						'course-image-loaded': {
-							name: 'd2l.my-courses.tiles.images',
-							count: 0,
-							startMark: 'd2l.my-courses.tiles.first-organization'
-						}
-					}
-				},
 				orgUnitIdMap: {
 					type: Object,
 					value: function() { return {}; }
@@ -220,9 +200,8 @@
 				'enrollment-pinned': '_onEnrollmentPinAction',
 				'enrollment-unpinned': '_onEnrollmentPinAction',
 				'tile-remove-complete': '_onTileRemoveComplete',
-				'course-tile-first-render': '_onPerformanceEvent',
-				'course-tile-organization': '_onPerformanceEvent',
-				'course-image-loaded': '_onPerformanceEvent',
+				'course-tile-organization': '_onCourseTileOrganization',
+				'course-image-loaded': '_onCourseImageLoaded',
 				'initially-visible-course-tile': '_onInitiallyVisibleCourseTile'
 			},
 			observers: [
@@ -280,6 +259,8 @@
 			*/
 
 			_allCoursesCreated: false,
+			_courseImagesLoadedEventCount: 0,
+			_courseTileOrganizationEventCount: 0,
 			_initiallyVisibleCourseTileCount: 0,
 
 			/*
@@ -367,44 +348,36 @@
 			_onInitiallyVisibleCourseTile: function() {
 				this._initiallyVisibleCourseTileCount++;
 			},
-			_onPerformanceEvent: function(e) {
+			_onCourseImageLoaded: function() {
+				this._courseImagesLoadedEventCount++;
 
-				var data = this._performanceTracking[e.type];
-				if (data === undefined || data.count >= this.pinnedEnrollments.length) return;
-
-				data.count++;
-				if (e.type === 'course-tile-organization' && data.count === 1) {
-					this.performanceMark('d2l.my-courses.tiles.first-organization');
+				if (this._courseImagesLoadedEventCount === this._initiallyVisibleCourseTileCount) {
+					this.performanceMark('d2l.my-courses.visible-images-complete');
+					this.performanceMeasure(
+						'd2l.my-courses',
+						'd2l.my-courses.attached',
+						'd2l.my-courses.visible-images-complete'
+					);
 				}
+			},
+			_onCourseTileOrganization: function() {
+				this._courseTileOrganizationEventCount++;
 
-				if (data.count === this.pinnedEnrollments.length) {
-					this.performanceMark(data.name);
-					this.performanceMeasure(data.name, data.startMark, data.name);
+				if (this._courseTileOrganizationEventCount === this._initiallyVisibleCourseTileCount) {
+					this.performanceMark('d2l.my-courses.visible-organizations-complete');
+					this.performanceMeasure(
+						'd2l.my-courses.meaningful.visible',
+						'd2l.my-courses.attached',
+						'd2l.my-courses.visible-organizations-complete'
+					);
+				} else if (this._courseTileOrganizationEventCount === this.pinnedEnrollments.length) {
+					this.performanceMark('d2l.my-courses.all-organizations-complete');
+					this.performanceMeasure(
+						'd2l.my-courses.meaningful.all',
+						'd2l.my-courses.attached',
+						'd2l.my-courses.all-organizations-complete'
+					);
 				}
-
-				if (this._initiallyVisibleCourseTileCount === 0) {
-					this.performanceMark('d2l.my-courses.tiles.visible-images.complete');
-				}
-				if (data.count === this._initiallyVisibleCourseTileCount && e.type === 'course-image-loaded') {
-					this.performanceMark('d2l.my-courses.tiles.visible-images.complete');
-				}
-
-				// once we've seen all events for every tile, my-courses is "complete"
-				for (var key in this._performanceTracking) {
-					if (this._performanceTracking[key].count < this.pinnedEnrollments.length) {
-						return;
-					}
-				}
-				this.performanceMark('d2l.my-courses.complete');
-				this.performanceMeasure('d2l.my-courses', 'd2l.my-courses.attached', 'd2l.my-courses.complete');
-
-				this.performanceMeasure(
-					'd2l.my-courses.visible-images',
-					'd2l.my-courses.attached',
-					'd2l.my-courses.tiles.visible-images.complete'
-				);
-				console.log(window.performance.getEntriesByName('d2l.my-courses.visible-images')[0].duration);
-
 			},
 
 			/*

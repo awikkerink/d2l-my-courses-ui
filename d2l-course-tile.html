@@ -234,7 +234,6 @@ the user has in that organization - student, teacher, TA, etc.
 			],
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
-					this.fire('course-tile-first-render');
 					var tileContainerEl = this.$$('.tile-container');
 					document.body.addEventListener('focus', this._onFocus, true);
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
