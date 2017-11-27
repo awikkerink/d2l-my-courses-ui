@@ -36,3 +36,5 @@ performance.getEntriesByType('measure')
 | `d2l.my-courses.meaningful.all` | Approximation of total time for my-courses to complete loading for a screenreader user (all organizations, excludes course images) | `d2l.my-courses.attached` | `d2l.my-courses.all-organizations-complete` |
 
 Course images are lazy-loaded only once they become visible in the viewport. Because of this, we do not track "last course image loaded" as it's possible that this would never occur, should the user not scroll down far enough for all images to enter the viewport and therefore load.
+
+Note that the two visibility-related measures will be recorded almost immediately if the widget is not in the viewport at all - the idea being that if the widget is initially down the page, we can effectively say we've immediately loaded all the visible content.

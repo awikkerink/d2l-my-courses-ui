@@ -361,6 +361,23 @@
 				}
 			},
 			_onCourseTileOrganization: function() {
+				if (this._initiallyVisibleCourseTileCount === 0 && this._courseTileOrganizationEventCount === 0) {
+					// If no course tiles are initially visible (widget is outside of initial viewport)
+					// then we can say we're already finished loading the visible organizations and images
+					this.performanceMark('d2l.my-courses.visible-organizations-complete');
+					this.performanceMeasure(
+						'd2l.my-courses.meaningful.visible',
+						'd2l.my-courses.attached',
+						'd2l.my-courses.visible-organizations-complete'
+					);
+					this.performanceMark('d2l.my-courses.visible-images-complete');
+					this.performanceMeasure(
+						'd2l.my-courses',
+						'd2l.my-courses.attached',
+						'd2l.my-courses.visible-images-complete'
+					);
+				}
+
 				this._courseTileOrganizationEventCount++;
 
 				if (this._courseTileOrganizationEventCount === this._initiallyVisibleCourseTileCount) {
