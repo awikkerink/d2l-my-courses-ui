@@ -629,12 +629,12 @@ describe('<d2l-course-tile>', function() {
 
 	describe('Notification Overlay', function() {
 		var org,
-			curDate = Date.now(),
-			futureDate = new Date(curDate + 8000).toISOString(),
-			pastDate = new Date(curDate - 8000).toISOString(),
+			curDate,
+			futureDate,
+			pastDate,
 			formattedDate = 'FORMATTED_DATE',
-			formattedFutureDateTime = formattedDate + ' at ' + (new Date(futureDate)).toLocaleTimeString('en', { hour: 'numeric', minute: 'numeric', hour12 : true }),
-			formattedPastDateTime = formattedDate + ' at ' + (new Date(pastDate)).toLocaleTimeString('en', { hour: 'numeric', minute: 'numeric', hour12 : true }),
+			formattedFutureDateTime,
+			formattedPastDateTime,
 			inactiveText = '(Inactive)';
 
 		function verifyOverlay(params) {
@@ -663,6 +663,11 @@ describe('<d2l-course-tile>', function() {
 		}
 
 		beforeEach(function() {
+			curDate = Date.now();
+			futureDate = new Date(curDate + 8000).toISOString();
+			pastDate = new Date(curDate - 8000).toISOString();
+			formattedFutureDateTime = formattedDate + ' at ' + (new Date(futureDate)).toLocaleTimeString('en', { hour: 'numeric', minute: 'numeric', hour12 : true });
+			formattedPastDateTime = formattedDate + ' at ' + (new Date(pastDate)).toLocaleTimeString('en', { hour: 'numeric', minute: 'numeric', hour12 : true });
 			org = {
 				properties: {
 					endDate: futureDate,
