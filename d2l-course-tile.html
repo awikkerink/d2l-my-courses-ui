@@ -610,11 +610,13 @@ the user has in that organization - student, teacher, TA, etc.
 
 				if (this._dateFormatter) {
 					var dateObj = new Date(date);
-					this._notificationDate = this._dateFormatter.format(dateObj);
+					var time = dateObj.toLocaleTimeString(this.locale, { hour: 'numeric', minute: 'numeric' });
+					var notificationDate = this._dateFormatter.format(dateObj);
+					this._notificationDate = this.localize('overlay.notificationDateTime', 'date', notificationDate, 'time', time);
 					this._courseNotificationLabel = this.localize(
 						(type === 'courseEnded') ? 'overlay.courseEndedOn' : 'overlay.courseStartingOn',
-						'date',
-						this._fullDateFormatter.format(dateObj)
+						'date', this._fullDateFormatter.format(dateObj),
+						'time', time
 					);
 					this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
 					this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
