@@ -610,7 +610,7 @@ the user has in that organization - student, teacher, TA, etc.
 
 				if (this._dateFormatter) {
 					var dateObj = new Date(date);
-					var time = dateObj.toLocaleTimeString(this.locale, { hour: 'numeric', minute: 'numeric', hour12 : true });
+					var time = dateObj.toLocaleTimeString(this.locale, { hour: 'numeric', minute: 'numeric' });
 					var notificationDate = this._dateFormatter.format(dateObj);
 					this._notificationDate = this.localize('overlay.notificationDateTime', 'date', notificationDate, 'time', time);
 					this._courseNotificationLabel = this.localize(
