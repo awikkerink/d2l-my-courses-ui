@@ -11,7 +11,7 @@
     "widget"
   ],
   "homepage": "https://github.com/Brightspace/d2l-my-courses-ui",
-  "main": "src/d2l-my-courses.html",
+  "main": "d2l-my-courses.html",
   "private": true,
   "ignore": [
     "**/.*",
