@@ -26,7 +26,8 @@
 					show-course-code="[[showCourseCode]]"
 					show-semester="[[showSemester]]"
 					course-updates-config="[[courseUpdatesConfig]]"
-					updated-sort-logic="[[updatedSortLogic]]">
+					updated-sort-logic="[[updatedSortLogic]]"
+					animate="[[animate]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -52,6 +53,10 @@
 					value: function() {
 						return [];
 					}
+				},
+				animate: {
+					type: Boolean,
+					value: true
 				},
 				// Set of enrollments which should be animated when being inserted
 				enrollmentsToAnimate: {
