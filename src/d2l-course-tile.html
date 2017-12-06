@@ -124,6 +124,7 @@ the user has in that organization - student, teacher, TA, etc.
 			is: 'd2l-course-tile',
 
 			properties: {
+				animate: Boolean,
 				animateInsertion: {
 					type: Boolean,
 					reflectToAttribute: true
@@ -327,7 +328,7 @@ the user has in that organization - student, teacher, TA, etc.
 					organization: this._organization
 				});
 
-				this._pinAnimationInProgress = true;
+				if (this.animate) this._pinAnimationInProgress = true;
 				this.toggleClass('unpin-hovered', false, this);
 
 				if (isTouch) {
@@ -335,7 +336,7 @@ the user has in that organization - student, teacher, TA, etc.
 					this.updateStyles();
 				}
 
-				this.toggleClass('unpin', true, this);
+				if (this.animate) this.toggleClass('unpin', true, this);
 
 				var localizeKey = this.pinned ? 'pinActionResult' : 'unpinActionResult';
 				var announceText = this.localize(localizeKey, 'course', this._organization.properties.name);
