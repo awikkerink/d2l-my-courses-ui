@@ -136,8 +136,6 @@
 				* Private Polymer properties
 				*/
 
-				// URL used by the search widget to fetch department-type organizations
-				_departmentsUrl: String,
 				_hasEnrollments: {
 					type: Boolean,
 					value: false
@@ -154,15 +152,12 @@
 					type: Object,
 					value: function() { return {}; }
 				},
-				// URL used by the search widget to fetch semester-type organizations
-				_semestersUrl: String,
 				// The organization which the user is selecting the image of
 				_setImageOrg: Object,
 				_showContent: {
 					type: Boolean,
 					value: false
 				},
-				_startedInactive: Boolean,
 				// Size the tile should render with respect to vw
 				_tileSizes: Object,
 				// Object containing the IDs of previously loaded unpinned enrollments, to avoid duplicates

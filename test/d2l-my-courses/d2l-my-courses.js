@@ -199,7 +199,7 @@ describe('d2l-my-courses', function() {
 				});
 		});
 
-		it.only('should fetch all pinned enrollments', function() {
+		it('should fetch all pinned enrollments', function() {
 			enrollmentsSearchResponse.links.push({
 				rel: ['next'],
 				href: '/more-pinned-enrollments'
