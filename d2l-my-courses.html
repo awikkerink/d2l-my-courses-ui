@@ -194,7 +194,6 @@
 			],
 			listeners: {
 				'open-change-image-view': '_onOpenChangeImageView',
-				'set-course-image': '_onSetCourseImage',
 				'clear-image-scroll-threshold': '_onClearImageScrollThreshold',
 				'd2l-simple-overlay-closed': '_onSimpleOverlayClosed',
 				'enrollment-pinned': '_onEnrollmentPinAction',
@@ -217,11 +216,13 @@
 				this._fetchRoot();
 
 				document.body.addEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
+				document.body.addEventListener('set-course-image', this._onSetCourseImage.bind(this));
 				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._onStartedInactiveAlert.bind(this));
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
 			},
 			detached: function() {
 				document.body.removeEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
+				document.body.removeEventListener('set-course-image', this._onSetCourseImage.bind(this));
 			},
 
 			/*
