@@ -316,6 +316,7 @@ the user has in that organization - student, teacher, TA, etc.
 						// this.enrollment with the modified one
 						this.enrollment = enrollment;
 						this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
+						if (!this.animate) this.fire('tile-remove-complete', {enrollment: this.enrollment, pinned: this.pinned});
 					}.bind(this))
 					.catch(function() {
 						// Just revert back to whatever pin state we already had stored
