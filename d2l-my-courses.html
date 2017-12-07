@@ -136,11 +136,6 @@
 				* Private Polymer properties
 				*/
 
-				// URL used by the search widget to fetch department-type organizations
-				_departmentsUrl: String,
-				// URL constructed to fetch a user's enrollments with the enrollments search Action
-				_enrollmentsSearchUrl: String,
-				// True when there are any enrollments (pinned or unpinned)
 				_hasEnrollments: {
 					type: Boolean,
 					value: false
@@ -157,15 +152,12 @@
 					type: Object,
 					value: function() { return {}; }
 				},
-				// URL used by the search widget to fetch semester-type organizations
-				_semestersUrl: String,
 				// The organization which the user is selecting the image of
 				_setImageOrg: Object,
 				_showContent: {
 					type: Boolean,
 					value: false
 				},
-				_startedInactive: Boolean,
 				// Size the tile should render with respect to vw
 				_tileSizes: Object,
 				// Object containing the IDs of previously loaded unpinned enrollments, to avoid duplicates
@@ -465,10 +457,10 @@
 					return Promise.resolve();
 				}
 
-				this._enrollmentsSearchUrl = this._createFetchEnrollmentsUrl(enrollmentsRootEntity);
+				var searchUrl = this._createFetchEnrollmentsUrl(enrollmentsRootEntity);
 
 				this.performanceMark('d2l.my-courses.search-enrollments.request');
-				return this.fetchSirenEntity(this._enrollmentsSearchUrl)
+				return this.fetchSirenEntity(searchUrl)
 					.then(this._enrollmentsResponsePerfMeasures.bind(this))
 					.then(this._populateEnrollments.bind(this));
 			},
@@ -547,6 +539,13 @@
 					{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
 
 				this.fire('recalculate-columns');
+
+				var lastEnrollment = enrollmentEntities[enrollmentEntities.length - 1];
+				if (lastEnrollment.hasClass('pinned') && this._hasMoreEnrollments) {
+					var url = enrollmentsEntity.getLinkByRel('next').href;
+					return this.fetchSirenEntity(url)
+						.then(this._populateEnrollments.bind(this));
+				}
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				var enrollmentId, enrollmentEntity;

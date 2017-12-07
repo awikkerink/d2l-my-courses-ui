@@ -54,16 +54,16 @@ describe('d2l-my-courses', function() {
 					href: '/enrollments/users/169/organizations/1'
 				}]
 			}, {
-				class: ['unpinned', 'enrollment'],
+				class: ['pinned', 'enrollment'],
 				rel: ['https://api.brightspace.com/rels/user-enrollment'],
 				actions: [{
-					name: 'pin-course',
+					name: 'unpin-course',
 					method: 'PUT',
 					href: '/enrollments/users/169/organizations/2',
 					fields: [{
 						name: 'pinned',
 						type: 'hidden',
-						value: true
+						value: false
 					}]
 				}],
 				links: [{
@@ -81,7 +81,7 @@ describe('d2l-my-courses', function() {
 		},
 		enrollmentsNextPageSearchResponse = {
 			entities: [{
-				class: ['pinned', 'enrollment'],
+				class: ['unpinned', 'enrollment'],
 				rel: ['https://api.brightspace.com/rels/user-enrollment'],
 				actions: [{
 					name: 'unpin-course',
@@ -199,10 +199,24 @@ describe('d2l-my-courses', function() {
 				});
 		});
 
-		it('should set the request URL for pinned courses', function() {
-			return widget._fetchRoot().then(function() {
-				expect(widget._enrollmentsSearchUrl).to.match(/sort=-PinDate/);
+		it('should fetch all pinned enrollments', function() {
+			enrollmentsSearchResponse.links.push({
+				rel: ['next'],
+				href: '/more-pinned-enrollments'
 			});
+			widget.fetchSirenEntity.withArgs(sinon.match('/enrollments/users/169?search='))
+				.returns(Promise.resolve(
+					window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse)
+				))
+				.withArgs(sinon.match('/more-pinned-enrollments'))
+				.returns(Promise.resolve(
+					window.D2L.Hypermedia.Siren.Parse(enrollmentsNextPageSearchResponse)
+				));
+
+			return widget._fetchRoot()
+				.then(function() {
+					expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('/more-pinned-enrollments'));
+				});
 		});
 
 		it('should rescale the course tile grid on search response', function() {
@@ -280,7 +294,7 @@ describe('d2l-my-courses', function() {
 		});
 
 		it('should return the correct value from getCourseTileItemCount', function() {
-			expect(widget.getCourseTileItemCount()).to.equal(1);
+			expect(widget.getCourseTileItemCount()).to.equal(2);
 		});
 
 		it('should correctly evaluate whether it has pinned/unpinned enrollments', function() {
