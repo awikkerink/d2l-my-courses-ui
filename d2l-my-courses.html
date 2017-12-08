@@ -10,7 +10,6 @@
 <link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="src/d2l-alert-behavior.html">
 <link rel="import" href="src/d2l-all-courses.html">
-<link rel="import" href="src/d2l-course-management-behavior.html">
 <link rel="import" href="src/d2l-course-tile-grid.html">
 <link rel="import" href="src/d2l-utility-behavior.html">
 <link rel="import" href="src/localize-behavior.html">
@@ -60,7 +59,7 @@
 				</d2l-alert>
 			</template>
 			<d2l-course-tile-grid
-				enrollments="[[pinnedEnrollments]]"
+				enrollments="[[_pinnedEnrollments]]"
 				tile-sizes="[[_tileSizes]]"
 				locale="[[locale]]"
 				show-course-code="[[showCourseCode]]"
@@ -136,11 +135,20 @@
 				* Private Polymer properties
 				*/
 
+				_allEnrollments: {
+					type: Array,
+					value: function() { return []; }
+				},
+				_pinnedEnrollments: {
+					type: Array,
+					value: function() { return []; }
+				},
+				// True when there are enrollments (i.e. `_allEnrollments.length > 0`)
 				_hasEnrollments: {
 					type: Boolean,
 					value: false
 				},
-				// True when there are pinned enrollments (i.e. `pinnedEnrollments.length > 0`)
+				// True when there are pinned enrollments (i.e. `_pinnedEnrollments.length > 0`)
 				_hasPinnedEnrollments: {
 					type: Boolean,
 					value: false
@@ -166,10 +174,6 @@
 				_viewAllCoursesText: {
 					type: Number,
 					computed: '_getViewAllCoursesCount(_hasMoreEnrollments, _allEnrollments)'
-				},
-				_allEnrollments: {
-					type: Array,
-					value: function() { return []; }
 				}
 			},
 			behaviors: [
@@ -177,7 +181,6 @@
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.InteractionDetectionBehavior,
-				window.D2L.MyCourses.CourseManagementBehavior,
 				window.D2L.MyCourses.AlertBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
@@ -193,7 +196,7 @@
 				'initially-visible-course-tile': '_onInitiallyVisibleCourseTile'
 			},
 			observers: [
-				'_enrollmentsChanged(pinnedEnrollments.length, _allEnrollments.length)',
+				'_enrollmentsChanged(_pinnedEnrollments.length, _allEnrollments.length)',
 				'_updateEnrollmentAlerts(_hasEnrollments, _hasPinnedEnrollments)'
 			],
 			ready: function() {
@@ -234,7 +237,7 @@
 			},
 
 			getCourseTileItemCount: function() {
-				return this.pinnedEnrollments.length;
+				return this._pinnedEnrollments.length;
 			},
 
 			getLastOrgUnitId: function() {
@@ -378,7 +381,7 @@
 						'd2l.my-courses.attached',
 						'd2l.my-courses.visible-organizations-complete'
 					);
-				} else if (this._courseTileOrganizationEventCount === this.pinnedEnrollments.length) {
+				} else if (this._courseTileOrganizationEventCount === this._pinnedEnrollments.length) {
 					this.performanceMark('d2l.my-courses.all-organizations-complete');
 					this.performanceMeasure(
 						'd2l.my-courses.meaningful.all',
@@ -393,7 +396,7 @@
 			*/
 
 			_enrollmentsChanged: function() {
-				this.set('_hasPinnedEnrollments', this.pinnedEnrollments.length > 0);
+				this.set('_hasPinnedEnrollments', this._pinnedEnrollments.length > 0);
 				this.set('_hasEnrollments', this._allEnrollments.length > 0);
 			},
 			_updateEnrollmentAlerts: function(hasEnrollments, hasPinnedEnrollments) {
@@ -512,10 +515,10 @@
 					}
 				}, this);
 
-				this.pinnedEnrollments = this.pinnedEnrollments.concat(newPinnedEnrollments);
+				this._pinnedEnrollments = this._pinnedEnrollments.concat(newPinnedEnrollments);
 				this._allEnrollments = this._allEnrollments.concat(enrollmentEntities);
 
-				var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this.pinnedEnrollments.length);
+				var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this._pinnedEnrollments.length);
 				this._tileSizes = (colNum === 2) ?
 					{ mobile: { maxwidth: 767, size: 50 }, tablet: { maxwidth: 1243, size: 33 }, desktop: { size: 20 } } :
 					{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
@@ -531,8 +534,7 @@
 			},
 			_addToPinnedEnrollments: function(enrollment) {
 				if (enrollment) {
-					this._setEnrollmentPinData(enrollment, true);
-					this.unshift('pinnedEnrollments', enrollment);
+					this.unshift('_pinnedEnrollments', enrollment);
 				}
 			},
 			_removeFromPinnedEnrollments: function(enrollment) {
@@ -540,10 +542,10 @@
 					? enrollment
 					: this.getEntityIdentifier(enrollment);
 
-				for (var index = 0; index < this.pinnedEnrollments.length; index++) {
-					var unpinnedEnrollmentId = this.getEntityIdentifier(this.pinnedEnrollments[index]);
+				for (var index = 0; index < this._pinnedEnrollments.length; index++) {
+					var unpinnedEnrollmentId = this.getEntityIdentifier(this._pinnedEnrollments[index]);
 					if (unpinnedEnrollmentId === enrollmentId) {
-						this.splice('pinnedEnrollments', index, 1);
+						this.splice('_pinnedEnrollments', index, 1);
 						break;
 					}
 				}
