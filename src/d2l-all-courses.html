@@ -189,6 +189,7 @@
 					value: function() { return []; },
 					observer: '_pinnedEnrollmentsChanged'
 				},
+				searchUrl: String,
 				showCourseCode: Boolean,
 				showSemester: Boolean,
 				// Feature flag (switch) for using the updated sort logic and related fetaures
@@ -328,7 +329,6 @@
 				return itemCount;
 			},
 			load: function() {
-				// Load course tile and filter contents. Called from d2l-my-courses.
 				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 				this._filteredPinnedEnrollments.forEach(function(enrollment) {
@@ -338,13 +338,25 @@
 					this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 				}, this);
 
+				var url;
+				// We never want to autopin results in the overlay
+				url = this.searchUrl.replace('autoPinCourses=true', 'autoPinCourses=false');
+				// Busts d2l-fetch cache, since enrollments may have been pinned/unpinned
+				// since last time this URL was fetched
+				url += '&bustCache=' + Math.random();
+				this._searchUrl = url;
+
 				requestAnimationFrame(function() {
 					this.fire('recalculate-columns');
-					this._showContent = true;
 				}.bind(this));
 			},
 			open: function() {
+				// Initially hide the content, until we have some data to show
+				// (set back to true in _onSearchResultsChanged)
+				this._showContent = false;
+
 				this.$$('#all-courses').open();
+				this.load();
 			},
 			setCourseImage: function(details) {
 				this._removeAlert('setCourseImageFailure');
@@ -435,6 +447,7 @@
 				this._unpinnedCoursesMap = {};
 				this._updateFilteredEnrollments(e.detail, false);
 				this.myEnrollmentsEntity = e.detail;
+				this._showContent = true;
 			},
 			_onSimpleOverlayOpening: function() {
 				this._removeAlert('setCourseImageFailure');
@@ -462,13 +475,12 @@
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 			},
 			_myEnrollmentsEntityChanged: function(entity) {
-				if (entity) {
-					var myEnrollmentsEntity = this.parseEntity(entity);
-
-					if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
-						this._enrollmentsSearchAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
-					}
+				var myEnrollmentsEntity = this.parseEntity(entity);
+				if (!myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
+					return;
 				}
+
+				this._enrollmentsSearchAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 			},
 			_pinnedEnrollmentsChanged: function() {
 				this._updateTileSizes();
