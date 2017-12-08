@@ -284,6 +284,47 @@ describe('d2l-all-courses', function() {
 		});
 	});
 
+	describe('opening the overlay', function() {
+		it('should set _searchUrl from the public property', function() {
+			widget.searchUrl = '/foo';
+
+			widget.open();
+
+			expect(widget._searchUrl).to.match(/\/foo/);
+		});
+
+		it('should not request auto-pinned courses', function() {
+			widget.searchUrl = '/foo?autoPinCourses=true';
+
+			widget.open();
+
+			expect(widget._searchUrl).to.match(/\/foo\?autoPinCourses=false/);
+		});
+
+		it('should initially hide content', function() {
+			widget.searchUrl = '';
+			widget.open();
+
+			expect(widget._showContent).to.be.false;
+		});
+
+		it('should show content once search results have loaded', function(done) {
+			window.d2lfetch.fetch = sinon.stub().returns(Promise.resolve({
+				ok: true,
+				json: function() {}
+			}));
+			var spy = sinon.spy(widget, '_onSearchResultsChanged');
+			widget.searchUrl = '/foo';
+			widget.open();
+
+			setTimeout(function() {
+				expect(spy).to.have.been.called;
+				expect(widget._showContent).to.be.true;
+				done();
+			});
+		});
+	});
+
 	describe('closing the overlay', function() {
 		it('should clear search text', function() {
 			var spy = sandbox.spy(widget, '_clearSearchWidget');
