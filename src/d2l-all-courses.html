@@ -79,10 +79,13 @@
 										<div class="dropdown-content-header">
 											<span>{{localize('sorting.sortBy')}}</span>
 										</div>
-										<d2l-menu-item-radio class="dropdown-content-gradient" value="OrgUnitName" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" class="dropdown-content-gradient" value="Default" text="{{localize('sorting.default')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio value="OrgUnitName" class$="{{_showDropdownGradient(updatedSortLogic)}}" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="OrgUnitCode" text="{{localize('sorting.sortCourseCode')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="PinDate" text="{{localize('sorting.sortDatePinned')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="LastAccessed" text="{{localize('sorting.sortLastAccessed')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" value="EnrollmentDate" text="{{localize('sorting.enrollmentDate')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio hidden$="[[_hideCurrentSort]]" value="Current" text="{{localize('sorting.current')}}"></d2l-menu-item-radio>
 									</d2l-menu>
 								</d2l-dropdown-menu>
 							</d2l-dropdown>
@@ -175,7 +178,8 @@
 				// Feature flag (switch) for using the updated sort logic and related fetaures
 				updatedSortLogic: {
 					type: Boolean,
-					value: false
+					value: false,
+					observer: '_updatedSortLogicChanged'
 				},
 				// Set of unpinned enrollment Entities
 				unpinnedEnrollments: {
@@ -188,6 +192,7 @@
 					value: function() { return []; },
 					observer: '_setFilteredEnrollments'
 				},
+				hasManyEnrollments: Boolean,
 
 				/*
 				* Private Polymer properties
@@ -265,6 +270,12 @@
 				_filterCount: {
 					type: Number,
 					value: 0
+				},
+				updatedSortLogicInitallyObserved: false,
+				_hideCurrentSort: {
+					type: Boolean,
+					value: true,
+					computed: '_computeHideCurrentSort(updatedSortLogic, hasManyEnrollments)'
 				}
 			},
 			behaviors: [
@@ -286,7 +297,6 @@
 				this._updateEnrollmentAlerts(this._hasFilteredPinnedEnrollments, this._hasFilteredUnpinnedEnrollments);
 
 				this._filterText = this.localize('filtering.filter');
-				this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').selected = true;
 			},
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_onSortOrderChanged');
@@ -402,29 +412,49 @@
 			},
 			_onSortOrderChanged: function(e) {
 				var queryParameter, langterm;
+				var promotePins = false;
 
 				switch (e.detail.value) {
+					case 'OrgUnitName':
+						langterm = 'sorting.sortCourseName';
+						queryParameter = this.updatedSortLogic ? 'OrgUnitName,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
+						break;
 					case 'OrgUnitCode':
 						langterm = 'sorting.sortCourseCode';
-						queryParameter = '-PinDate,OrgUnitCode,OrgUnitId';
+						queryParameter = this.updatedSortLogic ? 'OrgUnitCode,OrgUnitId' : '-PinDate,OrgUnitCode,OrgUnitId';
 						break;
 					case 'PinDate':
 						langterm = 'sorting.sortDatePinned';
-						queryParameter = '-PinDate,OrgUnitId';
+						queryParameter = this.updatedSortLogic ? 'PinDate' : '-PinDate,OrgUnitId';
+						promotePins = this.updatedSortLogic;
 						break;
 					case 'LastAccessed':
 						langterm = 'sorting.sortLastAccessed';
-						// Note: Sorting by LastAccessed is done differently LMS-side, hence this being different
-						queryParameter = 'LastAccessed';
+						queryParameter = this.updatedSortLogic ? 'LastAccessed,OrgUnitId' : 'LastAccessed';
 						break;
-					default: // Includes 'OrgUnitName', which is the default sort order
-						langterm = 'sorting.sortCourseName';
-						queryParameter = '-PinDate,OrgUnitName,OrgUnitId';
+					case 'EnrollmentDate':
+						langterm = 'sorting.enrollmentDate';
+						queryParameter = 'LastModifiedDate,OrgUnitId';
+						break;
+					case 'Current':
+						langterm = 'sorting.current';
+						queryParameter = 'Current,OrgUnitId';
+						break;
+					case 'Default':
+						langterm = 'sorting.default';
+						queryParameter = 'Current,OrgUnitId';
+						promotePins = true;
+						break;
+					default:
+						langterm = this.updatedSortLogic ? 'sorting.default' : 'sorting.sortCourseName';
+						queryParameter =  this.updatedSortLogic ? 'Current,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
+						promotePins = this.updatedSortLogic;
 						break;
 				}
 
 				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
-					sort: queryParameter
+					sort: queryParameter,
+					promotePins: promotePins
 				});
 
 				this.$.sortText.textContent = this.localize(langterm || '');
@@ -582,6 +612,22 @@
 
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 				this.lastEnrollmentsSearchResponse = enrollments;
+			},
+			_showDropdownGradient: function(updatedSortLogic) {
+				return updatedSortLogic ? '' : 'dropdown-content-gradient';
+			},
+			_updatedSortLogicChanged: function(updatedSortLogic) {
+				if (this.updatedSortLogicInitallyObserved) {
+					this.defaultSortValue = updatedSortLogic ? 'Default' : 'OrgUnitName';
+					this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').selected = true;
+					var langterm = updatedSortLogic ? 'sorting.default' : 'sorting.sortCourseName';
+					this.$.sortText.textContent = this.localize(langterm || '');
+				} else {
+					this.updatedSortLogicInitallyObserved = true;
+				}
+			},
+			_computeHideCurrentSort: function(updatedSortLogic, hasManyEnrollments) {
+				return !(updatedSortLogic && !hasManyEnrollments);
 			}
 		});
 	</script>
