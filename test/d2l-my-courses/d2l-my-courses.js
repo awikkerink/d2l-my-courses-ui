@@ -197,7 +197,7 @@ describe('d2l-my-courses', function() {
 			return widget._fetchRoot()
 				.then(widget._fetchRoot.bind(widget))
 				.then(function() {
-					expect(widget.pinnedEnrollments.length).to.equal(2);
+					expect(widget._pinnedEnrollments.length).to.equal(2);
 				});
 		});
 
@@ -331,24 +331,24 @@ describe('d2l-my-courses', function() {
 
 		it('should show the number of enrollments when there are no new pages of enrollments with the View All Courses link', function() {
 			widget.updatedSortLogic = true;
-			widget.pinnedEnrollments = new Array(6);
-			widget.unpinnedEnrollments = new Array(9);
+			widget._pinnedEnrollments = new Array(6);
+			widget._allEnrollments = new Array(9);
 			widget._hasMoreEnrollments = false;
-			expect(widget._viewAllCoursesText).to.equal('View All Courses (15)');
+			expect(widget._viewAllCoursesText).to.equal('View All Courses (9)');
 		});
 
 		it('should show 50+ with the View All Courses link when there are more than 50 courses', function() {
 			widget.updatedSortLogic = true;
-			widget.pinnedEnrollments = new Array(4);
-			widget.unpinnedEnrollments = new Array(46);
+			widget._pinnedEnrollments = new Array(4);
+			widget._allEnrollments = new Array(50);
 			widget._hasMoreEnrollments = true;
 			expect(widget._viewAllCoursesText).to.equal('View All Courses (50+)');
 		});
 
 		it('should not show the count in the View All Courses link when the updated sortfeature flag is off', function() {
 			widget.updatedSortLogic = false;
-			widget.pinnedEnrollments = new Array(4);
-			widget.unpinnedEnrollments = new Array(46);
+			widget._pinnedEnrollments = new Array(4);
+			widget._allEnrollments = new Array(50);
 			widget._hasMoreEnrollments = true;
 			expect(widget._viewAllCoursesText).to.equal('View All Courses');
 		});
@@ -454,8 +454,8 @@ describe('d2l-my-courses', function() {
 			});
 
 			it('should move the correct pinned enrollment to the unpinned list when receiving an external unpin event', function(done) {
-				widget._moveEnrollmentToPinnedList = sinon.stub();
-				widget._moveEnrollmentToUnpinnedList = sinon.stub();
+				widget._addToPinnedEnrollments = sinon.stub();
+				widget._removeFromPinnedEnrollments = sinon.stub();
 				var coursePinnedChangeEvent = new CustomEvent(
 					'd2l-course-pinned-change', {
 						detail: {
@@ -469,15 +469,15 @@ describe('d2l-my-courses', function() {
 				document.body.dispatchEvent(coursePinnedChangeEvent);
 
 				setTimeout(function() {
-					expect(widget._moveEnrollmentToUnpinnedList).to.have.been.calledWith('enrollment1');
-					expect(widget._moveEnrollmentToPinnedList).to.not.have.been.called;
+					expect(widget._removeFromPinnedEnrollments).to.have.been.calledWith('enrollment1');
+					expect(widget._addToPinnedEnrollments).to.not.have.been.called;
 					done();
 				});
 			});
 
 			it('should move the correct unpinned enrollment to the pinned list when receiving an external unpin event', function(done) {
-				widget._moveEnrollmentToPinnedList = sinon.stub();
-				widget._moveEnrollmentToUnpinnedList = sinon.stub();
+				widget._addToPinnedEnrollments = sinon.stub();
+				widget._removeFromPinnedEnrollments = sinon.stub();
 				var coursePinnedChangeEvent = new CustomEvent(
 					'd2l-course-pinned-change', {
 						detail: {
@@ -491,15 +491,15 @@ describe('d2l-my-courses', function() {
 				document.body.dispatchEvent(coursePinnedChangeEvent);
 
 				setTimeout(function() {
-					expect(widget._moveEnrollmentToUnpinnedList).to.not.have.been.called;
-					expect(widget._moveEnrollmentToPinnedList).to.have.been.calledWith('enrollment2');
+					expect(widget._removeFromPinnedEnrollments).to.not.have.been.called;
+					expect(widget._addToPinnedEnrollments).to.have.been.calledWith('enrollment2');
 					done();
 				});
 			});
 
 			it('should refetch enrollments if the pinned enrollment has no previously been fetched', function(done) {
-				widget._moveEnrollmentToPinnedList = sinon.stub();
-				widget._moveEnrollmentToUnpinnedList = sinon.stub();
+				widget._addToPinnedEnrollments = sinon.stub();
+				widget._removeFromPinnedEnrollments = sinon.stub();
 				widget.fetchSirenEntity = sandbox.stub();
 				widget.fetchSirenEntity.withArgs(rootHref).returns(Promise.resolve());
 				widget._refetchEnrollments = sandbox.stub();
@@ -516,8 +516,8 @@ describe('d2l-my-courses', function() {
 				document.body.dispatchEvent(coursePinnedChangeEvent);
 
 				setTimeout(function() {
-					expect(widget._moveEnrollmentToUnpinnedList).to.not.have.been.called;
-					expect(widget._moveEnrollmentToPinnedList).to.not.have.been.called;
+					expect(widget._removeFromPinnedEnrollments).to.not.have.been.called;
+					expect(widget._addToPinnedEnrollments).to.not.have.been.called;
 					expect(widget._refetchEnrollments).to.have.been.called;
 					done();
 				});
