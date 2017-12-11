@@ -1,0 +1,35 @@
+<link rel="import" href="../../../polymer/polymer.html">
+
+<script>
+	window.D2L = window.D2L || {};
+	window.D2L.MyCourses = window.D2L.MyCourses || {};
+
+	/*
+	* Common properties between d2l-my-courses and d2l-my-courses-content-behavior-animated
+	* @polymerBehavior window.D2L.MyCourses.MyCoursesBehavior
+	*/
+	window.D2L.MyCourses.MyCoursesBehavior = {
+		properties: {
+			// URL that directs to the advanced search page
+			advancedSearchUrl: String,
+			// URL that is called by the widget to fetch enrollments
+			enrollmentsUrl: String,
+			// URL that is called by the widget to fetch results from the course image catalog
+			imageCatalogLocation: String,
+			// Configuration value passed in to toggle course code
+			showCourseCode: Boolean,
+			// Configuration value passed in to toggle semester on course tile
+			showSemester: Boolean,
+			// Standard Semester OU Type name to be displayed in the all-courses filter dropdown
+			standardDepartmentName: String,
+			// Standard Department OU Type name to be displayed in the all-courses filter dropdown
+			standardSemesterName: String,
+			// Types of notifications to include in update count in course tile
+			courseUpdatesConfig: Object,
+			// Callback for upload in image-selector
+			courseImageUploadCb: Function,
+			// Feature flag (switch) for using the updated sort logic and related fetaures
+			updatedSortLogic: Boolean
+		}
+	};
+</script>
