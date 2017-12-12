@@ -529,8 +529,10 @@ describe('d2l-my-courses-content-animated', function() {
 		it('should rescale the all courses view when it is opened', function() {
 			clock = sinon.useFakeTimers();
 			widget._enrollmentsSearchUrl = '';
+			widget.updatedSortLogic = false;
 
 			widget.$$('#viewAllCourses').click();
+			Polymer.dom.flush();
 			var allCoursesRescaleSpy = sandbox.spy(widget.$$('d2l-all-courses').$$('d2l-all-courses-segregated-content'), '_rescaleCourseTileRegions');
 
 			clock.tick(100);

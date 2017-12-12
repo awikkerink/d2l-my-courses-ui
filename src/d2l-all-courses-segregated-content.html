@@ -69,7 +69,10 @@
 				noPinnedCoursesInSearch: Boolean,
 				noPinnedCoursesInSelection: Boolean,
 				filteredPinnedEnrollments: Array,
-				pinnedEnrollmentsToAnimate: Array,
+				pinnedEnrollmentsToAnimate: {
+					type: Array,
+					value: function() { return []; }
+				},
 				tileSizes: Object,
 				showCourseCode: Boolean,
 				showSemester: Boolean,
@@ -79,7 +82,10 @@
 				noUnpinnedCoursesInSelection: Boolean,
 				noUnpinnedCourses: Boolean,
 				filteredUnpinnedEnrollments: Array,
-				unpinnedEnrollmentsToAnimate: Array,
+				unpinnedEnrollmentsToAnimate: {
+					type: Array,
+					value: function() { return []; }
+				},
 				pinnedEnrollments: {
 					type: Array,
 					value: function() { return []; },
@@ -89,7 +95,11 @@
 					type: Array,
 					value: function() { return []; },
 					observer: '_unpinnedEnrollmentsChanged'
-				}
+				},
+				filterCount: Boolean,
+				hasFilteredPinnedEnrollments: Boolean,
+				hasFilteredUnpinnedEnrollments: Boolean,
+				isSearched: Boolean
 			},
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
@@ -101,6 +111,10 @@
 			listeners: {
 				'tile-remove-complete': '_onTileRemoveComplete'
 			},
+			observers: [
+				'_updateEnrollmentAlerts(hasFilteredPinnedEnrollments, hasFilteredUnpinnedEnrollments)',
+				'_enrollmentsChanged(filteredPinnedEnrollments.length, filteredUnpinnedEnrollments.length)'
+			],
 
 			ready: function() {
 				// Both course tile grids in this view should have the same number of columns, so use a custom getter
@@ -109,6 +123,7 @@
 					courseTileGrids[i].getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
 				}
 				this._updateTileSizes();
+				this._updateEnrollmentAlerts(this.hasFilteredPinnedEnrollments, this.hasFilteredUnpinnedEnrollments); //maybe
 			},
 			attached: function() {
 				window.addEventListener('resize', this._onResize.bind(this));
@@ -123,6 +138,10 @@
 				} else {
 					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
 				}
+			},
+			_enrollmentsChanged: function() {
+				this.hasFilteredPinnedEnrollments = this.filteredPinnedEnrollments.length > 0;
+				this.hasFilteredUnpinnedEnrollments = this.filteredUnpinnedEnrollments.length > 0;
 			},
 			_pinnedEnrollmentsChanged: function() {
 				this._updateTileSizes();
@@ -164,6 +183,34 @@
 						this.splice('filteredPinnedEnrollments', index, 1);
 						break;
 					}
+				}
+			},
+			_updateEnrollmentAlerts: function(hasPinnedEnrollments, hasUnpinnedEnrollments) {
+				this.noPinnedCoursesInSearch = false;
+				this.noPinnedCoursesInSelection = false;
+				this.noUnpinnedCoursesInSearch = false;
+				this.noUnpinnedCoursesInSelection = false;
+				this.noUnpinnedCourses = false;
+				var hasAlert = this._hasAlert('noPinnedCourses'),
+					isFiltered = this.filterCount > 0;
+				this._clearAlerts();
+				if (!hasPinnedEnrollments) {
+					if (!hasAlert && this.isSearched) {
+						this.noPinnedCoursesInSearch = true;
+					} else if (!hasAlert && isFiltered) {
+						this.noPinnedCoursesInSelection = true;
+					}
+					else {
+						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
+					}
+				}
+				if (!hasUnpinnedEnrollments && this.isSearched) {
+					this.noUnpinnedCoursesInSearch = true;
+				} else if (!hasUnpinnedEnrollments && isFiltered) {
+					this.noUnpinnedCoursesInSelection = true;
+				}
+				if (!hasUnpinnedEnrollments && !this.isSearched && !isFiltered) {
+					this.noUnpinnedCourses = true;
 				}
 			},
 

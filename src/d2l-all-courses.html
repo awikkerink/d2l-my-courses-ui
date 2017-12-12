@@ -109,21 +109,17 @@
 					</template>
 					<template is="dom-if" if$="[[!updatedSortLogic]]">
 						<d2l-all-courses-segregated-content
-							no-pinned-courses-in-search="[[noPinnedCoursesInSearch]]"
-							no-pinned-courses-in-selection="[[noPinnedCoursesInSelection]]"
 							filtered-pinned-enrollments="[[filteredPinnedEnrollments]]"
-							pinned-enrollments-to-animate="[[pinnedEnrollmentsToAnimate]]"
 							show-course-code="[[showCourseCode]]"
 							show-semester="[[showSemester]]"
 							course-updates-config="[[courseUpdatesConfig]]"
 							updated-sort-logic="[[updatedSortLogic]]"
-							no-unpinned-courses-in-search="[[noUnpinnedCoursesInSearch]]"
-							no-unpinned-courses-in-selection="[[noUnpinnedCoursesInSelection]]"
-							no-unpinned-courses="[[noUnpinnedCourses]]"
 							filtered-unpinned-enrollments="[[filteredUnpinnedEnrollments]]"
 							unpinned-enrollments-to-animate="[[unpinnedEnrollmentsToAnimate]]"
 							pinned-enrollments="[[pinnedEnrollments]]"
 							unpinned-enrollments="[[unpinnedEnrollments]]"
+							filter-count="[[filterCount]]"
+							is-searched="[[_isSearched]]"
 						></d2l-all-courses-segregated-content>
 					</template>
 				</div>
@@ -221,28 +217,15 @@
 				},
 				// True when there are any filtered enrollments (pinned or unpinned)
 				_hasFilteredEnrollments: Boolean,
-				// True when there are filtered pinned enrollments (i.e. `filteredPinnedEnrollments.length > 0`)
-				_hasFilteredPinnedEnrollments: Boolean,
-				// True when there are filtered unpinned enrollments (i.e. `filteredUnpinnedEnrollments.length > 0`)
-				_hasFilteredUnpinnedEnrollments: Boolean,
 				// True when there are more enrollments to fetch (i.e. current page of enrollments has a `next` link)
 				_hasMoreEnrollments: {
 					type: Boolean,
 					computed: '_computeHasMoreEnrollments(lastEnrollmentsSearchResponse)'
 				},
-				noPinnedCoursesInSearch: Boolean,
-				noPinnedCoursesInSelection: Boolean,
-				noUnpinnedCoursesInSearch: Boolean,
-				noUnpinnedCoursesInSelection: Boolean,
-				noUnpinnedCourses: Boolean,
 				// Object containing the IDs of previously loaded pinned enrollments, to avoid duplicates
 				_pinnedCoursesMap: {
 					type: Object,
 					value: function() { return {}; }
-				},
-				pinnedEnrollmentsToAnimate: {
-					type: Array,
-					value: function() { return []; }
 				},
 				_coursesMap: {
 					type: Object,
@@ -269,7 +252,7 @@
 					value: function() { return []; }
 				},
 				// Number of filters currently selected; used to change opener text when menu closes
-				_filterCount: {
+				filterCount: {
 					type: Number,
 					value: 0
 				},
@@ -278,7 +261,8 @@
 					type: Boolean,
 					value: true,
 					computed: '_computeHideCurrentSort(updatedSortLogic, hasManyEnrollments)'
-				}
+				},
+				_isSearched: Boolean
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
@@ -292,12 +276,9 @@
 				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening'
 			},
 			observers: [
-				'_updateEnrollmentAlerts(_hasFilteredPinnedEnrollments, _hasFilteredUnpinnedEnrollments)',
 				'_enrollmentsChanged(filteredPinnedEnrollments.length, filteredUnpinnedEnrollments.length)'
 			],
 			ready: function() {
-				this._updateEnrollmentAlerts(this._hasFilteredPinnedEnrollments, this._hasFilteredUnpinnedEnrollments);
-
 				this._filterText = this.localize('filtering.filter');
 			},
 			attached: function() {
@@ -395,16 +376,16 @@
 			},
 			_onFilterChanged: function(e) {
 				this._searchUrl = e.detail.url;
-				this._filterCount = e.detail.filterCount;
+				this.filterCount = e.detail.filterCount;
 			},
 			_onFilterDropdownClose: function() {
 				var text;
-				if (this._filterCount === 0) {
+				if (this.filterCount === 0) {
 					text = this.localize('filtering.filter');
-				} else if (this._filterCount === 1) {
+				} else if (this.filterCount === 1) {
 					text = this.localize('filtering.filterSingle');
 				} else {
-					text = this.localize('filtering.filterMultiple', 'num', this._filterCount);
+					text = this.localize('filtering.filterMultiple', 'num', this.filterCount);
 				}
 				this.set('_filterText', text);
 			},
@@ -463,6 +444,7 @@
 				this.$.sortDropdown.toggleOpen();
 			},
 			_onSearchResultsChanged: function(e) {
+				this._isSearched = this.$['search-widget']._showClearIcon;
 				this._pinnedCoursesMap = {};
 				this._unpinnedCoursesMap = {};
 				this._updateFilteredEnrollments(e.detail, false);
@@ -482,10 +464,6 @@
 			*/
 
 			_enrollmentsChanged: function() {
-				this._hasFilteredPinnedEnrollments = this.filteredPinnedEnrollments.length > 0;
-				this._hasFilteredUnpinnedEnrollments = this.filteredUnpinnedEnrollments.length > 0;
-				// pretty sure this isn't used
-				this._hasFilteredEnrollments = this._hasFilteredPinnedEnrollments || this._hasFilteredUnpinnedEnrollments;
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 			},
 			_myEnrollmentsEntityChanged: function(entity) {
@@ -495,34 +473,6 @@
 				}
 
 				this._enrollmentsSearchAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
-			},
-			_updateEnrollmentAlerts: function(hasPinnedEnrollments, hasUnpinnedEnrollments) {
-				this.noPinnedCoursesInSearch = false;
-				this.noPinnedCoursesInSelection = false;
-				this.noUnpinnedCoursesInSearch = false;
-				this.noUnpinnedCoursesInSelection = false;
-				this.noUnpinnedCourses = false;
-				var isSearched = this.$['search-widget']._showClearIcon,
-					hasAlert = this._hasAlert('noPinnedCourses'),
-					isFiltered = this._filterCount > 0;
-				this._clearAlerts();
-				if (!hasPinnedEnrollments) {
-					if (!hasAlert && isSearched) {
-						this.noPinnedCoursesInSearch = true;
-					} else if (!hasAlert && isFiltered) {
-						this.noPinnedCoursesInSelection = true;
-					} else {
-						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
-					}
-				}
-				if (!hasUnpinnedEnrollments && isSearched) {
-					this.noUnpinnedCoursesInSearch = true;
-				} else if (!hasUnpinnedEnrollments && isFiltered) {
-					this.noUnpinnedCoursesInSelection = true;
-				}
-				if (!hasUnpinnedEnrollments && !isSearched && !isFiltered) {
-					this.noUnpinnedCourses = true;
-				}
 			},
 
 			/*
