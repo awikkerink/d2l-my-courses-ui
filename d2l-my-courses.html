@@ -1,21 +1,38 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="src/d2l-my-courses-content/d2l-my-courses-content.html">
 <link rel="import" href="src/d2l-my-courses-content/d2l-my-courses-content-animated.html">
 <link rel="import" href="src/d2l-my-courses-content/d2l-my-courses-behavior.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
-		<d2l-my-courses-content-animated
-			advanced-search-url="[[advancedSearchUrl]]"
-			enrollments-url="[[enrollmentsUrl]]"
-			image-catalog-location="[[imageCatalogLocation]]"
-			show-course-code="[[showCourseCode]]"
-			show-semester="[[showSemester]]"
-			standard-department-name="[[standardDepartmentName]]"
-			standard-semester-name="[[standardSemesterName]]"
-			course-updates-config="[[courseUpdatesConfig]]"
-			course-image-upload-cb="[[courseImageUploadCb]]"
-			updated-sort-logic="[[updatedSortLogic]]">
-		</d2l-my-courses-content-animated>
+		<template is="dom-if" if="[[!updatedSortLogic]]">
+			<d2l-my-courses-content-animated
+				advanced-search-url="[[advancedSearchUrl]]"
+				enrollments-url="[[enrollmentsUrl]]"
+				image-catalog-location="[[imageCatalogLocation]]"
+				show-course-code="[[showCourseCode]]"
+				show-semester="[[showSemester]]"
+				standard-department-name="[[standardDepartmentName]]"
+				standard-semester-name="[[standardSemesterName]]"
+				course-updates-config="[[courseUpdatesConfig]]"
+				course-image-upload-cb="[[courseImageUploadCb]]"
+				updated-sort-logic="[[updatedSortLogic]]">
+			</d2l-my-courses-content-animated>
+		</template>
+		<template is="dom-if" if="[[updatedSortLogic]]">
+			<d2l-my-courses-content
+				advanced-search-url="[[advancedSearchUrl]]"
+				enrollments-url="[[enrollmentsUrl]]"
+				image-catalog-location="[[imageCatalogLocation]]"
+				show-course-code="[[showCourseCode]]"
+				show-semester="[[showSemester]]"
+				standard-department-name="[[standardDepartmentName]]"
+				standard-semester-name="[[standardSemesterName]]"
+				course-updates-config="[[courseUpdatesConfig]]"
+				course-image-upload-cb="[[courseImageUploadCb]]"
+				updated-sort-logic="[[updatedSortLogic]]">
+			</d2l-my-courses-content>
+		</template>
 	</template>
 	<script>
 		Polymer({

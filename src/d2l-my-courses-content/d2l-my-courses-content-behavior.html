@@ -1,9 +1,8 @@
 <link rel="import" href="../../../polymer/polymer.html">
 <link rel="import" href="../../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../d2l-alert-behavior.html">
-<link rel="import" href="../d2l-all-courses.html">
-<link rel="import" href="../d2l-course-tile-grid.html">
 <link rel="import" href="../d2l-course-tile-responsive-grid-behavior.html">
+<link rel="import" href="../d2l-interaction-detection-behavior.html">
 <link rel="import" href="../d2l-utility-behavior.html">
 
 <script>
@@ -180,23 +179,8 @@
 		* Utility/helper functions
 		*/
 
-		_createFetchEnrollmentsUrl: function(enrollmentsRootEntity, bustCache) {
-			var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
-			var pageSize = this.updatedSortLogic ? 50 : 25;
-
-			var query = {
-				pageSize: pageSize,
-				embedDepth: 1,
-				sort: '-PinDate,OrgUnitName,OrgUnitId',
-				autoPinCourses: true
-			};
-			var enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
-
-			if (bustCache) {
-				enrollmentsSearchUrl += '&bustCache=' + Math.random();
-			}
-
-			return enrollmentsSearchUrl;
+		_createFetchEnrollmentsUrl: function() {
+			throw new Error('Must implement _createFetchEnrollmentsUrl in consumer');
 		},
 		_createAllCourses: function() {
 			if (!this._allCoursesCreated) {
