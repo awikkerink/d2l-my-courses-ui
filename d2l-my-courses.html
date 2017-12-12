@@ -496,6 +496,7 @@
 			_populateEnrollments: function(enrollmentsEntity) {
 				var enrollmentEntities = enrollmentsEntity.getSubEntitiesByClass('enrollment');
 				this._hasMoreEnrollments = enrollmentsEntity.hasLinkByRel('next');
+				var newEnrollments = [];
 				var newPinnedEnrollments = [];
 
 				enrollmentEntities.forEach(function(enrollment) {
@@ -512,11 +513,12 @@
 					var orgUnitId = this._getOrgUnitIdFromHref(orgHref);
 					if (!this.orgUnitIdMap.hasOwnProperty(orgUnitId)) {
 						this.orgUnitIdMap[orgUnitId] = enrollment;
+						newEnrollments.push(enrollment);
 					}
 				}, this);
 
 				this._pinnedEnrollments = this._pinnedEnrollments.concat(newPinnedEnrollments);
-				this._allEnrollments = this._allEnrollments.concat(enrollmentEntities);
+				this._allEnrollments = this._allEnrollments.concat(newEnrollments);
 
 				var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this._pinnedEnrollments.length);
 				this._tileSizes = (colNum === 2) ?
