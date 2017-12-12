@@ -96,34 +96,36 @@
 					</div>
 				</div>
 
-				<div hidden$="[[!updatedSortLogic]]">
-					<d2l-all-courses-unified-content
-						show-course-code="[[showCourseCode]]"
-						show-semester="[[showSemester]]"
-						course-updates-config="[[courseUpdatesConfig]]"
-						updated-sort-logic="[[updatedSortLogic]]"
-						filtered-enrollments="[[filteredEnrollments]]"
-						enrollments="[[enrollments]]"
-					></d2l-all-courses-segregated-content>
-				</div>
-				<div hidden="[[updatedSortLogic]]">
-					<d2l-all-courses-segregated-content
-						no-pinned-courses-in-search="[[noPinnedCoursesInSearch]]"
-						no-pinned-courses-in-selection="[[noPinnedCoursesInSelection]]"
-						filtered-pinned-enrollments="[[filteredPinnedEnrollments]]"
-						pinned-enrollments-to-animate="[[pinnedEnrollmentsToAnimate]]"
-						show-course-code="[[showCourseCode]]"
-						show-semester="[[showSemester]]"
-						course-updates-config="[[courseUpdatesConfig]]"
-						updated-sort-logic="[[updatedSortLogic]]"
-						no-unpinned-courses-in-search="[[noUnpinnedCoursesInSearch]]"
-						no-unpinned-courses-in-selection="[[noUnpinnedCoursesInSelection]]"
-						no-unpinned-courses="[[noUnpinnedCourses]]"
-						filtered-unpinned-enrollments="[[filteredUnpinnedEnrollments]]"
-						unpinned-enrollments-to-animate="[[unpinnedEnrollmentsToAnimate]]"
-						pinned-enrollments="[[pinnedEnrollments]]"
-						unpinned-enrollments="[[unpinnedEnrollments]]"
-					></d2l-all-courses-segregated-content>
+				<div>
+					<template is="dom-if" if="[[updatedSortLogic]]">
+						<d2l-all-courses-unified-content
+							show-course-code="[[showCourseCode]]"
+							show-semester="[[showSemester]]"
+							course-updates-config="[[courseUpdatesConfig]]"
+							updated-sort-logic="[[updatedSortLogic]]"
+							filtered-enrollments="[[filteredEnrollments]]"
+							enrollments="[[enrollments]]"
+						></d2l-all-courses-segregated-content>
+					</template>
+					<template is="dom-if" if$="[[!updatedSortLogic]]">
+						<d2l-all-courses-segregated-content
+							no-pinned-courses-in-search="[[noPinnedCoursesInSearch]]"
+							no-pinned-courses-in-selection="[[noPinnedCoursesInSelection]]"
+							filtered-pinned-enrollments="[[filteredPinnedEnrollments]]"
+							pinned-enrollments-to-animate="[[pinnedEnrollmentsToAnimate]]"
+							show-course-code="[[showCourseCode]]"
+							show-semester="[[showSemester]]"
+							course-updates-config="[[courseUpdatesConfig]]"
+							updated-sort-logic="[[updatedSortLogic]]"
+							no-unpinned-courses-in-search="[[noUnpinnedCoursesInSearch]]"
+							no-unpinned-courses-in-selection="[[noUnpinnedCoursesInSelection]]"
+							no-unpinned-courses="[[noUnpinnedCourses]]"
+							filtered-unpinned-enrollments="[[filteredUnpinnedEnrollments]]"
+							unpinned-enrollments-to-animate="[[unpinnedEnrollmentsToAnimate]]"
+							pinned-enrollments="[[pinnedEnrollments]]"
+							unpinned-enrollments="[[unpinnedEnrollments]]"
+						></d2l-all-courses-segregated-content>
+					</template>
 				</div>
 				<d2l-loading-spinner
 					id="lazyLoadSpinner"
