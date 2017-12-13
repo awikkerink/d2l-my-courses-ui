@@ -1,6 +1,5 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../iron-scroll-threshold/iron-scroll-threshold.html">
-<link rel="import" href="../../d2l-alert/d2l-alert.html">
 <link rel="import" href="../../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../../d2l-dropdown/d2l-dropdown-content.html">
 <link rel="import" href="../../d2l-dropdown/d2l-dropdown-menu.html">
@@ -10,7 +9,6 @@
 <link rel="import" href="../../d2l-menu/d2l-menu-item-radio.html">
 <link rel="import" href="../../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
 <link rel="import" href="../../d2l-simple-overlay/d2l-simple-overlay.html">
-<link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-all-courses-styles.html">
 <link rel="import" href="d2l-course-management-behavior.html">
 <link rel="import" href="d2l-course-tile-grid.html">
@@ -269,8 +267,7 @@
 				window.D2L.Hypermedia.OrganizationHMBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.CourseManagementBehavior,
-				window.D2L.MyCourses.UtilityBehavior,
-				window.D2L.MyCourses.AlertBehavior
+				window.D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
 				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening'
@@ -338,20 +335,11 @@
 				this.load();
 			},
 			setCourseImage: function(details) {
-				this._removeAlert('setCourseImageFailure');
-				if (details && details.detail) {
-					if (details.detail.status === 'failure') {
-						setTimeout(function() {
-							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
-						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
-					}
-				}
 				if (!this.updatedSortLogic) {
-					this.$$('d2l-all-courses-segregated-content').$$('#all-courses-pinned').setCourseImage(details);
-					this.$$('d2l-all-courses-segregated-content').$$('#all-courses-unpinned').setCourseImage(details);
+					this.$$('d2l-all-courses-segregated-content').setCourseImage(details);
 				}
 				if (this.updatedSortLogic) {
-					this.$$('d2l-all-courses-segregated-content').$$('#all-courses-unified').setCourseImage(details);
+					this.$$('d2l-all-courses-unified-content').setCourseImage(details);
 				}
 			},
 
@@ -452,7 +440,8 @@
 				this._showContent = true;
 			},
 			_onSimpleOverlayOpening: function() {
-				this._removeAlert('setCourseImageFailure');
+				if (!this.updatedSortLogic) this.$$('d2l-all-courses-segregated-content').removeSetCourseImageFailure();
+				if (this.updatedSortLogic) this.$$('d2l-all-courses-unified-content').removeSetCourseImageFailure();
 				this._clearSearchWidget();
 				this.$.filterMenu.clearFilters();
 				this._filterText = this.localize('filtering.filter');

@@ -78,6 +78,20 @@
 
 			getCourseTileItemCount: function() {
 				return this.enrollments.length;
+			},
+			setCourseImage: function(details) {
+				this.removeSetCourseImageFailure();
+				if (details && details.detail) {
+					if (details.detail.status === 'failure') {
+						setTimeout(function() {
+							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
+					}
+				}
+				this.$$('#all-courses-unified').setCourseImage(details);
+			},
+			removeSetCourseImageFailure: function() {
+				this._removeAlert('setCourseImageFailure');
 			}
 		});
 	</script>

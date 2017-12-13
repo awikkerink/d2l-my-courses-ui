@@ -185,13 +185,13 @@ describe('d2l-all-courses', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget.setCourseImage(setCourseImageEvent);
 			clock.tick(1001);
-			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		it('should not add a setCourseImageFailure warning alert when a request to set the image succeeds', function() {
 			var setCourseImageEvent = { detail: { status: 'success'} };
 			widget.setCourseImage(setCourseImageEvent);
-			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
@@ -199,17 +199,18 @@ describe('d2l-all-courses', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget.setCourseImage(setCourseImageEvent);
 			clock.tick(1001);
-			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 			setCourseImageEvent = { detail: { status: 'set'} };
 			widget.setCourseImage(setCourseImageEvent);
-			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		it('should remove a setCourseImageFailure alert when the overlay is opened', function() {
-			widget._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
-			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+			// widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
+			widget.$$('d2l-all-courses-segregated-content')._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
+			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 			widget.$$('d2l-simple-overlay')._renderOpened();
-			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 		});
 	});
 
