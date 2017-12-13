@@ -34,21 +34,30 @@
 				value: false
 			},
 			// True when user has >1 page of enrollments
-			_hasMoreEnrollments: Boolean,
+			_hasMoreEnrollments: {
+				type: Boolean,
+				value: false
+			},
 			// Lookup table of org unit ID -> enrollment, to avoid having to re-fetch enrollments
 			_orgUnitIdMap: {
 				type: Object,
 				value: function() { return {}; }
 			},
 			// The organization which the user is selecting the image of
-			_setImageOrg: Object,
+			_setImageOrg: {
+				type: Object,
+				value: function() { return {}; }
+			},
 			// Hides loading spinner and shows content when true
 			_showContent: {
 				type: Boolean,
 				value: false
 			},
 			// Size the tile should render with respect to vw
-			_tileSizes: Object
+			_tileSizes: {
+				type: Object,
+				value: function() { return {}; }
+			}
 		},
 		listeners: {
 			'open-change-image-view': '_onOpenChangeImageView',
@@ -73,7 +82,7 @@
 			this.focus();
 		},
 		focus: function() {
-			if (this._setImageOrg && this.$$('d2l-course-tile-grid').focus(this._setImageOrg)) {
+			if (this.$$('d2l-course-tile-grid').focus(this._setImageOrg)) {
 				return;
 			}
 			this.$.viewAllCourses.focus();
@@ -82,7 +91,7 @@
 			throw new Error('Must implement getCourseTileItemCount in consumer');
 		},
 		getLastOrgUnitId: function() {
-			if (!this._setImageOrg) {
+			if (!this._setImageOrg.links) {
 				return;
 			}
 			return this._getOrgUnitIdFromHref(this.getEntityIdentifier(this._setImageOrg));

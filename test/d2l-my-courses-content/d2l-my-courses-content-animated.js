@@ -1,6 +1,12 @@
 describe('d2l-my-courses-content-animated', function() {
 	var sandbox,
 		widget,
+		organizationEntity = window.D2L.Hypermedia.Siren.Parse({
+			links: [{
+				rel: ['self'],
+				href: '/organizations/1'
+			}]
+		}),
 		rootHref = '/enrollments',
 		searchHref = '/enrollments/users/169',
 		searchAction = {
@@ -23,6 +29,10 @@ describe('d2l-my-courses-content-animated', function() {
 				name: 'sort',
 				type: 'text',
 				value: ''
+			}, {
+				name: 'autoPinCourses',
+				type: 'checkbox',
+				value: false
 			}]
 		},
 		enrollmentsRootResponse = {
@@ -168,20 +178,15 @@ describe('d2l-my-courses-content-animated', function() {
 	});
 
 	describe('Enrollments requests and responses', function() {
-		it('should not send a search request if the root request fails', function() {
-			widget._fetchRoot = sandbox.stub().returns(Promise.reject());
-			var spy = sandbox.spy(widget, '_fetchEnrollments');
-
-			return widget._fetchRoot().catch(function() {
-				expect(spy).to.have.not.been.called;
-			});
-		});
-
-		it('should send a search request for enrollments', function() {
+		it('should send a search request for enrollments with the correct query params', function() {
 			var spy = sandbox.spy(widget, '_fetchEnrollments');
 
 			return widget._fetchRoot().then(function() {
 				expect(spy).to.have.been.called;
+				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('autoPinCourses=true'));
+				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('pageSize=25'));
+				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('embedDepth=1'));
+				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('sort=-PinDate,OrgUnitName,OrgUnitId'));
 			});
 		});
 
@@ -275,16 +280,7 @@ describe('d2l-my-courses-content-animated', function() {
 	});
 
 	describe('With enrollments', function() {
-		var organizationEntity;
-
 		beforeEach(function() {
-			organizationEntity = window.D2L.Hypermedia.Siren.Parse({
-				links: [{
-					rel: ['self'],
-					href: '/organizations/1'
-				}]
-			});
-
 			// Prevents the _searchPath of the image selector from being null (causes failures in Firefox)
 			widget.imageCatalogLocation = '/foo/bar';
 
@@ -387,7 +383,7 @@ describe('d2l-my-courses-content-animated', function() {
 				widget.dispatchEvent(openChangeImageViewEvent);
 
 				setTimeout(function() {
-					expect(widget.getLastOrgUnitId()).to.equal(widget._setImageOrg);
+					expect(widget.getLastOrgUnitId()).to.equal('1');
 					done();
 				});
 			});
