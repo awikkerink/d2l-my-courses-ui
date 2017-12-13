@@ -222,7 +222,7 @@ describe('d2l-my-courses-content-animated', function() {
 		});
 
 		it('should rescale the course tile grid on search response', function() {
-			var gridRescaleSpy = sinon.spy(widget.$$('d2l-course-tile-grid'), '_rescaleCourseTileRegions');
+			var gridRescaleSpy = sandbox.spy(widget.$$('d2l-course-tile-grid'), '_rescaleCourseTileRegions');
 
 			return widget._fetchRoot().then(function() {
 				expect(gridRescaleSpy.called);
@@ -259,7 +259,7 @@ describe('d2l-my-courses-content-animated', function() {
 			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(true);
 				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
-				var updateEnrollmentAlertsSpy = sinon.spy(widget, '_updateEnrollmentAlerts');
+				var updateEnrollmentAlertsSpy = sandbox.spy(widget, '_updateEnrollmentAlerts');
 				widget._hasPinnedEnrollments = true;
 				expect(updateEnrollmentAlertsSpy.called);
 			});
@@ -368,7 +368,7 @@ describe('d2l-my-courses-content-animated', function() {
 			});
 
 			it('should focus on course grid when focus called after course interacted with', function(done) {
-				var tileGridFocusSpy = sinon.spy(widget.$$('d2l-course-tile-grid'), 'focus');
+				var tileGridFocusSpy = sandbox.spy(widget.$$('d2l-course-tile-grid'), 'focus');
 				widget.dispatchEvent(openChangeImageViewEvent);
 
 				widget.focus();
@@ -400,7 +400,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 		describe('d2l-course-pinned-change', function() {
 			it('should bubble the correct d2l-course-pinned-change event when an enrollment is pinned', function(done) {
-				widget.fire = sinon.stub();
+				widget.fire = sandbox.stub();
 
 				var enrollmentPinEvent = new CustomEvent(
 					'enrollment-pinned', {
@@ -427,7 +427,7 @@ describe('d2l-my-courses-content-animated', function() {
 			});
 
 			it('should bubble the correct d2l-course-pinned-change event when an enrollment is unpinned', function(done) {
-				widget.fire = sinon.stub();
+				widget.fire = sandbox.stub();
 
 				var enrollmentUnpinEvent = new CustomEvent(
 					'enrollment-unpinned', {
@@ -453,9 +453,9 @@ describe('d2l-my-courses-content-animated', function() {
 				});
 			});
 
-			it('should move the correct pinned enrollment to the unpinned list when receiving an external unpin event', function(done) {
-				widget._addToPinnedEnrollments = sinon.stub();
-				widget._removeFromPinnedEnrollments = sinon.stub();
+			it('should remove the correct pinned enrollment receiving an external unpin event', function(done) {
+				widget._addToPinnedEnrollments = sandbox.stub();
+				widget._removeFromPinnedEnrollments = sandbox.stub();
 				var coursePinnedChangeEvent = new CustomEvent(
 					'd2l-course-pinned-change', {
 						detail: {
@@ -464,7 +464,7 @@ describe('d2l-my-courses-content-animated', function() {
 						}
 					});
 
-				widget.orgUnitIdMap['1'] = 'enrollment1';
+				widget._orgUnitIdMap['1'] = 'enrollment1';
 
 				document.body.dispatchEvent(coursePinnedChangeEvent);
 
@@ -475,9 +475,9 @@ describe('d2l-my-courses-content-animated', function() {
 				});
 			});
 
-			it('should move the correct unpinned enrollment to the pinned list when receiving an external unpin event', function(done) {
-				widget._addToPinnedEnrollments = sinon.stub();
-				widget._removeFromPinnedEnrollments = sinon.stub();
+			it('should add the correct enrollment to the pinned list when receiving an external unpin event', function(done) {
+				widget._addToPinnedEnrollments = sandbox.stub();
+				widget._removeFromPinnedEnrollments = sandbox.stub();
 				var coursePinnedChangeEvent = new CustomEvent(
 					'd2l-course-pinned-change', {
 						detail: {
@@ -486,7 +486,7 @@ describe('d2l-my-courses-content-animated', function() {
 						}
 					});
 
-				widget.orgUnitIdMap['2'] = 'enrollment2';
+				widget._orgUnitIdMap['2'] = 'enrollment2';
 
 				document.body.dispatchEvent(coursePinnedChangeEvent);
 
@@ -498,8 +498,8 @@ describe('d2l-my-courses-content-animated', function() {
 			});
 
 			it('should refetch enrollments if the pinned enrollment has no previously been fetched', function(done) {
-				widget._addToPinnedEnrollments = sinon.stub();
-				widget._removeFromPinnedEnrollments = sinon.stub();
+				widget._addToPinnedEnrollments = sandbox.stub();
+				widget._removeFromPinnedEnrollments = sandbox.stub();
 				widget.fetchSirenEntity = sandbox.stub();
 				widget.fetchSirenEntity.withArgs(rootHref).returns(Promise.resolve());
 				widget._refetchEnrollments = sandbox.stub();
@@ -511,7 +511,7 @@ describe('d2l-my-courses-content-animated', function() {
 						}
 					});
 
-				widget.orgUnitIdMap = [];
+				widget._orgUnitIdMap = {};
 
 				document.body.dispatchEvent(coursePinnedChangeEvent);
 
@@ -531,7 +531,7 @@ describe('d2l-my-courses-content-animated', function() {
 			widget._enrollmentsSearchUrl = '';
 
 			widget.$$('#viewAllCourses').click();
-			var allCoursesRescaleSpy = sinon.spy(widget.$$('d2l-all-courses'), '_rescaleCourseTileRegions');
+			var allCoursesRescaleSpy = sandbox.spy(widget.$$('d2l-all-courses'), '_rescaleCourseTileRegions');
 
 			clock.tick(100);
 			expect(allCoursesRescaleSpy.called);
