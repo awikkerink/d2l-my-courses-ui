@@ -16,6 +16,13 @@
 			</d2l-alert>
 		</template>
 
+		<span class="bottom-pad" hidden$="[[!noCoursesInSearch]]">
+			{{localize('noCoursesInSearch')}}
+		</span>
+		<span class="bottom-pad" hidden$="[[!noCoursesInSelection]]">
+			{{localize('noCoursesInSelection')}}
+		</span>
+
 		<d2l-course-tile-grid
 			id="all-courses-unified"
 			enrollments="[[filteredEnrollments]]"
@@ -45,12 +52,19 @@
 				animate: {
 					type: Boolean,
 					value: false
-				}
+				},
+				noCoursesInSearch: Boolean,
+				noCoursesInSelection: Boolean,
+				filterCount: Number,
+				isSearched: Boolean
 			},
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.AlertBehavior,
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior
+			],
+			observers: [
+				'_enrollmentsChanged(filteredEnrollments.length)'
 			],
 
 			ready: function() {
@@ -74,6 +88,17 @@
 			_updateTileSizes: function() {
 				this._rescaleCourseTileRegions();
 				this.tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
+			},
+			_enrollmentsChanged: function() {
+				this.noCoursesInSearch = false;
+				this.noCoursesInSelection = false;
+				if (!(this.filteredEnrollments.length > 0)) {
+					if (this.isSearched) {
+						this.noCoursesInSearch = true;
+					} else if (this.filterCount > 0) {
+						this.noCoursesInSelection = true;
+					}
+				}
 			},
 
 			getCourseTileItemCount: function() {
