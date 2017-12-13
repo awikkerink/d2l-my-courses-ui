@@ -1,4 +1,4 @@
-describe('d2l-my-courses', function() {
+describe('d2l-my-courses-content-animated', function() {
 	var sandbox,
 		widget,
 		rootHref = '/enrollments',
@@ -144,7 +144,7 @@ describe('d2l-my-courses', function() {
 	beforeEach(function() {
 		sandbox = sinon.sandbox.create();
 
-		widget = fixture('d2l-my-courses-fixture');
+		widget = fixture('d2l-my-courses-content-animated-fixture');
 
 		widget.fetchSirenEntity = sandbox.stub();
 		widget.fetchSirenEntity.withArgs(rootHref).returns(Promise.resolve(
