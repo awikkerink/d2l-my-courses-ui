@@ -83,7 +83,6 @@
 										<d2l-menu-item-radio value="PinDate" text="{{localize('sorting.sortDatePinned')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="LastAccessed" text="{{localize('sorting.sortLastAccessed')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" value="EnrollmentDate" text="{{localize('sorting.enrollmentDate')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio hidden$="[[_hideCurrentSort]]" value="Current" text="{{localize('sorting.current')}}"></d2l-menu-item-radio>
 									</d2l-menu>
 								</d2l-dropdown-menu>
 							</d2l-dropdown>
@@ -190,7 +189,6 @@
 					value: function() { return []; },
 					observer: '_setFilteredEnrollments'
 				},
-				hasManyEnrollments: Boolean,
 
 				/*
 				* Private Polymer properties
@@ -257,11 +255,6 @@
 					value: 0
 				},
 				updatedSortLogicInitallyObserved: false,
-				_hideCurrentSort: {
-					type: Boolean,
-					value: true,
-					computed: '_computeHideCurrentSort(updatedSortLogic, hasManyEnrollments)'
-				},
 				_isSearched: Boolean
 			},
 			behaviors: [
@@ -398,7 +391,7 @@
 						break;
 					case 'PinDate':
 						langterm = 'sorting.sortDatePinned';
-						queryParameter = this.updatedSortLogic ? 'PinDate' : '-PinDate,OrgUnitId';
+						queryParameter = this.updatedSortLogic ? '-PinDate,OrgUnitId' : '-PinDate,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
 					case 'LastAccessed':
@@ -408,10 +401,6 @@
 					case 'EnrollmentDate':
 						langterm = 'sorting.enrollmentDate';
 						queryParameter = 'LastModifiedDate,OrgUnitId';
-						break;
-					case 'Current':
-						langterm = 'sorting.current';
-						queryParameter = 'Current,OrgUnitId';
 						break;
 					case 'Default':
 						langterm = 'sorting.default';
@@ -568,9 +557,6 @@
 				} else {
 					this.updatedSortLogicInitallyObserved = true;
 				}
-			},
-			_computeHideCurrentSort: function(updatedSortLogic, hasManyEnrollments) {
-				return !(updatedSortLogic && !hasManyEnrollments);
 			}
 		});
 	</script>
