@@ -389,7 +389,7 @@
 						break;
 					case 'LastAccessed':
 						langterm = 'sorting.sortLastAccessed';
-						queryParameter = this.updatedSortLogic ? 'LastAccessed,OrgUnitId' : 'LastAccessed';
+						queryParameter = this.updatedSortLogic ? 'LastAccessed' : 'LastAccessed';
 						break;
 					case 'EnrollmentDate':
 						langterm = 'sorting.enrollmentDate';
@@ -397,12 +397,12 @@
 						break;
 					case 'Default':
 						langterm = 'sorting.default';
-						queryParameter = 'Current,OrgUnitId';
+						queryParameter = 'Current';
 						promotePins = true;
 						break;
 					default:
 						langterm = this.updatedSortLogic ? 'sorting.default' : 'sorting.sortCourseName';
-						queryParameter =  this.updatedSortLogic ? 'Current,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
+						queryParameter =  this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
 				}
