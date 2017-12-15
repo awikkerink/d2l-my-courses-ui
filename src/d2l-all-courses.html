@@ -77,12 +77,12 @@
 										<div class="dropdown-content-header">
 											<span>{{localize('sorting.sortBy')}}</span>
 										</div>
-										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" class="dropdown-content-gradient" value="Default" text="{{localize('sorting.default')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" class="dropdown-content-gradient" value="Default" text="{{localize('sorting.sortDefault')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="OrgUnitName" class$="{{_showDropdownGradient(updatedSortLogic)}}" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="OrgUnitCode" text="{{localize('sorting.sortCourseCode')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="PinDate" text="{{localize('sorting.sortDatePinned')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="LastAccessed" text="{{localize('sorting.sortLastAccessed')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" value="EnrollmentDate" text="{{localize('sorting.enrollmentDate')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" value="EnrollmentDate" text="{{localize('sorting.sortEnrollmentDate')}}"></d2l-menu-item-radio>
 									</d2l-menu>
 								</d2l-dropdown-menu>
 							</d2l-dropdown>
@@ -392,16 +392,16 @@
 						queryParameter = this.updatedSortLogic ? 'LastAccessed' : 'LastAccessed';
 						break;
 					case 'EnrollmentDate':
-						langterm = 'sorting.enrollmentDate';
+						langterm = 'sorting.sortEnrollmentDate';
 						queryParameter = 'LastModifiedDate,OrgUnitId';
 						break;
 					case 'Default':
-						langterm = 'sorting.default';
+						langterm = 'sorting.sortDefault';
 						queryParameter = 'Current';
 						promotePins = true;
 						break;
 					default:
-						langterm = this.updatedSortLogic ? 'sorting.default' : 'sorting.sortCourseName';
+						langterm = this.updatedSortLogic ? 'sorting.sortDefault' : 'sorting.sortCourseName';
 						queryParameter =  this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
@@ -549,7 +549,7 @@
 				if (this.updatedSortLogicInitallyObserved) {
 					this.defaultSortValue = updatedSortLogic ? 'Default' : 'OrgUnitName';
 					this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').selected = true;
-					var langterm = updatedSortLogic ? 'sorting.default' : 'sorting.sortCourseName';
+					var langterm = updatedSortLogic ? 'sorting.sortDefault' : 'sorting.sortCourseName';
 					this.$.sortText.textContent = this.localize(langterm || '');
 				} else {
 					this.updatedSortLogicInitallyObserved = true;
