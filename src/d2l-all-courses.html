@@ -103,7 +103,6 @@
 							filter-count="[[_filterCount]]"
 							is-searched="[[_isSearched]]"
 							filtered-enrollments="[[_filteredEnrollments]]"
-							enrollments="[[_enrollments]]"
 						></d2l-all-courses-segregated-content>
 					</template>
 					<template is="dom-if" if$="[[!updatedSortLogic]]">
@@ -116,8 +115,6 @@
 							is-searched="[[_isSearched]]"
 							filtered-pinned-enrollments="[[_filteredPinnedEnrollments]]"
 							filtered-unpinned-enrollments="[[_filteredUnpinnedEnrollments]]"
-							pinned-enrollments="[[_pinnedEnrollments]]"
-							unpinned-enrollments="[[_unpinnedEnrollments]]"
 						></d2l-all-courses-segregated-content>
 					</template>
 				</div>
@@ -216,21 +213,6 @@
 				_coursesMap: {
 					type: Object,
 					value: function() { return {}; }
-				},
-				_pinnedEnrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_setFilteredPinnedEnrollments'
-				},
-				_unpinnedEnrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_setFilteredUnpinnedEnrollments'
-				},
-				_enrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_setFilteredEnrollments'
 				},
 				// URL passed to search widget, called for searching
 				_searchUrl: String,
@@ -424,6 +406,7 @@
 				}
 				this._updateFilteredEnrollments(e.detail, false);
 				this.myEnrollmentsEntity = e.detail;
+				this.fire('recalculate-columns');
 				this._showContent = true;
 			},
 			_onSimpleOverlayOpening: function() {
@@ -461,12 +444,9 @@
 			_clearFilteredCourses: function() {
 				if (this.updatedSortLogic) {
 					this._coursesMap = {};
-					this._filteredEnrollments = this._enrollments.slice();
 				} else {
 					this._pinnedCoursesMap = {};
 					this._unpinnedCoursesMap = {};
-					this._filteredPinnedEnrollments = this._pinnedEnrollments.slice();
-					this._filteredUnpinnedEnrollments = this._unpinnedEnrollments.slice();
 				}
 			},
 			_clearSearchWidget: function() {
@@ -487,15 +467,6 @@
 				if (content) {
 					content.close();
 				}
-			},
-			_setFilteredEnrollments: function() {
-				this._filteredEnrollments = this._enrollments.slice();
-			},
-			_setFilteredPinnedEnrollments: function() {
-				this._filteredPinnedEnrollments = this._pinnedEnrollments.slice();
-			},
-			_setFilteredUnpinnedEnrollments: function() {
-				this._filteredUnpinnedEnrollments = this._unpinnedEnrollments.slice();
 			},
 			_updateFilteredEnrollments: function(enrollments, append) {
 				var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);

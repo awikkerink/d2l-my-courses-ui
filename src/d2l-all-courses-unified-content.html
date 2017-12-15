@@ -46,10 +46,6 @@
 				filterCount: Number,
 				isSearched: Boolean,
 				filteredEnrollments: Array,
-				enrollments: {
-					type: Array,
-					observer: '_updateTileSizes'
-				},
 
 				_animate: {
 					type: Boolean,
@@ -58,6 +54,10 @@
 				_noCoursesInSearch: Boolean,
 				_noCoursesInSelection: Boolean,
 				_tileSizes: Object,
+				_itemCount: {
+					type: Number,
+					value: 0
+				}
 			},
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
@@ -69,11 +69,7 @@
 			],
 
 			ready: function() {
-				// Both course tile grids in this view should have the same number of columns, so use a custom getter
-				var courseTileGrids = Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid');
-				for (var i = 0; i < courseTileGrids.length; i++) {
-					courseTileGrids[i].getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
-				}
+				this.$$('#all-courses-unified-tile-grid').getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
 				this._updateTileSizes();
 			},
 			attached: function() {
@@ -81,7 +77,7 @@
 			},
 
 			getCourseTileItemCount: function() {
-				return this.enrollments.length;
+				return this._itemCount;
 			},
 			setCourseImage: function(details) {
 				this.removeSetCourseImageFailure();
@@ -110,6 +106,10 @@
 						this._noCoursesInSearch = true;
 					} else if (this.filterCount > 0) {
 						this._noCoursesInSelection = true;
+					}
+				} else {
+					if (!this.isSearched && !(this.filterCount > 0)) {
+						this._itemCount = this.filteredEnrollments.length;
 					}
 				}
 			}

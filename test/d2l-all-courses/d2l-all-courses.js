@@ -78,15 +78,15 @@ describe('d2l-all-courses', function() {
 	});
 
 	it('should return the correct value from getCourseTileItemCount (should be maximum of pinned or unpinned course count)', function() {
-		widget._pinnedEnrollments = [pinnedEnrollmentEntity];
-		widget._unpinnedEnrollments = [unpinnedEnrollmentEntity];
+		widget._filteredPinnedEnrollments = [pinnedEnrollmentEntity];
+		widget._filteredUnpinnedEnrollments = [unpinnedEnrollmentEntity];
 
 		expect(widget.$$('d2l-all-courses-segregated-content').getCourseTileItemCount()).to.equal(1);
 	});
 
 	it('should set getCourseTileItemCount on its child course-tile-grids', function() {
-		widget._pinnedEnrollments = [pinnedEnrollmentEntity];
-		widget._unpinnedEnrollments = [unpinnedEnrollmentEntity];
+		widget._filteredPinnedEnrollments = [pinnedEnrollmentEntity];
+		widget._filteredUnpinnedEnrollments = [unpinnedEnrollmentEntity];
 
 		var segregatedContent = widget.querySelectorAll('d2l-all-courses-segregated-content');
 		var courseTileGrids = segregatedContent[0].querySelectorAll('d2l-course-tile-grid');

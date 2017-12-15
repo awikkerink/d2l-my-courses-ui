@@ -74,16 +74,6 @@
 				isSearched: Boolean,
 				filteredPinnedEnrollments: Array,
 				filteredUnpinnedEnrollments: Array,
-				pinnedEnrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_updateTileSizes'
-				},
-				unpinnedEnrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_updateTileSizes'
-				},
 
 				_noPinnedCoursesInSearch: Boolean,
 				_noPinnedCoursesInSelection: Boolean,
@@ -108,6 +98,10 @@
 					type: Boolean,
 					value: false,
 					computed: '_computeHasFilteredUnpinnedEnrollments(filteredUnpinnedEnrollments.length)'
+				},
+				_itemCount: {
+					type: Number,
+					value: 0
 				}
 			},
 			behaviors: [
@@ -138,9 +132,7 @@
 			},
 
 			getCourseTileItemCount: function() {
-				var itemCount = Math.max(this.pinnedEnrollments ? this.pinnedEnrollments.length : 0,
-					this.unpinnedEnrollments ? this.unpinnedEnrollments.length : 0);
-				return itemCount;
+				return this._itemCount;
 			},
 			setCourseImage: function(details) {
 				this.removeSetCourseImageFailure();
@@ -233,6 +225,11 @@
 				}
 				if (!hasUnpinnedEnrollments && !this.isSearched && !isFiltered) {
 					this._noUnpinnedCourses = true;
+				}
+
+				if ((hasPinnedEnrollments || hasUnpinnedEnrollments) && !isFiltered && !this.isSearched) {
+					this._itemCount = Math.max(this.filteredPinnedEnrollments ? this.filteredPinnedEnrollments.length : 0,
+						this.filteredUnpinnedEnrollments ? this.filteredUnpinnedEnrollments.length : 0);
 				}
 			}
 		});
