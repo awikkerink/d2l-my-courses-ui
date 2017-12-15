@@ -1,32 +1,11 @@
-<link rel="import" href="../../../d2l-simple-overlay/d2l-simple-overlay.html">
-<link rel="import" href="../../../iron-scroll-threshold/iron-scroll-threshold.html">
-<link rel="import" href="../../src/d2l-my-courses-content/d2l-my-courses-content-behavior.html">
-<link rel="import" href="../../src/d2l-course-tile-grid.html">
-
-<dom-module id="consumer-element">
-	<template>
-		<d2l-simple-overlay id="basic-image-selector-overlay"></d2l-simple-overlay>
-		<d2l-course-tile-grid></d2l-course-tile-grid>
-		<iron-scroll-threshold
-			id="image-selector-threshold">
-		</iron-scroll-threshold>
-	</template>
-	<script>
-		Polymer({
-			is: 'consumer-element',
-			behaviors: [
-				window.D2L.MyCourses.MyCoursesContentBehavior
-			]
-		});
-	</script>
-</dom-module>
-
 <html>
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 		<script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
 		<script src="../../../web-component-tester/browser.js"></script>
+
+		<link rel="import" href="consumer-element.html">
 	</head>
 	<body>
 		<test-fixture id="d2l-my-courses-content-behavior-fixture">

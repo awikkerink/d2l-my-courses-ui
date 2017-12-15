@@ -1,12 +1,12 @@
 describe('d2l-my-courses-content-animated', function() {
 	var sandbox,
 		widget,
-		organizationEntity = window.D2L.Hypermedia.Siren.Parse({
+		organization = {
 			links: [{
 				rel: ['self'],
 				href: '/organizations/1'
 			}]
-		}),
+		},
 		rootHref = '/enrollments',
 		searchHref = '/enrollments/users/169',
 		searchAction = {
@@ -353,7 +353,7 @@ describe('d2l-my-courses-content-animated', function() {
 			var openChangeImageViewEvent = new CustomEvent(
 				'open-change-image-view', {
 					detail: {
-						organization: organizationEntity
+						organization: organization
 					}
 				}
 			);
@@ -401,7 +401,7 @@ describe('d2l-my-courses-content-animated', function() {
 				var enrollmentPinEvent = new CustomEvent(
 					'enrollment-pinned', {
 						detail: {
-							organization: organizationEntity,
+							organization: organization,
 							isPinned: true
 						}
 					}
@@ -428,7 +428,7 @@ describe('d2l-my-courses-content-animated', function() {
 				var enrollmentUnpinEvent = new CustomEvent(
 					'enrollment-unpinned', {
 						detail: {
-							organization: organizationEntity,
+							organization: organization,
 							isPinned: true
 						}
 					}
