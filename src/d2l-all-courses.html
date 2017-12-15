@@ -78,7 +78,7 @@
 											<span>{{localize('sorting.sortBy')}}</span>
 										</div>
 										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" class="dropdown-content-gradient" value="Default" text="{{localize('sorting.sortDefault')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio value="OrgUnitName" class$="{{_showDropdownGradient(updatedSortLogic)}}" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio value="OrgUnitName" class$="[[_showDropdownGradient(updatedSortLogic)]]" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="OrgUnitCode" text="{{localize('sorting.sortCourseCode')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="PinDate" text="{{localize('sorting.sortDatePinned')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="LastAccessed" text="{{localize('sorting.sortLastAccessed')}}"></d2l-menu-item-radio>
@@ -369,45 +369,45 @@
 				return this.$.filterMenu.open();
 			},
 			_onSortOrderChanged: function(e) {
-				var queryParameter, langterm;
+				var sortParameter, langterm;
 				var promotePins = false;
 
 				switch (e.detail.value) {
 					case 'OrgUnitName':
 						langterm = 'sorting.sortCourseName';
-						queryParameter = this.updatedSortLogic ? 'OrgUnitName,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
+						sortParameter = this.updatedSortLogic ? 'OrgUnitName,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
 						break;
 					case 'OrgUnitCode':
 						langterm = 'sorting.sortCourseCode';
-						queryParameter = this.updatedSortLogic ? 'OrgUnitCode,OrgUnitId' : '-PinDate,OrgUnitCode,OrgUnitId';
+						sortParameter = this.updatedSortLogic ? 'OrgUnitCode,OrgUnitId' : '-PinDate,OrgUnitCode,OrgUnitId';
 						break;
 					case 'PinDate':
 						langterm = 'sorting.sortDatePinned';
-						queryParameter = '-PinDate,OrgUnitId';
+						sortParameter = '-PinDate,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
 					case 'LastAccessed':
 						langterm = 'sorting.sortLastAccessed';
-						queryParameter = this.updatedSortLogic ? 'LastAccessed' : 'LastAccessed';
+						sortParameter = this.updatedSortLogic ? 'LastAccessed' : 'LastAccessed';
 						break;
 					case 'EnrollmentDate':
 						langterm = 'sorting.sortEnrollmentDate';
-						queryParameter = 'LastModifiedDate,OrgUnitId';
+						sortParameter = 'LastModifiedDate,OrgUnitId';
 						break;
 					case 'Default':
 						langterm = 'sorting.sortDefault';
-						queryParameter = 'Current';
+						sortParameter = 'Current';
 						promotePins = true;
 						break;
 					default:
 						langterm = this.updatedSortLogic ? 'sorting.sortDefault' : 'sorting.sortCourseName';
-						queryParameter =  this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId';
+						sortParameter =  this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
 				}
 
 				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
-					sort: queryParameter,
+					sort: sortParameter,
 					promotePins: promotePins
 				});
 
