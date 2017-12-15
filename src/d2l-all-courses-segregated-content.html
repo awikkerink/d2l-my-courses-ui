@@ -27,7 +27,7 @@
 		</template>
 
 		<d2l-course-tile-grid
-			id="all-courses-pinned"
+			id="all-courses-segregated-pinned-tile-grid"
 			enrollments="[[filteredPinnedEnrollments]]"
 			enrollments-to-animate="[[_pinnedEnrollmentsToAnimate]]"
 			tile-sizes="[[_tileSizes]]"
@@ -51,7 +51,7 @@
 		</span>
 
 		<d2l-course-tile-grid
-			id="all-courses-unpinned"
+			id="all-courses-segregated-unpinned-tile-grid"
 			enrollments="[[filteredUnpinnedEnrollments]]"
 			enrollments-to-animate="[[_unpinnedEnrollmentsToAnimate]]"
 			tile-sizes="[[_tileSizes]]"
@@ -151,8 +151,8 @@
 						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
 					}
 				}
-				this.$$('#all-courses-pinned').setCourseImage(details);
-				this.$$('#all-courses-unpinned').setCourseImage(details);
+				this.$$('#all-courses-segregated-pinned-tile-grid').setCourseImage(details);
+				this.$$('#all-courses-segregated-unpinned-tile-grid').setCourseImage(details);
 			},
 			removeSetCourseImageFailure: function() {
 				this._removeAlert('setCourseImageFailure');

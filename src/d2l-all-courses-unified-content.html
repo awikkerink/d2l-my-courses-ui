@@ -24,7 +24,7 @@
 		</span>
 
 		<d2l-course-tile-grid
-			id="all-courses-unified"
+			id="all-courses-unified-tile-grid"
 			enrollments="[[filteredEnrollments]]"
 			tile-sizes="[[_tileSizes]]"
 			locale="[[locale]]"
@@ -48,7 +48,7 @@
 				filteredEnrollments: Array,
 				enrollments: {
 					type: Array,
-					observer: '_filteredEnrollmentsChanged'
+					observer: '_updateTileSizes'
 				},
 
 				_animate: {
@@ -77,7 +77,7 @@
 				this._updateTileSizes();
 			},
 			attached: function() {
-				window.addEventListener('resize', this._onResize.bind(this));
+				window.addEventListener('resize', this._updateTileSizes.bind(this));
 			},
 
 			getCourseTileItemCount: function() {
@@ -92,18 +92,12 @@
 						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
 					}
 				}
-				this.$$('#all-courses-unified').setCourseImage(details);
+				this.$$('#all-courses-unified-tile-grid').setCourseImage(details);
 			},
 			removeSetCourseImageFailure: function() {
 				this._removeAlert('setCourseImageFailure');
 			},
 
-			_onResize: function() {
-				this._updateTileSizes();
-			},
-			_filteredEnrollmentsChanged: function() {
-				this._updateTileSizes();
-			},
 			_updateTileSizes: function() {
 				this._rescaleCourseTileRegions();
 				this._tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
