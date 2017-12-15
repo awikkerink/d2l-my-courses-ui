@@ -16,47 +16,48 @@
 			</d2l-alert>
 		</template>
 
-		<span class="bottom-pad" hidden$="[[!noCoursesInSearch]]">
+		<span class="bottom-pad" hidden$="[[!_noCoursesInSearch]]">
 			{{localize('noCoursesInSearch')}}
 		</span>
-		<span class="bottom-pad" hidden$="[[!noCoursesInSelection]]">
+		<span class="bottom-pad" hidden$="[[!_noCoursesInSelection]]">
 			{{localize('noCoursesInSelection')}}
 		</span>
 
 		<d2l-course-tile-grid
 			id="all-courses-unified"
 			enrollments="[[filteredEnrollments]]"
-			tile-sizes="[[tileSizes]]"
+			tile-sizes="[[_tileSizes]]"
 			locale="[[locale]]"
 			show-course-code="[[showCourseCode]]"
 			show-semester="[[showSemester]]"
 			course-updates-config="[[courseUpdatesConfig]]"
 			updated-sort-logic="[[updatedSortLogic]]"
-			animate="[[animate]]">
+			animate="[[_animate]]">
 		</d2l-course-tile-grid>
 	</template>
 	<script>
 		Polymer({
 			is: 'd2l-all-courses-unified-content',
 			properties: {
-				tileSizes: Object,
 				showCourseCode: Boolean,
 				showSemester: Boolean,
 				courseUpdatesConfig: Object,
 				updatedSortLogic: Boolean,
+				filterCount: Number,
+				isSearched: Boolean,
 				filteredEnrollments: Array,
 				enrollments: {
 					type: Array,
 					observer: '_filteredEnrollmentsChanged'
 				},
-				animate: {
+
+				_animate: {
 					type: Boolean,
 					value: false
 				},
-				noCoursesInSearch: Boolean,
-				noCoursesInSelection: Boolean,
-				filterCount: Number,
-				isSearched: Boolean
+				_noCoursesInSearch: Boolean,
+				_noCoursesInSelection: Boolean,
+				_tileSizes: Object,
 			},
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
@@ -87,16 +88,16 @@
 			},
 			_updateTileSizes: function() {
 				this._rescaleCourseTileRegions();
-				this.tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
+				this._tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
 			},
 			_enrollmentsChanged: function() {
-				this.noCoursesInSearch = false;
-				this.noCoursesInSelection = false;
+				this._noCoursesInSearch = false;
+				this._noCoursesInSelection = false;
 				if (!(this.filteredEnrollments.length > 0)) {
 					if (this.isSearched) {
-						this.noCoursesInSearch = true;
+						this._noCoursesInSearch = true;
 					} else if (this.filterCount > 0) {
-						this.noCoursesInSelection = true;
+						this._noCoursesInSelection = true;
 					}
 				}
 			},

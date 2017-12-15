@@ -78,15 +78,15 @@ describe('d2l-all-courses', function() {
 	});
 
 	it('should return the correct value from getCourseTileItemCount (should be maximum of pinned or unpinned course count)', function() {
-		widget.pinnedEnrollments = [pinnedEnrollmentEntity];
-		widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
+		widget._pinnedEnrollments = [pinnedEnrollmentEntity];
+		widget._unpinnedEnrollments = [unpinnedEnrollmentEntity];
 
 		expect(widget.$$('d2l-all-courses-segregated-content').getCourseTileItemCount()).to.equal(1);
 	});
 
 	it('should set getCourseTileItemCount on its child course-tile-grids', function() {
-		widget.pinnedEnrollments = [pinnedEnrollmentEntity];
-		widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
+		widget._pinnedEnrollments = [pinnedEnrollmentEntity];
+		widget._unpinnedEnrollments = [unpinnedEnrollmentEntity];
 
 		var segregatedContent = widget.querySelectorAll('d2l-all-courses-segregated-content');
 		var courseTileGrids = segregatedContent[0].querySelectorAll('d2l-course-tile-grid');
@@ -115,7 +115,7 @@ describe('d2l-all-courses', function() {
 			});
 
 			expect(widget._searchUrl).to.equal('http://example.com');
-			expect(widget.filterCount).to.equal(12);
+			expect(widget._filterCount).to.equal(12);
 		});
 	});
 
@@ -165,10 +165,10 @@ describe('d2l-all-courses', function() {
 		it('should update enrollment alerts when an enrollment is pinned', function() {
 			widget._filteredPinnedEnrollments = [];
 			widget._filteredUnpinnedEnrollments = [unpinnedEnrollmentEntity];
-			expect(widget.$$('d2l-all-courses-segregated-content').hasFilteredPinnedEnrollments).to.equal(false);
+			expect(widget.$$('d2l-all-courses-segregated-content')._hasFilteredPinnedEnrollments).to.equal(false);
 			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
 			var updateEnrollmentAlertsSpy = sandbox.spy(widget.$$('d2l-all-courses-segregated-content'), '_updateEnrollmentAlerts');
-			widget.$$('d2l-all-courses-segregated-content').hasFilteredPinnedEnrollments = true;
+			widget.$$('d2l-all-courses-segregated-content')._hasFilteredPinnedEnrollments = true;
 			expect(updateEnrollmentAlertsSpy.called);
 		});
 
@@ -219,56 +219,56 @@ describe('d2l-all-courses', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$$('d2l-all-courses-segregated-content').isSearched = true;
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(false, true);
-			expect(widget.$$('d2l-all-courses-segregated-content').noPinnedCoursesInSearch).to.be.true;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noPinnedCoursesInSearch).to.be.true;
 		});
 
 		it('should show no pinned courses in search message when no pinned courses in filter', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(false, true);
-			expect(widget.$$('d2l-all-courses-segregated-content').noPinnedCoursesInSelection).to.be.true;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noPinnedCoursesInSelection).to.be.true;
 		});
 
 		it('should show no unpinned courses in search message when no unpinned courses in search', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$$('d2l-all-courses-segregated-content').isSearched = true;
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(true, false);
-			expect(widget.$$('d2l-all-courses-segregated-content').noUnpinnedCoursesInSearch).to.be.true;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noUnpinnedCoursesInSearch).to.be.true;
 		});
 
 		it('should show no unpinned courses in search message when no unpinned courses in filter', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(true, false);
-			expect(widget.$$('d2l-all-courses-segregated-content').noUnpinnedCoursesInSelection).to.be.true;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noUnpinnedCoursesInSelection).to.be.true;
 		});
 
 		it('should not show message when there are pinned courses in search', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$$('d2l-all-courses-segregated-content').isSearched = true;
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(true, true);
-			expect(widget.$$('d2l-all-courses-segregated-content').noPinnedCoursesInSearch).to.be.false;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noPinnedCoursesInSearch).to.be.false;
 		});
 
 		it('should not show message when there are pinned courses in filter', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(true, true);
-			expect(widget.$$('d2l-all-courses-segregated-content').noPinnedCoursesInSelection).to.be.false;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noPinnedCoursesInSelection).to.be.false;
 		});
 
 		it('should not show message when there are unpinned courses in search', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$$('d2l-all-courses-segregated-content').isSearched = true;
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(true, true);
-			expect(widget.$$('d2l-all-courses-segregated-content').noUnpinnedCoursesInSearch).to.be.false;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noUnpinnedCoursesInSearch).to.be.false;
 		});
 
 		it('should not show message when there are unpinned courses in filter', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(true, true);
-			expect(widget.$$('d2l-all-courses-segregated-content').noUnpinnedCoursesInSelection).to.be.false;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noUnpinnedCoursesInSelection).to.be.false;
 		});
 
 		it('should not show message if there is already an alert for no pinned courses', function() {
@@ -276,15 +276,15 @@ describe('d2l-all-courses', function() {
 			widget.$$('d2l-all-courses-segregated-content')._addAlert('call-to-action', 'noPinnedCourses', 'no pinned courses bruh');
 			widget.$$('d2l-all-courses-segregated-content').isSearched = true;
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(false, true);
-			expect(widget.$$('d2l-all-courses-segregated-content').noPinnedCoursesInSearch).to.be.false;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noPinnedCoursesInSearch).to.be.false;
 		});
 
 		it('should not show messages if not searching', function() {
 			widget.$$('d2l-all-courses-segregated-content')._clearAlerts();
 			widget.$$('d2l-all-courses-segregated-content').isSearched = false;
 			widget.$$('d2l-all-courses-segregated-content')._updateEnrollmentAlerts(false, false);
-			expect(widget.$$('d2l-all-courses-segregated-content').noPinnedCoursesInSearch).to.be.false;
-			expect(widget.$$('d2l-all-courses-segregated-content').noUnpinnedCoursesInSearch).to.be.false;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noPinnedCoursesInSearch).to.be.false;
+			expect(widget.$$('d2l-all-courses-segregated-content')._noUnpinnedCoursesInSearch).to.be.false;
 		});
 	});
 
