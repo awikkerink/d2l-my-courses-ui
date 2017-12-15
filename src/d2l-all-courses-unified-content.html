@@ -10,17 +10,17 @@
 	<template strip-whitespace>
 		<style include="d2l-all-courses-styles"></style>
 
-		<template is="dom-repeat" items="{{_alerts}}">
+		<template is="dom-repeat" items="[[_alerts]]">
 			<d2l-alert type="[[item.alertType]]">
-				{{item.alertMessage}}
+				[[item.alertMessage]]
 			</d2l-alert>
 		</template>
 
 		<span class="bottom-pad" hidden$="[[!_noCoursesInSearch]]">
-			{{localize('noCoursesInSearch')}}
+			[[localize('noCoursesInSearch')]]
 		</span>
 		<span class="bottom-pad" hidden$="[[!_noCoursesInSelection]]">
-			{{localize('noCoursesInSelection')}}
+			[[localize('noCoursesInSelection')]]
 		</span>
 
 		<d2l-course-tile-grid

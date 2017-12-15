@@ -12,17 +12,17 @@
 	<template strip-whitespace>
 		<style include="d2l-all-courses-styles"></style>
 
-		<h2>{{localize('pinnedCourses')}}</h2>
+		<h2>[[localize('pinnedCourses')]]</h2>
 		<span hidden$="[[!_noPinnedCoursesInSearch]]">
-			{{localize('noPinnedCoursesInSearch')}}
+			[[localize('noPinnedCoursesInSearch')]]
 		</span>
 		<span hidden$="[[!_noPinnedCoursesInSelection]]">
-			{{localize('noPinnedCoursesInSelection')}}
+			[[localize('noPinnedCoursesInSelection')]]
 		</span>
 
-		<template is="dom-repeat" items="{{_alerts}}">
+		<template is="dom-repeat" items="[[_alerts]]">
 			<d2l-alert type="[[item.alertType]]">
-				{{item.alertMessage}}
+				[[item.alertMessage]]
 			</d2l-alert>
 		</template>
 
@@ -38,16 +38,16 @@
 			updated-sort-logic="[[updatedSortLogic]]">
 		</d2l-course-tile-grid>
 
-		<h2>{{localize('unpinnedCourses')}}</h2>
+		<h2>[[localize('unpinnedCourses')]]</h2>
 
 		<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSearch]]">
-			{{localize('noUnpinnedCoursesInSearch')}}
+			[[localize('noUnpinnedCoursesInSearch')]]
 		</span>
 		<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSelection]]">
-			{{localize('noUnpinnedCoursesInSelection')}}
+			[[localize('noUnpinnedCoursesInSelection')]]
 		</span>
 		<span class="bottom-pad" hidden$="[[!_noUnpinnedCourses]]">
-			{{localize('noUnpinnedCoursesMessage')}}
+			[[localize('noUnpinnedCoursesMessage')]]
 		</span>
 
 		<d2l-course-tile-grid
