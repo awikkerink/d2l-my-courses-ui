@@ -77,12 +77,12 @@
 				pinnedEnrollments: {
 					type: Array,
 					value: function() { return []; },
-					observer: '_pinnedEnrollmentsChanged'
+					observer: '_updateTileSizes'
 				},
 				unpinnedEnrollments: {
 					type: Array,
 					value: function() { return []; },
-					observer: '_unpinnedEnrollmentsChanged'
+					observer: '_updateTileSizes'
 				},
 
 				_noPinnedCoursesInSearch: Boolean,
@@ -99,8 +99,16 @@
 					type: Array,
 					value: function() { return []; }
 				},
-				_hasFilteredPinnedEnrollments: Boolean,
-				_hasFilteredUnpinnedEnrollments: Boolean
+				_hasFilteredPinnedEnrollments: {
+					type: Boolean,
+					value: false,
+					computed: '_computeHasFilteredPinnedEnrollments(filteredPinnedEnrollments.length)'
+				},
+				_hasFilteredUnpinnedEnrollments: {
+					type: Boolean,
+					value: false,
+					computed: '_computeHasFilteredUnpinnedEnrollments(filteredUnpinnedEnrollments.length)'
+				}
 			},
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
@@ -113,8 +121,7 @@
 				'tile-remove-complete': '_onTileRemoveComplete'
 			},
 			observers: [
-				'_updateEnrollmentAlerts(_hasFilteredPinnedEnrollments, _hasFilteredUnpinnedEnrollments)',
-				'_enrollmentsChanged(filteredPinnedEnrollments.length, filteredUnpinnedEnrollments.length)'
+				'_updateEnrollmentAlerts(_hasFilteredPinnedEnrollments, _hasFilteredUnpinnedEnrollments)'
 			],
 
 			ready: function() {
@@ -127,12 +134,30 @@
 				this._updateEnrollmentAlerts(this._hasFilteredPinnedEnrollments, this._hasFilteredUnpinnedEnrollments);
 			},
 			attached: function() {
-				window.addEventListener('resize', this._onResize.bind(this));
+				window.addEventListener('resize', this._updateTileSizes.bind(this));
 			},
 
-			_onResize: function() {
-				this._updateTileSizes();
+			getCourseTileItemCount: function() {
+				var itemCount = Math.max(this.pinnedEnrollments ? this.pinnedEnrollments.length : 0,
+					this.unpinnedEnrollments ? this.unpinnedEnrollments.length : 0);
+				return itemCount;
 			},
+			setCourseImage: function(details) {
+				this.removeSetCourseImageFailure();
+				if (details && details.detail) {
+					if (details.detail.status === 'failure') {
+						setTimeout(function() {
+							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
+					}
+				}
+				this.$$('#all-courses-pinned').setCourseImage(details);
+				this.$$('#all-courses-unpinned').setCourseImage(details);
+			},
+			removeSetCourseImageFailure: function() {
+				this._removeAlert('setCourseImageFailure');
+			},
+
 			_onTileRemoveComplete: function(e) {
 				if (e.detail.pinned) {
 					this._moveEnrollmentToPinnedList(e.detail.enrollment);
@@ -140,15 +165,11 @@
 					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
 				}
 			},
-			_enrollmentsChanged: function() {
-				this._hasFilteredPinnedEnrollments = this.filteredPinnedEnrollments.length > 0;
-				this._hasFilteredUnpinnedEnrollments = this.filteredUnpinnedEnrollments.length > 0;
+			_computeHasFilteredPinnedEnrollments: function(filteredPinnedEnrollmentsLength) {
+				return filteredPinnedEnrollmentsLength > 0;
 			},
-			_pinnedEnrollmentsChanged: function() {
-				this._updateTileSizes();
-			},
-			_unpinnedEnrollmentsChanged: function() {
-				this._updateTileSizes();
+			_computeHasFilteredUnpinnedEnrollments: function(filteredUnpinnedEnrollmentsLength) {
+				return filteredUnpinnedEnrollmentsLength > 0;
 			},
 			_updateTileSizes: function() {
 				this._rescaleCourseTileRegions();
@@ -213,27 +234,6 @@
 				if (!hasUnpinnedEnrollments && !this.isSearched && !isFiltered) {
 					this._noUnpinnedCourses = true;
 				}
-			},
-
-			getCourseTileItemCount: function() {
-				var itemCount = Math.max(this.pinnedEnrollments ? this.pinnedEnrollments.length : 0,
-					this.unpinnedEnrollments ? this.unpinnedEnrollments.length : 0);
-				return itemCount;
-			},
-			setCourseImage: function(details) {
-				this.removeSetCourseImageFailure();
-				if (details && details.detail) {
-					if (details.detail.status === 'failure') {
-						setTimeout(function() {
-							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
-						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
-					}
-				}
-				this.$$('#all-courses-pinned').setCourseImage(details);
-				this.$$('#all-courses-unpinned').setCourseImage(details);
-			},
-			removeSetCourseImageFailure: function() {
-				this._removeAlert('setCourseImageFailure');
 			}
 		});
 	</script>
