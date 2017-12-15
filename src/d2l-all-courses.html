@@ -297,7 +297,7 @@
 					this._filteredPinnedEnrollments.forEach(function(enrollment) {
 						this._pinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 					}, this);
-					this._filteredPinnedEnrollments.forEach(function(enrollment) {
+					this._filteredUnpinnedEnrollments.forEach(function(enrollment) {
 						this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 					}, this);
 				}
