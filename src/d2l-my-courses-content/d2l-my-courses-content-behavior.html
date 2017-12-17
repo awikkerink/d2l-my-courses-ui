@@ -1,9 +1,8 @@
 <link rel="import" href="../../../polymer/polymer.html">
 <link rel="import" href="../../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../d2l-alert-behavior.html">
-<link rel="import" href="../d2l-all-courses.html">
-<link rel="import" href="../d2l-course-tile-grid.html">
 <link rel="import" href="../d2l-course-tile-responsive-grid-behavior.html">
+<link rel="import" href="../d2l-interaction-detection-behavior.html">
 <link rel="import" href="../d2l-utility-behavior.html">
 
 <script>
@@ -35,21 +34,30 @@
 				value: false
 			},
 			// True when user has >1 page of enrollments
-			_hasMoreEnrollments: Boolean,
+			_hasMoreEnrollments: {
+				type: Boolean,
+				value: false
+			},
 			// Lookup table of org unit ID -> enrollment, to avoid having to re-fetch enrollments
 			_orgUnitIdMap: {
 				type: Object,
 				value: function() { return {}; }
 			},
 			// The organization which the user is selecting the image of
-			_setImageOrg: Object,
+			_setImageOrg: {
+				type: Object,
+				value: function() { return {}; }
+			},
 			// Hides loading spinner and shows content when true
 			_showContent: {
 				type: Boolean,
 				value: false
 			},
 			// Size the tile should render with respect to vw
-			_tileSizes: Object
+			_tileSizes: {
+				type: Object,
+				value: function() { return {}; }
+			}
 		},
 		listeners: {
 			'open-change-image-view': '_onOpenChangeImageView',
@@ -74,7 +82,7 @@
 			this.focus();
 		},
 		focus: function() {
-			if (this._setImageOrg && this.$$('d2l-course-tile-grid').focus(this._setImageOrg)) {
+			if (this.$$('d2l-course-tile-grid').focus(this._setImageOrg)) {
 				return;
 			}
 			this.$.viewAllCourses.focus();
@@ -83,7 +91,7 @@
 			throw new Error('Must implement getCourseTileItemCount in consumer');
 		},
 		getLastOrgUnitId: function() {
-			if (!this._setImageOrg) {
+			if (!this._setImageOrg.links) {
 				return;
 			}
 			return this._getOrgUnitIdFromHref(this.getEntityIdentifier(this._setImageOrg));
@@ -125,7 +133,7 @@
 		},
 		_onEnrollmentPinAction: function(e) {
 			var isPinned = e.type === 'enrollment-pinned';
-			var orgUnitId = this._getOrgUnitIdFromHref(this.getEntityIdentifier(e.detail.organization));
+			var orgUnitId = this._getOrgUnitIdFromHref(this.getEntityIdentifier(this.parseEntity(e.detail.organization)));
 
 			if (!orgUnitId) {
 				return;
@@ -156,7 +164,7 @@
 		},
 		_onOpenChangeImageView: function(e) {
 			if (e.detail.organization) {
-				this._setImageOrg = e.detail.organization;
+				this._setImageOrg = this.parseEntity(e.detail.organization);
 			}
 
 			this.$['basic-image-selector-overlay'].open();
@@ -180,23 +188,8 @@
 		* Utility/helper functions
 		*/
 
-		_createFetchEnrollmentsUrl: function(enrollmentsRootEntity, bustCache) {
-			var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
-			var pageSize = this.updatedSortLogic ? 50 : 25;
-
-			var query = {
-				pageSize: pageSize,
-				embedDepth: 1,
-				sort: '-PinDate,OrgUnitName,OrgUnitId',
-				autoPinCourses: true
-			};
-			var enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
-
-			if (bustCache) {
-				enrollmentsSearchUrl += '&bustCache=' + Math.random();
-			}
-
-			return enrollmentsSearchUrl;
+		_createFetchEnrollmentsUrl: function() {
+			throw new Error('Must implement _createFetchEnrollmentsUrl in consumer');
 		},
 		_createAllCourses: function() {
 			if (!this._allCoursesCreated) {
