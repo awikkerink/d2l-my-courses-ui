@@ -98,10 +98,10 @@
 				this._rescaleCourseTileRegions();
 				this._tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
 			},
-			_enrollmentsChanged: function() {
+			_enrollmentsChanged: function(enrollmentLength) {
 				this._noCoursesInSearch = false;
 				this._noCoursesInSelection = false;
-				if (!(this.filteredEnrollments.length > 0)) {
+				if (!(enrollmentLength > 0)) {
 					if (this.isSearched) {
 						this._noCoursesInSearch = true;
 					} else if (this.filterCount > 0) {
@@ -109,7 +109,7 @@
 					}
 				} else {
 					if (!this.isSearched && !(this.filterCount > 0)) {
-						this._itemCount = this.filteredEnrollments.length;
+						this._itemCount = enrollmentLength;
 					}
 				}
 			}
