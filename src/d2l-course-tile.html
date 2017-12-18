@@ -537,7 +537,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._setCourseImageSrc();
 
 				var homepageEntity = organization.getSubEntityByRel(this.HypermediaRels.organizationHomepage);
-				if (homepageEntity !== null) {
+				if (homepageEntity) {
 					this._organizationHomepageUrl = homepageEntity.properties.path;
 				}
 				if (!this._organizationHomepageUrl) {
