@@ -77,12 +77,12 @@
 										<div class="dropdown-content-header">
 											<span>{{localize('sorting.sortBy')}}</span>
 										</div>
-										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" class="dropdown-content-gradient" value="Default" text="{{localize('sorting.default')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio value="OrgUnitName" class$="{{_showDropdownGradient(updatedSortLogic)}}" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" class="dropdown-content-gradient" value="Default" text="{{localize('sorting.sortDefault')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio value="OrgUnitName" class$="[[_showDropdownGradient(updatedSortLogic)]]" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="OrgUnitCode" text="{{localize('sorting.sortCourseCode')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="PinDate" text="{{localize('sorting.sortDatePinned')}}"></d2l-menu-item-radio>
 										<d2l-menu-item-radio value="LastAccessed" text="{{localize('sorting.sortLastAccessed')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" value="EnrollmentDate" text="{{localize('sorting.enrollmentDate')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio hidden$="[[!updatedSortLogic]]" value="EnrollmentDate" text="{{localize('sorting.sortEnrollmentDate')}}"></d2l-menu-item-radio>
 									</d2l-menu>
 								</d2l-dropdown-menu>
 							</d2l-dropdown>
@@ -100,10 +100,9 @@
 							show-semester="[[showSemester]]"
 							course-updates-config="[[courseUpdatesConfig]]"
 							updated-sort-logic="[[updatedSortLogic]]"
-							filter-count="[[filterCount]]"
+							filter-count="[[_filterCount]]"
 							is-searched="[[_isSearched]]"
-							filtered-enrollments="[[filteredEnrollments]]"
-							enrollments="[[enrollments]]"
+							filtered-enrollments="[[_filteredEnrollments]]"
 						></d2l-all-courses-segregated-content>
 					</template>
 					<template is="dom-if" if$="[[!updatedSortLogic]]">
@@ -112,12 +111,10 @@
 							show-semester="[[showSemester]]"
 							course-updates-config="[[courseUpdatesConfig]]"
 							updated-sort-logic="[[updatedSortLogic]]"
-							filter-count="[[filterCount]]"
+							filter-count="[[_filterCount]]"
 							is-searched="[[_isSearched]]"
-							filtered-pinned-enrollments="[[filteredPinnedEnrollments]]"
-							filtered-unpinned-enrollments="[[filteredUnpinnedEnrollments]]"
-							pinned-enrollments="[[pinnedEnrollments]]"
-							unpinned-enrollments="[[unpinnedEnrollments]]"
+							filtered-pinned-enrollments="[[_filteredPinnedEnrollments]]"
+							filtered-unpinned-enrollments="[[_filteredUnpinnedEnrollments]]"
 						></d2l-all-courses-segregated-content>
 					</template>
 				</div>
@@ -162,12 +159,6 @@
 					value: function() { return {}; },
 					observer: '_myEnrollmentsEntityChanged'
 				},
-				// Set of pinned enrollment Entities
-				pinnedEnrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_setFilteredPinnedEnrollments'
-				},
 				searchUrl: String,
 				showCourseCode: Boolean,
 				showSemester: Boolean,
@@ -176,17 +167,6 @@
 					type: Boolean,
 					value: false,
 					observer: '_updatedSortLogicChanged'
-				},
-				// Set of unpinned enrollment Entities
-				unpinnedEnrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_setFilteredUnpinnedEnrollments'
-				},
-				enrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_setFilteredEnrollments'
 				},
 
 				/*
@@ -200,15 +180,15 @@
 				// Filter dropdown opener text
 				_filterText: String,
 				// filtered pinned enrollment entities
-				filteredPinnedEnrollments: {
+				_filteredPinnedEnrollments: {
 					type: Array,
 					value: function() { return []; }
 				},
-				filteredUnpinnedEnrollments: {
+				_filteredUnpinnedEnrollments: {
 					type: Array,
 					value: function() { return []; }
 				},
-				filteredEnrollments: {
+				_filteredEnrollments: {
 					type: Array,
 					value: function() { return []; }
 				},
@@ -224,6 +204,12 @@
 					type: Object,
 					value: function() { return {}; }
 				},
+				// Object containing the IDs of previously loaded unpinned enrollments, to avoid duplicates
+				_unpinnedCoursesMap: {
+					type: Object,
+					value: function() { return {}; }
+				},
+				// Object containing the IDs of previously loaded enrollments, to avoid duplicates
 				_coursesMap: {
 					type: Object,
 					value: function() { return {}; }
@@ -239,17 +225,12 @@
 					type: Boolean,
 					value: false
 				},
-				// Object containing the IDs of previously loaded unpinned enrollments, to avoid duplicates
-				_unpinnedCoursesMap: {
-					type: Object,
-					value: function() { return {}; }
-				},
 				// Number of filters currently selected; used to change opener text when menu closes
-				filterCount: {
+				_filterCount: {
 					type: Number,
 					value: 0
 				},
-				updatedSortLogicInitallyObserved: false,
+				_updatedSortLogicInitallyObserved: false,
 				_isSearched: Boolean
 			},
 			behaviors: [
@@ -263,7 +244,7 @@
 				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening'
 			},
 			observers: [
-				'_enrollmentsChanged(filteredPinnedEnrollments.length, filteredUnpinnedEnrollments.length)'
+				'_enrollmentsChanged(_filteredPinnedEnrollments.length, _filteredUnpinnedEnrollments.length)'
 			],
 			ready: function() {
 				this._filterText = this.localize('filtering.filter');
@@ -291,14 +272,14 @@
 				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 				if (this.updatedSortLogic) {
-					this.filteredEnrollments.forEach(function(enrollment) {
+					this._filteredEnrollments.forEach(function(enrollment) {
 						this._coursesMap[this.getEntityIdentifier(enrollment)] = true;
 					}, this);
 				} else {
-					this.filteredPinnedEnrollments.forEach(function(enrollment) {
+					this._filteredPinnedEnrollments.forEach(function(enrollment) {
 						this._pinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 					}, this);
-					this.filteredPinnedEnrollments.forEach(function(enrollment) {
+					this._filteredUnpinnedEnrollments.forEach(function(enrollment) {
 						this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 					}, this);
 				}
@@ -352,16 +333,16 @@
 			},
 			_onFilterChanged: function(e) {
 				this._searchUrl = e.detail.url;
-				this.filterCount = e.detail.filterCount;
+				this._filterCount = e.detail.filterCount;
 			},
 			_onFilterDropdownClose: function() {
 				var text;
-				if (this.filterCount === 0) {
+				if (this._filterCount === 0) {
 					text = this.localize('filtering.filter');
-				} else if (this.filterCount === 1) {
+				} else if (this._filterCount === 1) {
 					text = this.localize('filtering.filterSingle');
 				} else {
-					text = this.localize('filtering.filterMultiple', 'num', this.filterCount);
+					text = this.localize('filtering.filterMultiple', 'num', this._filterCount);
 				}
 				this.set('_filterText', text);
 			},
@@ -370,45 +351,45 @@
 				return this.$.filterMenu.open();
 			},
 			_onSortOrderChanged: function(e) {
-				var queryParameter, langterm;
+				var sortParameter, langterm;
 				var promotePins = false;
 
 				switch (e.detail.value) {
 					case 'OrgUnitName':
 						langterm = 'sorting.sortCourseName';
-						queryParameter = this.updatedSortLogic ? 'OrgUnitName,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
+						sortParameter = this.updatedSortLogic ? 'OrgUnitName,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
 						break;
 					case 'OrgUnitCode':
 						langterm = 'sorting.sortCourseCode';
-						queryParameter = this.updatedSortLogic ? 'OrgUnitCode,OrgUnitId' : '-PinDate,OrgUnitCode,OrgUnitId';
+						sortParameter = this.updatedSortLogic ? 'OrgUnitCode,OrgUnitId' : '-PinDate,OrgUnitCode,OrgUnitId';
 						break;
 					case 'PinDate':
 						langterm = 'sorting.sortDatePinned';
-						queryParameter = '-PinDate,OrgUnitId';
+						sortParameter = '-PinDate,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
 					case 'LastAccessed':
 						langterm = 'sorting.sortLastAccessed';
-						queryParameter = this.updatedSortLogic ? 'LastAccessed' : 'LastAccessed';
+						sortParameter = this.updatedSortLogic ? 'LastAccessed' : 'LastAccessed';
 						break;
 					case 'EnrollmentDate':
-						langterm = 'sorting.enrollmentDate';
-						queryParameter = 'LastModifiedDate,OrgUnitId';
+						langterm = 'sorting.sortEnrollmentDate';
+						sortParameter = 'LastModifiedDate,OrgUnitId';
 						break;
 					case 'Default':
-						langterm = 'sorting.default';
-						queryParameter = 'Current';
+						langterm = 'sorting.sortDefault';
+						sortParameter = 'Current';
 						promotePins = true;
 						break;
 					default:
-						langterm = this.updatedSortLogic ? 'sorting.default' : 'sorting.sortCourseName';
-						queryParameter =  this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId';
+						langterm = this.updatedSortLogic ? 'sorting.sortDefault' : 'sorting.sortCourseName';
+						sortParameter =  this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
 				}
 
 				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
-					sort: queryParameter,
+					sort: sortParameter,
 					promotePins: promotePins
 				});
 
@@ -425,6 +406,7 @@
 				}
 				this._updateFilteredEnrollments(e.detail, false);
 				this.myEnrollmentsEntity = e.detail;
+				this.fire('recalculate-columns');
 				this._showContent = true;
 			},
 			_onSimpleOverlayOpening: function() {
@@ -462,12 +444,9 @@
 			_clearFilteredCourses: function() {
 				if (this.updatedSortLogic) {
 					this._coursesMap = {};
-					this.filteredEnrollments = this.enrollments.slice();
 				} else {
 					this._pinnedCoursesMap = {};
 					this._unpinnedCoursesMap = {};
-					this.filteredPinnedEnrollments = this.pinnedEnrollments.slice();
-					this.filteredUnpinnedEnrollments = this.unpinnedEnrollments.slice();
 				}
 			},
 			_clearSearchWidget: function() {
@@ -489,15 +468,6 @@
 					content.close();
 				}
 			},
-			_setFilteredEnrollments: function() {
-				this.filteredEnrollments = this.enrollments.slice();
-			},
-			_setFilteredPinnedEnrollments: function() {
-				this.filteredPinnedEnrollments = this.pinnedEnrollments.slice();
-			},
-			_setFilteredUnpinnedEnrollments: function() {
-				this.filteredUnpinnedEnrollments = this.unpinnedEnrollments.slice();
-			},
 			_updateFilteredEnrollments: function(enrollments, append) {
 				var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);
 
@@ -507,9 +477,9 @@
 						this._coursesMap[enrollmentId] = true;
 					}, this);
 					if (append) {
-						this.filteredEnrollments = this.filteredEnrollments.concat(enrollmentEntities);
+						this._filteredEnrollments = this._filteredEnrollments.concat(enrollmentEntities);
 					} else {
-						this.filteredEnrollments = enrollmentEntities;
+						this._filteredEnrollments = enrollmentEntities;
 					}
 				} else {
 					var newPinnedEnrollments = [];
@@ -531,11 +501,11 @@
 					}, this);
 
 					if (append) {
-						this.filteredPinnedEnrollments = this.filteredPinnedEnrollments.concat(newPinnedEnrollments);
-						this.filteredUnpinnedEnrollments = this.filteredUnpinnedEnrollments.concat(newUnpinnedEnrollments);
+						this._filteredPinnedEnrollments = this._filteredPinnedEnrollments.concat(newPinnedEnrollments);
+						this._filteredUnpinnedEnrollments = this._filteredUnpinnedEnrollments.concat(newUnpinnedEnrollments);
 					} else {
-						this.filteredPinnedEnrollments = newPinnedEnrollments;
-						this.filteredUnpinnedEnrollments = newUnpinnedEnrollments;
+						this._filteredPinnedEnrollments = newPinnedEnrollments;
+						this._filteredUnpinnedEnrollments = newUnpinnedEnrollments;
 					}
 				}
 
@@ -546,13 +516,13 @@
 				return updatedSortLogic ? '' : 'dropdown-content-gradient';
 			},
 			_updatedSortLogicChanged: function(updatedSortLogic) {
-				if (this.updatedSortLogicInitallyObserved) {
+				if (this._updatedSortLogicInitallyObserved) {
 					this.defaultSortValue = updatedSortLogic ? 'Default' : 'OrgUnitName';
 					this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').selected = true;
-					var langterm = updatedSortLogic ? 'sorting.default' : 'sorting.sortCourseName';
+					var langterm = updatedSortLogic ? 'sorting.sortDefault' : 'sorting.sortCourseName';
 					this.$.sortText.textContent = this.localize(langterm || '');
 				} else {
-					this.updatedSortLogicInitallyObserved = true;
+					this._updatedSortLogicInitallyObserved = true;
 				}
 			}
 		});

@@ -12,25 +12,25 @@
 	<template strip-whitespace>
 		<style include="d2l-all-courses-styles"></style>
 
-		<h2>{{localize('pinnedCourses')}}</h2>
-		<span hidden$="[[!noPinnedCoursesInSearch]]">
-			{{localize('noPinnedCoursesInSearch')}}
+		<h2>[[localize('pinnedCourses')]]</h2>
+		<span hidden$="[[!_noPinnedCoursesInSearch]]">
+			[[localize('noPinnedCoursesInSearch')]]
 		</span>
-		<span hidden$="[[!noPinnedCoursesInSelection]]">
-			{{localize('noPinnedCoursesInSelection')}}
+		<span hidden$="[[!_noPinnedCoursesInSelection]]">
+			[[localize('noPinnedCoursesInSelection')]]
 		</span>
 
-		<template is="dom-repeat" items="{{_alerts}}">
+		<template is="dom-repeat" items="[[_alerts]]">
 			<d2l-alert type="[[item.alertType]]">
-				{{item.alertMessage}}
+				[[item.alertMessage]]
 			</d2l-alert>
 		</template>
 
 		<d2l-course-tile-grid
-			id="all-courses-pinned"
+			id="all-courses-segregated-pinned-tile-grid"
 			enrollments="[[filteredPinnedEnrollments]]"
-			enrollments-to-animate="[[pinnedEnrollmentsToAnimate]]"
-			tile-sizes="[[tileSizes]]"
+			enrollments-to-animate="[[_pinnedEnrollmentsToAnimate]]"
+			tile-sizes="[[_tileSizes]]"
 			locale="[[locale]]"
 			show-course-code="[[showCourseCode]]"
 			show-semester="[[showSemester]]"
@@ -38,23 +38,23 @@
 			updated-sort-logic="[[updatedSortLogic]]">
 		</d2l-course-tile-grid>
 
-		<h2>{{localize('unpinnedCourses')}}</h2>
+		<h2>[[localize('unpinnedCourses')]]</h2>
 
-		<span class="bottom-pad" hidden$="[[!noUnpinnedCoursesInSearch]]">
-			{{localize('noUnpinnedCoursesInSearch')}}
+		<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSearch]]">
+			[[localize('noUnpinnedCoursesInSearch')]]
 		</span>
-		<span class="bottom-pad" hidden$="[[!noUnpinnedCoursesInSelection]]">
-			{{localize('noUnpinnedCoursesInSelection')}}
+		<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSelection]]">
+			[[localize('noUnpinnedCoursesInSelection')]]
 		</span>
-		<span class="bottom-pad" hidden$="[[!noUnpinnedCourses]]">
-			{{localize('noUnpinnedCoursesMessage')}}
+		<span class="bottom-pad" hidden$="[[!_noUnpinnedCourses]]">
+			[[localize('noUnpinnedCoursesMessage')]]
 		</span>
 
 		<d2l-course-tile-grid
-			id="all-courses-unpinned"
+			id="all-courses-segregated-unpinned-tile-grid"
 			enrollments="[[filteredUnpinnedEnrollments]]"
-			enrollments-to-animate="[[unpinnedEnrollmentsToAnimate]]"
-			tile-sizes="[[tileSizes]]"
+			enrollments-to-animate="[[_unpinnedEnrollmentsToAnimate]]"
+			tile-sizes="[[_tileSizes]]"
 			locale="[[locale]]"
 			show-course-code="[[showCourseCode]]"
 			show-semester="[[showSemester]]"
@@ -66,40 +66,43 @@
 		Polymer({
 			is: 'd2l-all-courses-segregated-content',
 			properties: {
-				noPinnedCoursesInSearch: Boolean,
-				noPinnedCoursesInSelection: Boolean,
-				filteredPinnedEnrollments: Array,
-				pinnedEnrollmentsToAnimate: {
-					type: Array,
-					value: function() { return []; }
-				},
-				tileSizes: Object,
 				showCourseCode: Boolean,
 				showSemester: Boolean,
 				courseUpdatesConfig: Object,
 				updatedSortLogic: Boolean,
-				noUnpinnedCoursesInSearch: Boolean,
-				noUnpinnedCoursesInSelection: Boolean,
-				noUnpinnedCourses: Boolean,
+				filterCount: Number,
+				isSearched: Boolean,
+				filteredPinnedEnrollments: Array,
 				filteredUnpinnedEnrollments: Array,
-				unpinnedEnrollmentsToAnimate: {
+
+				_noPinnedCoursesInSearch: Boolean,
+				_noPinnedCoursesInSelection: Boolean,
+				_noUnpinnedCoursesInSearch: Boolean,
+				_noUnpinnedCoursesInSelection: Boolean,
+				_noUnpinnedCourses: Boolean,
+				_pinnedEnrollmentsToAnimate: {
 					type: Array,
 					value: function() { return []; }
 				},
-				pinnedEnrollments: {
+				_tileSizes: Object,
+				_unpinnedEnrollmentsToAnimate: {
 					type: Array,
-					value: function() { return []; },
-					observer: '_pinnedEnrollmentsChanged'
+					value: function() { return []; }
 				},
-				unpinnedEnrollments: {
-					type: Array,
-					value: function() { return []; },
-					observer: '_unpinnedEnrollmentsChanged'
+				_hasFilteredPinnedEnrollments: {
+					type: Boolean,
+					value: false,
+					computed: '_computeHasFilteredPinnedEnrollments(filteredPinnedEnrollments.length)'
 				},
-				filterCount: Number,
-				hasFilteredPinnedEnrollments: Boolean,
-				hasFilteredUnpinnedEnrollments: Boolean,
-				isSearched: Boolean
+				_hasFilteredUnpinnedEnrollments: {
+					type: Boolean,
+					value: false,
+					computed: '_computeHasFilteredUnpinnedEnrollments(filteredUnpinnedEnrollments.length)'
+				},
+				_itemCount: {
+					type: Number,
+					value: 0
+				}
 			},
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
@@ -112,8 +115,7 @@
 				'tile-remove-complete': '_onTileRemoveComplete'
 			},
 			observers: [
-				'_updateEnrollmentAlerts(hasFilteredPinnedEnrollments, hasFilteredUnpinnedEnrollments)',
-				'_enrollmentsChanged(filteredPinnedEnrollments.length, filteredUnpinnedEnrollments.length)'
+				'_updateEnrollmentAlerts(_hasFilteredPinnedEnrollments, _hasFilteredUnpinnedEnrollments)'
 			],
 
 			ready: function() {
@@ -123,15 +125,31 @@
 					courseTileGrids[i].getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
 				}
 				this._updateTileSizes();
-				this._updateEnrollmentAlerts(this.hasFilteredPinnedEnrollments, this.hasFilteredUnpinnedEnrollments);
+				this._updateEnrollmentAlerts(this._hasFilteredPinnedEnrollments, this._hasFilteredUnpinnedEnrollments);
 			},
 			attached: function() {
-				window.addEventListener('resize', this._onResize.bind(this));
+				window.addEventListener('resize', this._updateTileSizes.bind(this));
 			},
 
-			_onResize: function() {
-				this._updateTileSizes();
+			getCourseTileItemCount: function() {
+				return this._itemCount;
 			},
+			setCourseImage: function(details) {
+				this.removeSetCourseImageFailure();
+				if (details && details.detail) {
+					if (details.detail.status === 'failure') {
+						setTimeout(function() {
+							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
+					}
+				}
+				this.$$('#all-courses-segregated-pinned-tile-grid').setCourseImage(details);
+				this.$$('#all-courses-segregated-unpinned-tile-grid').setCourseImage(details);
+			},
+			removeSetCourseImageFailure: function() {
+				this._removeAlert('setCourseImageFailure');
+			},
+
 			_onTileRemoveComplete: function(e) {
 				if (e.detail.pinned) {
 					this._moveEnrollmentToPinnedList(e.detail.enrollment);
@@ -139,19 +157,15 @@
 					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
 				}
 			},
-			_enrollmentsChanged: function() {
-				this.hasFilteredPinnedEnrollments = this.filteredPinnedEnrollments.length > 0;
-				this.hasFilteredUnpinnedEnrollments = this.filteredUnpinnedEnrollments.length > 0;
+			_computeHasFilteredPinnedEnrollments: function(filteredPinnedEnrollmentsLength) {
+				return filteredPinnedEnrollmentsLength > 0;
 			},
-			_pinnedEnrollmentsChanged: function() {
-				this._updateTileSizes();
-			},
-			_unpinnedEnrollmentsChanged: function() {
-				this._updateTileSizes();
+			_computeHasFilteredUnpinnedEnrollments: function(filteredUnpinnedEnrollmentsLength) {
+				return filteredUnpinnedEnrollmentsLength > 0;
 			},
 			_updateTileSizes: function() {
 				this._rescaleCourseTileRegions();
-				this.tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
+				this._tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				// Remove enrollment from unpinned list, add to pinned
@@ -162,7 +176,7 @@
 					if (pinnedEnrollmentId === enrollmentId) {
 						var foundEnrollment = this.filteredUnpinnedEnrollments[index];
 						this._setEnrollmentPinData(foundEnrollment, true);
-						this.pinnedEnrollmentsToAnimate.push(enrollmentId);
+						this._pinnedEnrollmentsToAnimate.push(enrollmentId);
 						this.unshift('filteredPinnedEnrollments', foundEnrollment);
 						this.splice('filteredUnpinnedEnrollments', index, 1);
 						break;
@@ -178,7 +192,7 @@
 					if (unpinnedEnrollmentId === enrollmentId) {
 						var foundEnrollment = this.filteredPinnedEnrollments[index];
 						this._setEnrollmentPinData(foundEnrollment, false);
-						this.unpinnedEnrollmentsToAnimate.push(enrollmentId);
+						this._unpinnedEnrollmentsToAnimate.push(enrollmentId);
 						this.unshift('filteredUnpinnedEnrollments', foundEnrollment);
 						this.splice('filteredPinnedEnrollments', index, 1);
 						break;
@@ -186,53 +200,37 @@
 				}
 			},
 			_updateEnrollmentAlerts: function(hasPinnedEnrollments, hasUnpinnedEnrollments) {
-				this.noPinnedCoursesInSearch = false;
-				this.noPinnedCoursesInSelection = false;
-				this.noUnpinnedCoursesInSearch = false;
-				this.noUnpinnedCoursesInSelection = false;
-				this.noUnpinnedCourses = false;
+				this._noPinnedCoursesInSearch = false;
+				this._noPinnedCoursesInSelection = false;
+				this._noUnpinnedCoursesInSearch = false;
+				this._noUnpinnedCoursesInSelection = false;
+				this._noUnpinnedCourses = false;
 				var hasAlert = this._hasAlert('noPinnedCourses'),
 					isFiltered = this.filterCount > 0;
 				this._clearAlerts();
 				if (!hasPinnedEnrollments) {
 					if (!hasAlert && this.isSearched) {
-						this.noPinnedCoursesInSearch = true;
+						this._noPinnedCoursesInSearch = true;
 					} else if (!hasAlert && isFiltered) {
-						this.noPinnedCoursesInSelection = true;
+						this._noPinnedCoursesInSelection = true;
 					}
 					else {
 						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
 					}
 				}
 				if (!hasUnpinnedEnrollments && this.isSearched) {
-					this.noUnpinnedCoursesInSearch = true;
+					this._noUnpinnedCoursesInSearch = true;
 				} else if (!hasUnpinnedEnrollments && isFiltered) {
-					this.noUnpinnedCoursesInSelection = true;
+					this._noUnpinnedCoursesInSelection = true;
 				}
 				if (!hasUnpinnedEnrollments && !this.isSearched && !isFiltered) {
-					this.noUnpinnedCourses = true;
+					this._noUnpinnedCourses = true;
 				}
-			},
 
-			getCourseTileItemCount: function() {
-				var itemCount = Math.max(this.pinnedEnrollments ? this.pinnedEnrollments.length : 0,
-					this.unpinnedEnrollments ? this.unpinnedEnrollments.length : 0);
-				return itemCount;
-			},
-			setCourseImage: function(details) {
-				this.removeSetCourseImageFailure();
-				if (details && details.detail) {
-					if (details.detail.status === 'failure') {
-						setTimeout(function() {
-							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
-						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
-					}
+				if ((hasPinnedEnrollments || hasUnpinnedEnrollments) && !isFiltered && !this.isSearched) {
+					this._itemCount = Math.max(this.filteredPinnedEnrollments ? this.filteredPinnedEnrollments.length : 0,
+						this.filteredUnpinnedEnrollments ? this.filteredUnpinnedEnrollments.length : 0);
 				}
-				this.$$('#all-courses-pinned').setCourseImage(details);
-				this.$$('#all-courses-unpinned').setCourseImage(details);
-			},
-			removeSetCourseImageFailure: function() {
-				this._removeAlert('setCourseImageFailure');
 			}
 		});
 	</script>
