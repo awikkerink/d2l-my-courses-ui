@@ -101,14 +101,14 @@
 			_enrollmentsChanged: function(enrollmentLength) {
 				this._noCoursesInSearch = false;
 				this._noCoursesInSelection = false;
-				if (!(enrollmentLength > 0)) {
+				if (enrollmentLength === 0) {
 					if (this.isSearched) {
 						this._noCoursesInSearch = true;
 					} else if (this.filterCount > 0) {
 						this._noCoursesInSelection = true;
 					}
 				} else {
-					if (!this.isSearched && !(this.filterCount > 0)) {
+					if (!this.isSearched && this.filterCount === 0) {
 						this._itemCount = enrollmentLength;
 					}
 				}

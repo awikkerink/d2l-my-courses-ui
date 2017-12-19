@@ -30,53 +30,31 @@ describe('d2l-all-courses-unified-content', function() {
 	});
 
 	describe('changing enrollment entities', function() {
-		it('should determine if there are no results in search', function() {
-			widget.isSearched = true;
-			widget._enrollmentsChanged(0);
-			expect(widget._noCoursesInSearch).to.be.true;
+		[
+			{ isSearched: true, filterCount: 0, enrollmentsChanged: 0, noCoursesInSearch: true, noCoursesInSelection: false },
+			{ isSearched: true, filterCount: 0, enrollmentsChanged: 3, noCoursesInSearch: false, noCoursesInSelection: false },
+			{ isSearched: false, filterCount: 2, enrollmentsChanged: 0, noCoursesInSearch: false, noCoursesInSelection: true }
+		].forEach(testCase => {
+			it(`should set noCoursesInSearch to ${testCase.noCoursesInSearch} and noCoursesInSelection to ${testCase.noCoursesInSelection} when enrollments change to ${testCase.enrollmentsChanged}, isSearched is ${testCase.isSearched} and filterCount is ${testCase.filterCount}`, () => {
+				widget.isSearched = testCase.isSearched;
+				widget.filterCount = testCase.filterCount;
+				widget._enrollmentsChanged(testCase.enrollmentsChanged);
+				expect(widget._noCoursesInSearch).to.equal(testCase.noCoursesInSearch);
+				expect(widget._noCoursesInSelection).to.equal(testCase.noCoursesInSelection);
+			});
 		});
 
-		it('should determine if there are results in search', function() {
-			widget.isSearched = true;
-			widget._enrollmentsChanged(3);
-			expect(widget._noCoursesInSearch).to.be.false;
-		});
-
-		it('should determine if there no results in filtered results', function() {
-			widget.isSearched = false;
-			widget.filterCount = 2;
-			widget._enrollmentsChanged(0);
-			expect(widget._noCoursesInSelection).to.be.true;
-		});
-
-		it('should determine if there results in filtered results', function() {
-			widget.isSearched = false;
-			widget.filterCount = 2;
-			widget._enrollmentsChanged(3);
-			expect(widget._noCoursesInSelection).to.be.false;
-		});
-
-		it('should update the item count if not searched or filtered', function() {
-			widget.isSearched = false;
-			widget.filterCount = 0;
-			widget._enrollmentsChanged(3);
-			expect(widget._itemCount).to.equal(3);
-		});
-
-		it('should not update the item count if searched', function() {
-			widget._itemCount = 3;
-			widget.isSearched = true;
-			widget.filterCount = 0;
-			widget._enrollmentsChanged(2);
-			expect(widget._itemCount).to.equal(3);
-		});
-
-		it('should not update the item count if filtered', function() {
-			widget._itemCount = 3;
-			widget.isSearched = false;
-			widget.filterCount = 1;
-			widget._enrollmentsChanged(2);
-			expect(widget._itemCount).to.equal(3);
+		[
+			{ isSearched: false, filterCount: 0, enrollmentsChanged: 3, itemCount: 3 },
+			{ isSearched: true, filterCount: 0, enrollmentsChanged: 2, itemCount: 0 },
+			{ isSearched: false, filterCount: 1, enrollmentsChanged: 2, itemCount: 0 }
+		].forEach(testCase => {
+			it(`should set itemCount to ${testCase.itemCount} when enrollments change to ${testCase.enrollmentsChanged}, isSearched is ${testCase.isSearched} and filterCount is ${testCase.filterCount}`, () => {
+				widget.isSearched = testCase.isSearched;
+				widget.filterCount = testCase.filterCount;
+				widget._enrollmentsChanged(testCase.enrollmentsChanged);
+				expect(widget._itemCount).to.equal(testCase.itemCount);
+			});
 		});
 	});
 });
