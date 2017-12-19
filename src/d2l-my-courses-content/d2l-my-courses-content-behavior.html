@@ -243,6 +243,9 @@
 						}
 					}
 				}
+			} else {
+				this.fetchSirenEntity(this.enrollmentsUrl)
+					.then(this._refetchEnrollments.bind(this));
 			}
 		},
 		_onStartedInactiveAlert: function(e) {
@@ -425,7 +428,7 @@
 			this.fire('recalculate-columns');
 
 			var lastEnrollment = enrollmentEntities[enrollmentEntities.length - 1];
-			if (lastEnrollment.hasClass('pinned') && this._hasMoreEnrollments) {
+			if (lastEnrollment && lastEnrollment.hasClass('pinned') && this._hasMoreEnrollments) {
 				var url = enrollmentsEntity.getLinkByRel('next').href;
 				return this.fetchSirenEntity(url)
 					.then(this._populateEnrollments.bind(this));
