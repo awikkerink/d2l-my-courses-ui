@@ -24,11 +24,6 @@
 				type: Array,
 				value: function() { return []; }
 			},
-			// Array of all enrollments fetched from the API (including those not displayed)
-			_allEnrollments: {
-				type: Array,
-				value: function() { return []; }
-			},
 			// Whether course tiles should animate during pin/unpin
 			_animateCourseTileGrid: {
 				type: Boolean,
@@ -77,7 +72,7 @@
 			// Text to render for "View All Courses" link (includes enrollment count approximation)
 			_viewAllCoursesText: {
 				type: String,
-				computed: '_getViewAllCoursesText(_hasMoreEnrollments, _allEnrollments)'
+				computed: '_getViewAllCoursesText(_hasMoreEnrollments, _enrollments.length)'
 			}
 		},
 		listeners: {
@@ -188,11 +183,18 @@
 					'd2l.my-courses.attached',
 					'd2l.my-courses.visible-images-complete'
 				);
+
+				setTimeout(function() {
+					// At worst, we show content 1s after the first organization has loaded
+					this._showContent = true;
+				}.bind(this), 1000);
 			}
 
 			this._courseTileOrganizationEventCount++;
 
 			if (this._courseTileOrganizationEventCount === this._initiallyVisibleCourseTileCount) {
+				// Only show content once the last visible organization has loaded, to reduce jank
+				this._showContent = true;
 				this.performanceMark('d2l.my-courses.visible-organizations-complete');
 				this.performanceMeasure(
 					'd2l.my-courses.meaningful.visible',
@@ -320,14 +322,11 @@
 		_fetchRoot: function() {
 			this.performanceMark('d2l.my-courses.root-enrollments.request');
 
-			var showContent = function() {
-				this._showContent = true;
-			}.bind(this);
-
 			return this.fetchSirenEntity(this.enrollmentsUrl)
 				.then(this._fetchEnrollments.bind(this))
-				.then(showContent)
-				.catch(showContent);
+				.catch(function() {
+					this._showContent = true;
+				}.bind(this));
 		},
 		_fetchEnrollments: function(enrollmentsRootEntity) {
 			this.performanceMark('d2l.my-courses.root-enrollments.response');
@@ -366,10 +365,10 @@
 			}
 			return match[0];
 		},
-		_getViewAllCoursesText: function(hasMoreEnrollments, allEnrollments) {
+		_getViewAllCoursesText: function(hasMoreEnrollments, enrollmentsLength) {
 			var viewAllCourses = this.localize('viewAllCourses');
 
-			var count = String(allEnrollments.length) + (hasMoreEnrollments ? '+' : '');
+			var count = String(enrollmentsLength) + (hasMoreEnrollments ? '+' : '');
 
 			return count.length > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
 		},
@@ -397,28 +396,32 @@
 			var enrollmentEntities = enrollmentsEntity.getSubEntitiesByClass('enrollment');
 			this._hasMoreEnrollments = enrollmentsEntity.hasLinkByRel('next');
 			var newEnrollments = [];
-			var allNewEnrollments = [];
+
+			var searchAction = enrollmentsEntity.getActionByName('search-my-enrollments');
+			if (
+				searchAction
+				&& searchAction.hasFieldByName('sort')
+				&& searchAction.getFieldByName('sort').value.toLowerCase() === 'current'
+			) {
+				// When using Current sort, hide past courses in the widget view
+				this.$$('d2l-course-tile-grid').setAttribute('hide-past-courses', '');
+			}
 
 			enrollmentEntities.forEach(function(enrollment) {
-				var displayedEnrollmentCount = this._enrollments.length + newEnrollments.length;
-				if (enrollment.hasClass('pinned') || displayedEnrollmentCount < 12) {
-					var enrollmentId = this.getEntityIdentifier(enrollment);
-					if (!this._existingEnrollmentsMap.hasOwnProperty(enrollmentId)) {
-						newEnrollments.push(enrollment);
-						this._existingEnrollmentsMap[enrollmentId] = true;
-					}
+				var enrollmentId = this.getEntityIdentifier(enrollment);
+				if (!this._existingEnrollmentsMap.hasOwnProperty(enrollmentId)) {
+					newEnrollments.push(enrollment);
+					this._existingEnrollmentsMap[enrollmentId] = true;
 				}
 
 				var orgHref = (enrollment.getLinkByRel(this.HypermediaRels.organization) || {}).href;
 				var orgUnitId = this._getOrgUnitIdFromHref(orgHref);
 				if (!this._orgUnitIdMap.hasOwnProperty(orgUnitId)) {
 					this._orgUnitIdMap[orgUnitId] = enrollment;
-					allNewEnrollments.push(enrollment);
 				}
 			}, this);
 
 			this._enrollments = this._enrollments.concat(newEnrollments);
-			this._allEnrollments = this._allEnrollments.concat(allNewEnrollments);
 
 			var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this._enrollments.length);
 			this._tileSizes = (colNum === 2) ?

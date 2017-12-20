@@ -592,7 +592,10 @@ the user has in that organization - student, teacher, TA, etc.
 				var startDate = Date.parse(organization.properties.startDate);
 				var inactive = !organization.properties.isActive;
 
+				this.removeAttribute('past-course');
+
 				if (endDate < nowDate) {
+					this.setAttribute('past-course', '');
 					this._setOverlayContent('courseEnded', endDate);
 				} else if (startDate > nowDate) {
 					this._setOverlayContent('courseStarting', startDate, inactive);
@@ -666,6 +669,7 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_pinnedChanged: function(pinned) {
 				this._pinned = pinned === undefined ? this._pinned : pinned;
+				this._pinned ? this.setAttribute('pinned', '') : this.removeAttribute('pinned');
 				this._pinLabel = this.localize(this._pinned ? 'unpin' : 'pin');
 
 				if (pinned === false && this.isStartedInactive) {
