@@ -29,6 +29,11 @@
 			--four-column-width: 24.25%;
 		}
 
+		:host[hide-past-courses] d2l-course-tile[past-course]:not([pinned]),
+		:host[limit-to-12] d2l-course-tile:not([past-course]):nth-child(n+13) {
+			display: none;
+		}
+
 		.grid-container {
 			position: relative;
 			width: calc(100% + 20px);

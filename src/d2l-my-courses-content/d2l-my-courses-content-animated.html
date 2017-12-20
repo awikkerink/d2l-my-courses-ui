@@ -197,11 +197,18 @@
 						'd2l.my-courses.attached',
 						'd2l.my-courses.visible-images-complete'
 					);
+
+					setTimeout(function() {
+						// At worst, we show content 1s after the first organization has loaded
+						this._showContent = true;
+					}.bind(this), 1000);
 				}
 
 				this._courseTileOrganizationEventCount++;
 
 				if (this._courseTileOrganizationEventCount === this._initiallyVisibleCourseTileCount) {
+					// Only show content once the last visible organization has loaded, to reduce jank
+					this._showContent = true;
 					this.performanceMark('d2l.my-courses.visible-organizations-complete');
 					this.performanceMeasure(
 						'd2l.my-courses.meaningful.visible',
