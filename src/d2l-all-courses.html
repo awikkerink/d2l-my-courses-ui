@@ -391,7 +391,7 @@
 				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
 					sort: sortParameter,
 					promotePins: promotePins
-				});
+				}) + '&bustCache=' + Math.random();
 
 				this.$.sortText.textContent = this.localize(langterm || '');
 				this.$.sortDropdown.toggleOpen();

@@ -125,7 +125,7 @@ describe('d2l-all-courses', function() {
 				value: 'LastAccessed'
 			});
 
-			expect(widget._searchUrl).to.equal('/enrollments/users/169?parentOrganizations=&sort=LastAccessed');
+			expect(widget._searchUrl).to.include('/enrollments/users/169?parentOrganizations=&sort=LastAccessed');
 		});
 	});
 
