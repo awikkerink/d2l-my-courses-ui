@@ -601,7 +601,7 @@ describe('<d2l-course-tile>', function() {
 
 			expect(widget.pinned).to.be.false;
 			var pinIndicatorButton = widget.$$('#pin-indicator-button');
-			expect(pinIndicatorButton).to.not.exist;
+			expect(window.getComputedStyle(pinIndicatorButton).display).to.equal('none');
 		});
 
 		it('should not show the pin indicator button when a course is pinned but the feature flag is off', function() {
@@ -611,7 +611,7 @@ describe('<d2l-course-tile>', function() {
 
 			expect(widget.pinned).to.be.true;
 			var pinIndicatorButton = widget.$$('#pin-indicator-button');
-			expect(pinIndicatorButton).to.not.exist;
+			expect(window.getComputedStyle(pinIndicatorButton).display).to.equal('none');
 		});
 
 		it('should unpin the course when pressed', function() {

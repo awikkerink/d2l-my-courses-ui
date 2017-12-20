@@ -607,16 +607,14 @@ describe('d2l-my-courses-content', () => {
 
 		it('should show the number of enrollments when there are no new pages of enrollments with the View All Courses link', () => {
 			component._hasMoreEnrollments = false;
-			component._enrollments = new Array(4);
-			component._allEnrollments = new Array(6);
+			component._enrollments = new Array(6);
 			expect(component._viewAllCoursesText).to.equal('View All Courses (6)');
 		});
 
-		it('should show 50+ with the View All Courses link when there are more than 50 courses', () => {
+		it('should show include "+" in the View All Courses link when there are more courses', () => {
 			component._hasMoreEnrollments = true;
-			component._enrollments = new Array (4);
-			component._allEnrollments = new Array(50);
-			expect(component._viewAllCoursesText).to.equal('View All Courses (50+)');
+			component._enrollments = new Array (6);
+			expect(component._viewAllCoursesText).to.equal('View All Courses (6+)');
 		});
 	});
 });
