@@ -254,7 +254,7 @@ describe('d2l-my-courses-content', () => {
 		});
 
 		describe('d2l-course-pinned-change', () => {
-			it('should remove the enrollment after receiving an external unpin event', done => {
+			it('should remove the enrollment after receiving an external unpin event', () => {
 				component._enrollments = [enrollmentEntity];
 				component._orgUnitIdMap['1'] = enrollmentEntity;
 				var spliceSpy = sandbox.spy(component, 'splice');
@@ -266,16 +266,14 @@ describe('d2l-my-courses-content', () => {
 						}
 					});
 
-				document.body.dispatchEvent(coursePinnedChangeEvent);
-
-				setTimeout(() => {
+				return component._onEnrollmentPinnedMessage(coursePinnedChangeEvent).then(() => {
 					expect(spliceSpy).to.have.been.calledWith('_enrollments', 0, 1);
-					done();
 				});
 			});
 
-			it('should add the enrollment when receiving an external pin event', done => {
+			it('should add the enrollment when receiving an external pin event', () => {
 				component._orgUnitIdMap['1'] = enrollmentEntity;
+				component._enrollments = [enrollmentEntity];
 				var coursePinnedChangeEvent = new CustomEvent(
 					'd2l-course-pinned-change', {
 						detail: {
@@ -283,20 +281,15 @@ describe('d2l-my-courses-content', () => {
 							isPinned: true
 						}
 					});
-				var unshiftSpy = sandbox.spy(component, 'unshift');
+				var spliceSpy = sandbox.spy(component, 'splice');
 
-				document.body.dispatchEvent(coursePinnedChangeEvent);
-
-				setTimeout(() => {
-					expect(unshiftSpy).to.have.been.calledWith('_enrollments', enrollmentEntity);
-					// This is the first two that are loaded automatically when the widget loads,
-					// plus the one being added by the event
+				return component._onEnrollmentPinnedMessage(coursePinnedChangeEvent).then(() => {
+					expect(spliceSpy).to.have.been.calledWith('_enrollments', 0, 1, sinon.match.object);
 					expect(component._enrollments.length).to.equal(1);
-					done();
 				});
 			});
 
-			it('should refetch enrollments if the new pinned enrollment has not previously been fetched', done => {
+			it('should refetch enrollments if the new pinned enrollment has not previously been fetched', () => {
 				component._enrollments = [enrollmentEntity];
 				component._orgUnitIdMap['1'] = enrollmentEntity;
 				var coursePinnedChangeEvent = new CustomEvent(
@@ -310,13 +303,10 @@ describe('d2l-my-courses-content', () => {
 				var unshiftSpy = sandbox.spy(component, 'unshift');
 				var refetchSpy = sandbox.spy(component, '_refetchEnrollments');
 
-				document.body.dispatchEvent(coursePinnedChangeEvent);
-
-				setTimeout(() => {
+				return component._onEnrollmentPinnedMessage(coursePinnedChangeEvent).then(() => {
 					expect(spliceSpy).to.have.not.been.called;
 					expect(unshiftSpy).to.have.not.been.called;
 					expect(refetchSpy).to.have.been.called;
-					done();
 				});
 			});
 		});
@@ -479,6 +469,18 @@ describe('d2l-my-courses-content', () => {
 		});
 
 		it('should hide the loading spinner if loading succeeds', () => {
+			fetchStub.restore();
+
+			SetupFetchStub(/\/enrollments$/, enrollmentsRootEntity);
+			SetupFetchStub(/\/enrollments\/users\/169.*&.*$/, window.D2L.Hypermedia.Siren.Parse({
+				actions: [searchAction],
+				entities: [],
+				links: [{
+					rel: ['self'],
+					href: '/enrollments/users/169'
+				}]
+			}));
+
 			return component._fetchRoot().then(() => {
 				expect(component._showContent).to.be.true;
 			});
