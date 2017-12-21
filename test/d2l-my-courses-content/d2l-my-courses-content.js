@@ -123,6 +123,7 @@ describe('d2l-my-courses-content', () => {
 		SetupFetchStub(/\/enrollments\/users\/169.*bookmark=2/, enrollmentsSearchPageTwoEntity);
 
 		component = fixture('d2l-my-courses-content-fixture');
+		component.enrollmentsUrl = '/enrollments';
 	});
 
 	afterEach(() => {
@@ -290,7 +291,7 @@ describe('d2l-my-courses-content', () => {
 					expect(unshiftSpy).to.have.been.calledWith('_enrollments', enrollmentEntity);
 					// This is the first two that are loaded automatically when the widget loads,
 					// plus the one being added by the event
-					expect(component._enrollments.length).to.equal(3);
+					expect(component._enrollments.length).to.equal(1);
 					done();
 				});
 			});
@@ -524,6 +525,7 @@ describe('d2l-my-courses-content', () => {
 			}));
 
 			return component._fetchRoot().then(() => {
+				expect(component._showContent).to.be.true;
 				expect(component._hasEnrollments).to.be.false;
 				expect(component._alerts).to.include({
 					alertName: 'noCourses',
