@@ -232,22 +232,34 @@
 			if (e.target === this) return;
 
 			var enrollment = this._orgUnitIdMap[e.detail.orgUnitId];
-			if (enrollment) {
-				if (e.detail.isPinned) {
-					this.unshift('_enrollments', enrollment);
-				} else {
-					var unpinnedEnrollmentId = this.getEntityIdentifier(enrollment);
-					for (var i = 0; i < this._enrollments.length; i++) {
-						var enrollmentId = this.getEntityIdentifier(this._enrollments[i]);
-						if (enrollmentId === unpinnedEnrollmentId) {
-							this.splice('_enrollments', i, 1);
-							break;
-						}
-					}
-				}
-			} else {
-				this.fetchSirenEntity(this.enrollmentsUrl)
+			if (!enrollment) {
+				return this.fetchSirenEntity(this.enrollmentsUrl)
 					.then(this._refetchEnrollments.bind(this));
+			}
+
+			var changedEnrollmentId = this.getEntityIdentifier(enrollment);
+			for (var i = 0; i < this._enrollments.length; i++) {
+				var enrollmentId = this.getEntityIdentifier(this._enrollments[i]);
+
+				if (enrollmentId !== changedEnrollmentId) {
+					continue;
+				}
+
+				// We want to remove the enrollment from its current location either way
+				this.splice('_enrollments', i, 1);
+
+				if (!e.detail.isPinned) {
+					// If unpinning, we're done - just need to remove the enrollment (above)
+					break;
+				}
+
+				// If we're pinning an enrollment, re-fetch said enrollment by self link,
+				// so we get the updated enrollment entity
+				return this.fetchSirenEntity(enrollment.getLinkByRel('self').href)
+					.then(function(updatedEnrollment) {
+						this._orgUnitIdMap[e.detail.orgUnitId] = updatedEnrollment;
+						this.unshift('_enrollments', updatedEnrollment);
+					}.bind(this));
 			}
 		},
 		_onStartedInactiveAlert: function(e) {
