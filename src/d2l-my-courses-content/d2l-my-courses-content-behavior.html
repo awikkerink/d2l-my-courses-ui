@@ -332,6 +332,10 @@
 			}
 		},
 		_fetchRoot: function() {
+			if (!this.enrollmentsUrl) {
+				return;
+			}
+
 			this.performanceMark('d2l.my-courses.root-enrollments.request');
 
 			return this.fetchSirenEntity(this.enrollmentsUrl)
@@ -434,6 +438,12 @@
 			}, this);
 
 			this._enrollments = this._enrollments.concat(newEnrollments);
+
+			if (this._enrollments.length === 0) {
+				// Normally we'd wait until the visible organization requests have finished,
+				// but this user has no enrollments, so we won't hit that case.
+				this._showContent = true;
+			}
 
 			var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this._enrollments.length);
 			this._tileSizes = (colNum === 2) ?
