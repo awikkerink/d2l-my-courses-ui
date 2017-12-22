@@ -238,27 +238,46 @@
 			}
 
 			var changedEnrollmentId = this.getEntityIdentifier(enrollment);
-			for (var i = 0; i < this._enrollments.length; i++) {
+			var i = 0;
+			var lastPinnedIndex = 0;
+			for (i; i < this._enrollments.length; i++) {
 				var enrollmentId = this.getEntityIdentifier(this._enrollments[i]);
+
+				if (this._enrollments[lastPinnedIndex].hasClass('pinned')) {
+					lastPinnedIndex++;
+				}
 
 				if (enrollmentId !== changedEnrollmentId) {
 					continue;
 				}
 
-				// We want to remove the enrollment from its current location either way
-				this.splice('_enrollments', i, 1);
-
-				if (!e.detail.isPinned) {
-					// If unpinning, we're done - just need to remove the enrollment (above)
-					break;
+				// Find the last pinned enrollment
+				while (
+					lastPinnedIndex < this._enrollments.length
+					&& this._enrollments[lastPinnedIndex].hasClass('pinned')
+				) {
+					lastPinnedIndex++;
 				}
 
-				// If we're pinning an enrollment, re-fetch said enrollment by self link,
-				// so we get the updated enrollment entity
 				return this.fetchSirenEntity(enrollment.getLinkByRel('self').href)
 					.then(function(updatedEnrollment) {
 						this._orgUnitIdMap[e.detail.orgUnitId] = updatedEnrollment;
-						this.unshift('_enrollments', updatedEnrollment);
+
+						if (i === lastPinnedIndex) {
+							// Course is already in the correct position, just update it
+							// (avoids removal animation + insertion animation in exact same position)
+							this.splice('_enrollments', i, 1, updatedEnrollment);
+						} else {
+							// Remove the enrollment from its current location
+							this.splice('_enrollments', i, 1);
+
+							if (i < lastPinnedIndex) {
+								// Need to account for us removing the enrollment
+								lastPinnedIndex--;
+							}
+							// Re-add the (updated) enrollment at the end of the pinned list
+							this.splice('_enrollments', lastPinnedIndex, 0, updatedEnrollment);
+						}
 					}.bind(this));
 			}
 		},
