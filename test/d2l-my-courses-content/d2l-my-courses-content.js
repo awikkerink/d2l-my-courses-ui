@@ -254,59 +254,96 @@ describe('d2l-my-courses-content', () => {
 		});
 
 		describe('d2l-course-pinned-change', () => {
-			it('should remove the enrollment after receiving an external unpin event', () => {
-				component._enrollments = [enrollmentEntity];
-				component._orgUnitIdMap['1'] = enrollmentEntity;
-				var spliceSpy = sandbox.spy(component, 'splice');
-				var coursePinnedChangeEvent = new CustomEvent(
+			function createEvent(isPinned, orgUnitId) {
+				return new CustomEvent(
 					'd2l-course-pinned-change', {
 						detail: {
-							orgUnitId: 1,
-							isPinned: false
+							isPinned: isPinned,
+							orgUnitId: orgUnitId
 						}
-					});
-
-				return component._onEnrollmentPinnedMessage(coursePinnedChangeEvent).then(() => {
-					expect(spliceSpy).to.have.been.calledWith('_enrollments', 0, 1);
-				});
-			});
-
-			it('should add the enrollment when receiving an external pin event', () => {
-				component._orgUnitIdMap['1'] = enrollmentEntity;
-				component._enrollments = [enrollmentEntity];
-				var coursePinnedChangeEvent = new CustomEvent(
-					'd2l-course-pinned-change', {
-						detail: {
-							orgUnitId: 1,
-							isPinned: true
-						}
-					});
-				var spliceSpy = sandbox.spy(component, 'splice');
-
-				return component._onEnrollmentPinnedMessage(coursePinnedChangeEvent).then(() => {
-					expect(spliceSpy).to.have.been.calledWith('_enrollments', 0, 1, sinon.match.object);
-					expect(component._enrollments.length).to.equal(1);
-				});
-			});
+					}
+				);
+			}
 
 			it('should refetch enrollments if the new pinned enrollment has not previously been fetched', () => {
-				component._enrollments = [enrollmentEntity];
-				component._orgUnitIdMap['1'] = enrollmentEntity;
-				var coursePinnedChangeEvent = new CustomEvent(
-					'd2l-course-pinned-change', {
-						detail: {
-							orgUnitId: 2,
-							isPinned: true
-						}
-					});
-				var spliceSpy = sandbox.spy(component, 'splice');
-				var unshiftSpy = sandbox.spy(component, 'unshift');
+				component._orgUnitIdMap = {
+					1: enrollmentEntity
+				};
+				var event = createEvent(true, 2);
 				var refetchSpy = sandbox.spy(component, '_refetchEnrollments');
 
-				return component._onEnrollmentPinnedMessage(coursePinnedChangeEvent).then(() => {
-					expect(spliceSpy).to.have.not.been.called;
-					expect(unshiftSpy).to.have.not.been.called;
+				return component._onEnrollmentPinnedMessage(event).then(() => {
 					expect(refetchSpy).to.have.been.called;
+				});
+			});
+
+			[
+				{ enrollmentPinStates: [false, false, false], switchStateIndex: 0, name: 'zero pins, pin first course goes to index 0' },
+				{ enrollmentPinStates: [false, false, false], switchStateIndex: 1, name: 'zero pins, pin second course goes to index 0' },
+				{ enrollmentPinStates: [false, false, false], switchStateIndex: 2, name: 'zero pins, pin third course goes to index 0' },
+				{ enrollmentPinStates: [true, false, false], switchStateIndex: 0, name: 'one pin, unpin first course remains in index 0' },
+				{ enrollmentPinStates: [true, false, false], switchStateIndex: 1, name: 'one pin, pin second course goes to index 1' },
+				{ enrollmentPinStates: [true, false, false], switchStateIndex: 2, name: 'one pin, pin third course goes to index 1' },
+				{ enrollmentPinStates: [true, true, false], switchStateIndex: 0, name: 'two pins, unpin first course goes to index 1' },
+				{ enrollmentPinStates: [true, true, false], switchStateIndex: 1, name: 'two pins, unpin second course remains in index 1' },
+				{ enrollmentPinStates: [true, true, false], switchStateIndex: 2, name: 'two pins, pin third course goes to index 2' },
+				{ enrollmentPinStates: [true, true, true], switchStateIndex: 0, name: 'three pins, unpin first course goes to index 2' },
+				{ enrollmentPinStates: [true, true, true], switchStateIndex: 1, name: 'three pins, unpin second course goes to index 2' },
+				{ enrollmentPinStates: [true, true, true], switchStateIndex: 2, name: 'three pins, unpin third course goes to index 2' },
+			].forEach(testCase => {
+				it(testCase.name, () => {
+					for (var i = 0; i < testCase.enrollmentPinStates.length; i++) {
+						var enrollment = window.D2L.Hypermedia.Siren.Parse({
+							links: [{ rel: ['self'], href: '/enrollments/' + (i + 1) }],
+							class: [testCase.enrollmentPinStates[i] ? 'pinned' : 'unpinned']
+						});
+						SetupFetchStub('/enrollments/' + (i + 1), enrollment);
+						component._enrollments.push(enrollment);
+						component._orgUnitIdMap[(i + 1)] = enrollment;
+					}
+
+					var event = createEvent(
+						!testCase.enrollmentPinStates[testCase.switchStateIndex],
+						testCase.switchStateIndex + 1
+					);
+
+					var spliceSpy = sandbox.spy(component, 'splice');
+
+					return component._onEnrollmentPinnedMessage(event).then(() => {
+						var expectedInsertionIndex = testCase.enrollmentPinStates.indexOf(false);
+						if (expectedInsertionIndex < 0) {
+							expectedInsertionIndex = testCase.enrollmentPinStates.length;
+						}
+
+						if (expectedInsertionIndex === testCase.switchStateIndex) {
+							// We just swap in-place
+							expect(spliceSpy).to.have.been.calledWith(
+								'_enrollments',
+								expectedInsertionIndex,
+								1,
+								sinon.match.object
+							);
+						} else {
+							if (testCase.switchStateIndex < expectedInsertionIndex) {
+								// Accounts for removal of enrollment higher up in the list
+								expectedInsertionIndex--;
+							}
+
+							// Removal of old enrollment
+							expect(spliceSpy).to.have.been.calledWith(
+								'_enrollments',
+								testCase.switchStateIndex,
+								1
+							);
+							// Insertion of new enrollment
+							expect(spliceSpy).to.have.been.calledWith(
+								'_enrollments',
+								expectedInsertionIndex,
+								0,
+								sinon.match.object
+							);
+						}
+					});
 				});
 			});
 		});
