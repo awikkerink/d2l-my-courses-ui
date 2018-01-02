@@ -183,11 +183,6 @@
 					'd2l.my-courses.attached',
 					'd2l.my-courses.visible-images-complete'
 				);
-
-				setTimeout(function() {
-					// At worst, we show content 1s after the first organization has loaded
-					this._showContent = true;
-				}.bind(this), 1000);
 			}
 
 			this._courseTileOrganizationEventCount++;
@@ -357,11 +352,18 @@
 
 			this.performanceMark('d2l.my-courses.root-enrollments.request');
 
+			var showContent = function() {
+				this._showContent = true;
+			}.bind(this);
+
 			return this.fetchSirenEntity(this.enrollmentsUrl)
 				.then(this._fetchEnrollments.bind(this))
-				.catch(function() {
-					this._showContent = true;
-				}.bind(this));
+				.then(function() {
+					// At worst, display content 1s after we fetch enrollments
+					// (Usually set to true before that, in _onCourseTileOrganization)
+					setTimeout(showContent, 1000);
+				})
+				.catch(showContent);
 		},
 		_fetchEnrollments: function(enrollmentsRootEntity) {
 			this.performanceMark('d2l.my-courses.root-enrollments.response');
