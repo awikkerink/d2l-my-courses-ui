@@ -14,7 +14,6 @@
 				--scale-fade-min-scale: 1.05;
 			}
 			:host:not([updated-sort-logic]) #pin-indicator-button,
-			:host:not([pinned]) #pin-indicator-button,
 			.d2l-course-tile-hidden {
 				display: none;
 			}
@@ -188,6 +187,22 @@
 				right: auto;
 			}
 
+			:host:not([pinned]) .pin-indicator {
+				visibility: hidden;
+				width: 0.1px; /* needed so d2l-icon doesnt overflow on safari */
+				margin-right: 0;
+				padding-left: 0;
+				padding-right: 0;
+			}
+			.pin-indicator {
+				opacity: 0;
+				margin-top: 10px;
+				line-height: 20px;
+			}
+			:host([pinned]) .pin-indicator {
+				opacity: 1;
+				margin-top: 10px;
+			}
 			.hover-menu {
 				opacity: 0;
 				margin-top: 0px;
@@ -209,7 +224,7 @@
 				border: none;
 				border-radius: 5px;
 				float: left;
-				transition: color 0.5s, background 0.5s;
+				transition: color 0.5s, background 0.5s, opacity 0.25s, width 0.15s, margin-right 0.25s, padding-left 0.25s, padding-right 0.25s;
 				cursor: pointer;
 				width: 35px;
 				height: 35px;
