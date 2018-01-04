@@ -194,14 +194,14 @@
 				padding-left: 0;
 				padding-right: 0;
 			}
+			:host-context([dir="rtl"]):not([pinned]) .pin-indicator {
+				margin-left: 0;
+			}
 			.pin-indicator {
 				opacity: 0;
 				margin-top: 10px;
 				line-height: 20px;
-			}
-			:host([pinned]) .pin-indicator {
 				opacity: 1;
-				margin-top: 10px;
 			}
 			.hover-menu {
 				opacity: 0;
