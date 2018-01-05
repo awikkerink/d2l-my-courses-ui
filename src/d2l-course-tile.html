@@ -345,7 +345,15 @@ the user has in that organization - student, teacher, TA, etc.
 
 				this._pendingPinAction = this.pinned;
 
-				return promise;
+				return promise
+					.then(function() {
+						// Wait until after PUT has finished to fire, so that
+						// listeners are guaranteed to fetch updated entity
+						this.fire('d2l-course-pinned-change', {
+							enrollment: this.enrollment,
+							isPinned: this.pinned
+						});
+					}.bind(this));
 			},
 			// Refreshes image from organization API call (especially useful when uploading course image)
 			refreshImage: function() {

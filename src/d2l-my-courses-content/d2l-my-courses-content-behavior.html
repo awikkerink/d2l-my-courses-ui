@@ -226,55 +226,61 @@
 		_onEnrollmentPinnedMessage: function(e) {
 			if (e.target === this) return;
 
-			var enrollment = this._orgUnitIdMap[e.detail.orgUnitId];
+			var enrollment = e.detail.enrollment || this._orgUnitIdMap[e.detail.orgUnitId];
 			if (!enrollment) {
 				return this.fetchSirenEntity(this.enrollmentsUrl)
 					.then(this._refetchEnrollments.bind(this));
 			}
 
 			var changedEnrollmentId = this.getEntityIdentifier(enrollment);
-			var i = 0;
+			var removalIndex = -1;
 			var lastPinnedIndex = 0;
-			for (i; i < this._enrollments.length; i++) {
-				var enrollmentId = this.getEntityIdentifier(this._enrollments[i]);
-
+			for (var i = 0; i < this._enrollments.length; i++) {
 				if (this._enrollments[lastPinnedIndex].hasClass('pinned')) {
-					lastPinnedIndex++;
+					lastPinnedIndex = i;
 				}
 
-				if (enrollmentId !== changedEnrollmentId) {
-					continue;
+				var enrollmentId = this.getEntityIdentifier(this._enrollments[i]);
+				if (enrollmentId === changedEnrollmentId) {
+					removalIndex = i;
 				}
-
-				// Find the last pinned enrollment
-				while (
-					lastPinnedIndex < this._enrollments.length
-					&& this._enrollments[lastPinnedIndex].hasClass('pinned')
-				) {
-					lastPinnedIndex++;
-				}
-
-				return this.fetchSirenEntity(enrollment.getLinkByRel('self').href)
-					.then(function(updatedEnrollment) {
-						this._orgUnitIdMap[e.detail.orgUnitId] = updatedEnrollment;
-
-						if (i === lastPinnedIndex) {
-							// Course is already in the correct position, just update it
-							// (avoids removal animation + insertion animation in exact same position)
-							this.splice('_enrollments', i, 1, updatedEnrollment);
-						} else {
-							// Remove the enrollment from its current location
-							this.splice('_enrollments', i, 1);
-
-							if (i < lastPinnedIndex) {
-								// Need to account for us removing the enrollment
-								lastPinnedIndex--;
-							}
-							// Re-add the (updated) enrollment at the end of the pinned list
-							this.splice('_enrollments', lastPinnedIndex, 0, updatedEnrollment);
-						}
-					}.bind(this));
 			}
+
+			// Find the last pinned enrollment
+			while (
+				lastPinnedIndex < this._enrollments.length
+				&& this._enrollments[lastPinnedIndex].hasClass('pinned')
+			) {
+				lastPinnedIndex++;
+			}
+
+			var url = enrollment.getLinkByRel('self').href;
+			url += (url.indexOf('?') === -1 ? '?' : '&') + 'bustCache=' + Math.random();
+
+			return this.fetchSirenEntity(url)
+				.then(function(updatedEnrollment) {
+					var orgUnitId = this._getOrgUnitIdFromHref(this.getEntityIdentifier(updatedEnrollment));
+					this._orgUnitIdMap[orgUnitId] = updatedEnrollment;
+
+					if (removalIndex === -1) {
+						// Course was not already in list, insert it as last pinned item
+						this.splice('_enrollments', lastPinnedIndex, 0, updatedEnrollment);
+					} else if (removalIndex === lastPinnedIndex) {
+						// Course is already in the correct position, just update it
+						// (avoids removal animation + insertion animation in exact same position)
+						this.splice('_enrollments', removalIndex, 1, updatedEnrollment);
+					} else {
+						// Remove the enrollment from its current location
+						this.splice('_enrollments', removalIndex, 1);
+
+						if (removalIndex < lastPinnedIndex) {
+							// Need to account for us removing the enrollment
+							lastPinnedIndex--;
+						}
+						// Re-add the (updated) enrollment at the end of the pinned list
+						this.splice('_enrollments', lastPinnedIndex, 0, updatedEnrollment);
+					}
+				}.bind(this));
 		},
 		_onStartedInactiveAlert: function(e) {
 			var type = e && e.detail && e.detail.type;

@@ -254,12 +254,13 @@ describe('d2l-my-courses-content', () => {
 		});
 
 		describe('d2l-course-pinned-change', () => {
-			function createEvent(isPinned, orgUnitId) {
+			function createEvent(isPinned, orgUnitId, enrollment) {
 				return new CustomEvent(
 					'd2l-course-pinned-change', {
 						detail: {
 							isPinned: isPinned,
-							orgUnitId: orgUnitId
+							orgUnitId: orgUnitId,
+							enrollment: enrollment
 						}
 					}
 				);
@@ -274,6 +275,56 @@ describe('d2l-my-courses-content', () => {
 
 				return component._onEnrollmentPinnedMessage(event).then(() => {
 					expect(refetchSpy).to.have.been.called;
+				});
+			});
+
+			[
+				{ enrollmentPinStates: [false, false], pin: false, name: 'zero pins, unpin non-displayed course' },
+				{ enrollmentPinStates: [true, false], pin: false, name: 'one pin, unpin non-displayed course' },
+				{ enrollmentPinStates: [true, true], pin: false, name: 'two pins, unpin non-displayed course' },
+				{ enrollmentPinStates: [false, false], pin: true, name: 'zero pins, pin non-displayed course' },
+				{ enrollmentPinStates: [true, false], pin: true, name: 'one pins, pin non-displayed course' },
+				{ enrollmentPinStates: [true, true], pin: true, name: 'two pins, pin non-displayed course' },
+			].forEach(testCase => {
+				it(testCase.name, () => {
+					for (var i = 0; i < testCase.enrollmentPinStates.length; i++) {
+						var enrollment = window.D2L.Hypermedia.Siren.Parse({
+							links: [{ rel: ['self'], href: '/enrollments/' + (i + 1) }],
+							class: [testCase.enrollmentPinStates[i] ? 'pinned' : 'unpinned']
+						});
+						SetupFetchStub('/enrollments/' + (i + 1), enrollment);
+						component._enrollments.push(enrollment);
+						component._orgUnitIdMap[(i + 1)] = enrollment;
+					}
+					var eventEnrollment = window.D2L.Hypermedia.Siren.Parse({
+						links: [{ rel: ['self'], href: '/enrollments/101010' }],
+						class: [testCase.pin ? 'pinned' : 'unpinned']
+					});
+					SetupFetchStub('/enrollments/101010', eventEnrollment);
+
+					var event = createEvent(
+						undefined,
+						undefined,
+						eventEnrollment
+					);
+
+					var spliceSpy = sandbox.spy(component, 'splice');
+
+					return component._onEnrollmentPinnedMessage(event).then(() => {
+						var expectedInsertionIndex = testCase.enrollmentPinStates.indexOf(false);
+						if (expectedInsertionIndex < 0) {
+							expectedInsertionIndex = testCase.enrollmentPinStates.length;
+						}
+
+						// A new course will either be inserted after the last pinned item,
+						// or before the first unpinned item - same index, either way
+						expect(spliceSpy).to.have.been.calledWith(
+							'_enrollments',
+							expectedInsertionIndex,
+							0,
+							sinon.match.object
+						);
+					});
 				});
 			});
 
