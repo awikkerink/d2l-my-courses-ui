@@ -629,10 +629,8 @@ describe('<d2l-course-tile>', function() {
 
 	describe('Notification Overlay', function() {
 		var org,
-			curDate,
 			futureDate,
 			pastDate,
-			formattedDate = 'FORMATTED_DATE',
 			formattedFutureDateTime,
 			formattedPastDateTime,
 			inactiveText = '(Inactive)';
@@ -663,21 +661,15 @@ describe('<d2l-course-tile>', function() {
 		}
 
 		beforeEach(function() {
-			curDate = Date.now();
-			futureDate = new Date(curDate + 8000).toISOString();
-			pastDate = new Date(curDate - 8000).toISOString();
-			formattedFutureDateTime = formattedDate + ' at ' + (new Date(futureDate)).toLocaleTimeString('en', { hour: 'numeric', minute: 'numeric', hour12 : true });
-			formattedPastDateTime = formattedDate + ' at ' + (new Date(pastDate)).toLocaleTimeString('en', { hour: 'numeric', minute: 'numeric', hour12 : true });
+			futureDate = new Date(3000, 0, 1, 15, 5).toISOString();
+			pastDate = new Date(1900, 3, 30, 4, 38).toISOString();
+			formattedFutureDateTime = 'Jan 1, 3000 3:05 PM';
+			formattedPastDateTime = 'Apr 30, 1900 4:38 AM';
 			org = {
 				properties: {
 					endDate: futureDate,
 					startDate: pastDate,
 					isActive: true
-				}
-			};
-			window.d2lIntl = {
-				DateTimeFormat: function() {
-					this.format = sinon.stub().returns(formattedDate);
 				}
 			};
 		});
