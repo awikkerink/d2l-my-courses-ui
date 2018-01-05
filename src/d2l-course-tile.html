@@ -5,7 +5,6 @@
 <link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
-<link rel="import" href="../../d2l-intl-import/d2l-intl.html">
 <link rel="import" href="../../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
 <link rel="import" href="../../d2l-menu/d2l-menu-item-link.html">
 <link rel="import" href="../../d2l-offscreen/d2l-offscreen.html">
@@ -201,8 +200,6 @@ the user has in that organization - student, teacher, TA, etc.
 						iconName: ''
 					}
 				},
-				_dateFormatter: Object,
-				_fullDateFormatter: Object,
 				_notificationInactive: String,
 				_notificationTitle: String,
 				_notificationDate: String,
@@ -613,30 +610,34 @@ the user has in that organization - student, teacher, TA, etc.
 				}
 			},
 			_setOverlayContent: function(type, date, inactive) {
+
 				this._clearOverlayContent();
-				if (!this._dateFormatter && window.d2lIntl) {
-					this._dateFormatter = new window.d2lIntl.DateTimeFormat(this.locale, { format: 'MMM d, yyyy' });
-					this._fullDateFormatter = new window.d2lIntl.DateTimeFormat(this.locale, { format: 'MMMM d, yyyy' });
-				}
 
-				if (this._dateFormatter) {
-					var dateObj = new Date(date);
-					var time = dateObj.toLocaleTimeString(this.locale, { hour: 'numeric', minute: 'numeric' });
-					var notificationDate = this._dateFormatter.format(dateObj);
-					this._notificationDate = this.localize('overlay.notificationDateTime', 'date', notificationDate, 'time', time);
-					var courseEndedTerm = this.updatedSortLogic
-						? (type === 'courseEnded') ? 'overlay.courseClosedOn' : 'overlay.courseOpeningOn'
-						: (type === 'courseEnded') ? 'overlay.courseEndedOn' : 'overlay.courseStartingOn';
-					this._courseNotificationLabel = this.localize(courseEndedTerm, 'date', this._fullDateFormatter.format(dateObj), 'time', time);
-					this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
-					this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
-					var courseNotificationTitleTerm = this.updatedSortLogic
-						? courseNotificationTitleTerm = (type === 'courseEnded') ? 'overlay.courseClosed' : 'overlay.courseOpens'
-						: courseNotificationTitleTerm = (type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting';
-					this._notificationTitle = this.localize(courseNotificationTitleTerm);
+				var dateObj = new Date(date);
 
-					this._notificationInactive = (type === 'courseStarting' && inactive) ? this.localize('brackets', 'content', this.localize('overlay.inactive')) : null;
-				}
+				this._notificationDate = this.formatDateTime(
+					dateObj,
+					{'format': 'medium'}
+				);
+				var courseEndedTerm = this.updatedSortLogic
+					? (type === 'courseEnded') ? 'overlay.courseClosedOn' : 'overlay.courseOpeningOn'
+					: (type === 'courseEnded') ? 'overlay.courseEndedOn' : 'overlay.courseStartingOn';
+				this._courseNotificationLabel = this.localize(
+					courseEndedTerm,
+					'date',
+					this.formatDate(dateObj, {format: 'MMMM d, yyyy'}),
+					'time',
+					this.formatTime(dateObj)
+				);
+				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
+				this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
+				var courseNotificationTitleTerm = this.updatedSortLogic
+					? courseNotificationTitleTerm = (type === 'courseEnded') ? 'overlay.courseClosed' : 'overlay.courseOpens'
+					: courseNotificationTitleTerm = (type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting';
+				this._notificationTitle = this.localize(courseNotificationTitleTerm);
+
+				this._notificationInactive = (type === 'courseStarting' && inactive) ? this.localize('brackets', 'content', this.localize('overlay.inactive')) : null;
+
 			},
 			_setOverlayInactive: function() {
 				this._clearOverlayContent();
