@@ -601,7 +601,7 @@ describe('<d2l-course-tile>', function() {
 
 			expect(widget.pinned).to.be.false;
 			var pinIndicatorButton = widget.$$('#pin-indicator-button');
-			expect(window.getComputedStyle(pinIndicatorButton).display).to.equal('none');
+			expect(window.getComputedStyle(pinIndicatorButton).visibility).to.equal('hidden');
 		});
 
 		it('should not show the pin indicator button when a course is pinned but the feature flag is off', function() {
