@@ -577,7 +577,7 @@ describe('d2l-my-courses-content', () => {
 		it('should fetch enrollments using the constructed enrollmentsSearchUrl', () => {
 			return component._fetchRoot().then(() => {
 				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('autoPinCourses=false')));
-				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('pageSize=50')));
+				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('pageSize=20')));
 				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('embedDepth=1')));
 				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('sort=current')));
 				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('promotePins=true')));
@@ -705,8 +705,14 @@ describe('d2l-my-courses-content', () => {
 
 		it('should show include "+" in the View All Courses link when there are more courses', () => {
 			component._hasMoreEnrollments = true;
-			component._enrollments = new Array (6);
+			component._enrollments = new Array(6);
 			expect(component._viewAllCoursesText).to.equal('View All Courses (6+)');
+		});
+
+		it('should round the number of courses in the View All Courses link when there are many courses', () => {
+			component._hasMoreEnrollments = true;
+			component._enrollments = new Array(23);
+			expect(component._viewAllCoursesText).to.equal('View All Courses (20+)');
 		});
 	});
 });

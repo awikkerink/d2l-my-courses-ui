@@ -325,7 +325,7 @@
 			var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
 
 			var query = {
-				pageSize: 50,
+				pageSize: 20,
 				embedDepth: 1,
 				sort: 'current',
 				autoPinCourses: false,
@@ -411,9 +411,14 @@
 		_getViewAllCoursesText: function(hasMoreEnrollments, enrollmentsLength) {
 			var viewAllCourses = this.localize('viewAllCourses');
 
-			var count = String(enrollmentsLength) + (hasMoreEnrollments ? '+' : '');
+			// With individual fetching of courses as they get pinned, we can end
+			// up with "21+", "22+", etc., so round down to nearest 5 for >20 courses
+			var count = enrollmentsLength < 20
+				? enrollmentsLength
+				: String(enrollmentsLength - (enrollmentsLength % 5));
+			if (hasMoreEnrollments) count += '+';
 
-			return count.length > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
+			return enrollmentsLength > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
 		},
 		_openAllCoursesView: function(e) {
 			this._createAllCourses();

@@ -184,7 +184,7 @@ describe('d2l-my-courses-content-animated', function() {
 			return widget._fetchRoot().then(function() {
 				expect(spy).to.have.been.called;
 				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('autoPinCourses=true'));
-				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('pageSize=25'));
+				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('pageSize=20'));
 				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('embedDepth=1'));
 				expect(widget.fetchSirenEntity).to.have.been.calledWith(sinon.match('sort=-PinDate,OrgUnitName,OrgUnitId'));
 			});
@@ -347,6 +347,14 @@ describe('d2l-my-courses-content-animated', function() {
 			widget._allEnrollments = new Array(50);
 			widget._hasMoreEnrollments = true;
 			expect(widget._viewAllCoursesText).to.equal('View All Courses');
+		});
+
+		it('should round the number of courses in the View All Courses link when there are many courses', () => {
+			widget.updatedSortLogic = true;
+			widget._pinnedEnrollments = new Array(4);
+			widget._allEnrollments = new Array(23);
+			widget._hasMoreEnrollments = true;
+			expect(widget._viewAllCoursesText).to.equal('View All Courses (20+)');
 		});
 
 		describe('course image upload', function() {
