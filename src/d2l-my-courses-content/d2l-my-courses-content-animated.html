@@ -247,10 +247,9 @@
 			// Override for MyCoursesContentBehavior._createFetchEnrollmentsUrl
 			_createFetchEnrollmentsUrl: function(enrollmentsRootEntity, bustCache) {
 				var searchAction = enrollmentsRootEntity.getActionByName('search-my-enrollments');
-				var pageSize = this.updatedSortLogic ? 50 : 25;
 
 				var query = {
-					pageSize: pageSize,
+					pageSize: 20,
 					embedDepth: 1,
 					sort: '-PinDate,OrgUnitName,OrgUnitId',
 					autoPinCourses: true
@@ -328,10 +327,14 @@
 				var viewAllCourses = this.localize('viewAllCourses');
 				if (!this.updatedSortLogic) return viewAllCourses;
 
-				var count = String(allEnrollments.length);
+				// With individual fetching of courses as they get pinned, we can end
+				// up with "21+", "22+", etc., so round down to nearest 5 for >20 courses
+				var count = allEnrollments.length < 20
+					? allEnrollments.length
+					: String(allEnrollments.length - (allEnrollments.length % 5));
 				if (hasMoreEnrollments) count += '+';
 
-				return count.length > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
+				return allEnrollments.length > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
 			}
 		});
 	</script>
