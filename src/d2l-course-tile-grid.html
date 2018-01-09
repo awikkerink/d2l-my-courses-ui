@@ -50,9 +50,7 @@
 				enrollments: {
 					type: Array,
 					notify: true,
-					value: function() {
-						return [];
-					}
+					value: function() { return []; }
 				},
 				animate: {
 					type: Boolean,
@@ -60,13 +58,20 @@
 				},
 				// Set of enrollments which should be animated when being inserted
 				enrollmentsToAnimate: {
-					type: Array
+					type: Array,
+					value: function() { return []; }
 				},
 				// Size the tile should render with respect to vw
-				tileSizes: Object,
+				tileSizes: {
+					type: Object,
+					value: function() { return {}; }
+				},
 				locale: String,
 				// Types of notifications to include in update count in course tile
-				courseUpdatesConfig: Object,
+				courseUpdatesConfig: {
+					type: Object,
+					value: function() { return {}; }
+				},
 				// Set to true if course code should be shown in course tiles
 				showCourseCode: Boolean,
 				// Set to true if semester should be shown in course tiles
