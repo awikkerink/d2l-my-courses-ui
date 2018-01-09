@@ -435,6 +435,10 @@ the user has in that organization - student, teacher, TA, etc.
 
 				this.pinned = this.enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
 
+				if (!this.enrollment.hasLinkByRel(this.HypermediaRels.organization)) {
+					return;
+				}
+
 				var organizationLink = this.enrollment.getLinkByRel(this.HypermediaRels.organization);
 				if (!this._organizationUrl || this._organizationUrl.indexOf(organizationLink.href) !== 0) {
 					this._organizationUrl = organizationLink.href + '?embedDepth=1';
@@ -700,8 +704,11 @@ the user has in that organization - student, teacher, TA, etc.
 				return organization && organization.getActionByName(this.HypermediaActions.organizations.setCatalogImage);
 			},
 			_setCourseImageSrc: function() {
-				var image = this._organization.getSubEntityByClass(this.HypermediaClasses.courseImage.courseImage);
+				if (!this._organization.hasSubEntityByClass(this.HypermediaClasses.courseImage.courseImage)) {
+					return;
+				}
 
+				var image = this._organization.getSubEntityByClass(this.HypermediaClasses.courseImage.courseImage);
 				image.forceImageRefresh = this._forceImageRefresh;
 				this._image = image;
 			},
