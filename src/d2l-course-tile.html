@@ -628,10 +628,8 @@ the user has in that organization - student, teacher, TA, etc.
 					: (type === 'courseEnded') ? 'overlay.courseEndedOn' : 'overlay.courseStartingOn';
 				this._courseNotificationLabel = this.localize(
 					courseEndedTerm,
-					'date',
-					this.formatDate(dateObj, {format: 'MMMM d, yyyy'}),
-					'time',
-					this.formatTime(dateObj)
+					'dateTime',
+					this.formatDate(dateObj, {format: 'MMMM d, yyyy'}) + ' ' + this.formatTime(dateObj)
 				);
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
 				this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
