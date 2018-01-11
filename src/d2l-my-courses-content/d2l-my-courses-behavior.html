@@ -33,6 +33,16 @@
 				type: Boolean,
 				value: false
 			}
+		},
+		courseImageUploadCompleted: function(success) {
+			return this.updatedSortLogic
+				? this.$$('d2l-my-courses-content').courseImageUploadCompleted(success)
+				: this.$$('d2l-my-courses-content-animated').courseImageUploadCompleted(success);
+		},
+		getLastOrgUnitId: function() {
+			return this.updatedSortLogic
+				? this.$$('d2l-my-courses-content').getLastOrgUnitId()
+				: this.$$('d2l-my-courses-content-animated').getLastOrgUnitId();
 		}
 	};
 </script>
