@@ -211,6 +211,7 @@
 			this._courseTileOrganizationEventCount++;
 
 			if (this._courseTileOrganizationEventCount === this._initiallyVisibleCourseTileCount) {
+				this._addOnlyPastCoursesAlert();
 				// Only show content once the last visible organization has loaded, to reduce jank
 				this._showContent = true;
 				this.performanceMark('d2l.my-courses.visible-organizations-complete');
@@ -408,6 +409,7 @@
 				.then(function() {
 					// At worst, display content 1s after we fetch enrollments
 					// (Usually set to true before that, in _onCourseTileOrganization)
+					this._addOnlyPastCoursesAlert();
 					setTimeout(showContent, 1000);
 				})
 				.catch(showContent);
@@ -545,6 +547,14 @@
 		},
 		_refreshPage: function() {
 			document.location.reload(true);
+		},
+		_addOnlyPastCoursesAlert: function() {
+			if (this._hasEnrollments
+			&& !this.$$('d2l-course-tile-grid').$$('d2l-course-tile:not([past-course])')
+			&& this.$$('d2l-course-tile-grid').hasAttribute('hide-past-courses')
+			&& !this._hasAlert('onlyPastCourses')) {
+				this._addAlert('call-to-action', 'onlyPastCourses', this.localize('onlyPastCoursesMessage'));
+			}
 		}
 	};
 

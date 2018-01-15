@@ -51,11 +51,6 @@
 			<template is="dom-repeat" items="[[_alerts]]">
 				<d2l-alert type="[[item.alertType]]">
 					{{item.alertMessage}}
-					<a
-						is="d2l-link"
-						href="Javascript:void(0);"
-						hidden$="[[_hasEnrollments]]"
-						on-tap="_refreshPage">{{localize('refresh')}}</a>
 				</d2l-alert>
 			</template>
 			<d2l-course-tile-grid
@@ -237,7 +232,7 @@
 
 				if (this._hasEnrollments) {
 					if (!this._hasPinnedEnrollments) {
-						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
+						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesWidgetMessage'));
 					}
 				} else {
 					this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
