@@ -15,6 +15,7 @@ describe('d2l-my-courses', () => {
 		expect(component.courseImageUploadCompleted).to.be.a('function');
 		expect(component.getLastOrgUnitId).to.be.a('function');
 		expect(component.updatedSortLogic).to.equal(false);
+		expect(component.cssGridView).to.equal(false);
 	});
 
 	describe('Public API', () => {
@@ -30,7 +31,6 @@ describe('d2l-my-courses', () => {
 
 		it('should call d2l-my-courses-content.courseImageUploadCompleted', done => {
 			component.updatedSortLogic = true;
-
 			setTimeout(() => {
 				var stub = sandbox.stub(component.$$('d2l-my-courses-content'), 'courseImageUploadCompleted');
 				component.courseImageUploadCompleted();
@@ -51,7 +51,6 @@ describe('d2l-my-courses', () => {
 
 		it('should call d2l-my-courses-content.getLastOrgUnitId', done => {
 			component.updatedSortLogic = true;
-
 			setTimeout(() => {
 				var stub = sandbox.stub(component.$$('d2l-my-courses-content'), 'getLastOrgUnitId');
 				component.getLastOrgUnitId();
