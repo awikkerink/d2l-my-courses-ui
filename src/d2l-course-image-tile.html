@@ -4,6 +4,7 @@
 <link rel="import" href="../../d2l-icons/d2l-icon.html">
 <link rel="import" href="../../d2l-icons/tier1-icons.html">
 <link rel="import" href="../../d2l-dropdown/d2l-dropdown-menu.html">
+<link rel="import" href="../../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../../d2l-menu/d2l-menu-item.html">
 <link rel="import" href="../../d2l-menu/d2l-menu-item-link.html">
 <link rel="import" href="../../d2l-offscreen/d2l-offscreen.html">
@@ -130,6 +131,53 @@
 				font-size: 0.8rem;
 			}
 
+			.icon-container {
+				height: 64px;
+				width: 64px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				border-style: none;
+				border-radius: 100px;
+				background-color: white;
+				overflow: hidden;
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				margin: auto;
+				animation-name: container;
+				animation-duration: 1s;
+				animation-fill-mode: forwards;
+			}
+			@keyframes container {
+				0% { height: 64px; width: 64px; }
+				70% { height: 64px; width: 64px; opacity: 1; }
+				90% { height: 80px; width: 80px; opacity: 0.4 }
+				100% { height: 20px; width: 20px; opacity: 0; }
+			}
+
+			.checkmark {
+				color: var(--d2l-color-olivine);
+			}
+			.fail-icon {
+				color: #ffce51;
+			}
+			.checkmark,
+			.fail-icon {
+				display: flex;
+				animation-name: inner;
+				animation-duration: 1s;
+				animation-fill-mode: forwards;
+			}
+			@keyframes inner {
+				0% { transform: scale(1); }
+				15% { transform: scale(2.30); }
+				20% { transform: scale(2.0); }
+				100% { transform: scale(2.0); }
+			}
+
 			.update-text-box {
 				border: 2px solid var(--d2l-color-carnelian);
 				color: var(--d2l-color-carnelian);
@@ -215,6 +263,12 @@
 				<div>[[_overlayInactive]]</div>
 			</div>
 			<div hidden$="[[_hasOverlay]]" class="overlay transparent"></div>
+			<div hidden$="[[!_imageLoading]]" class="overlay">
+				<d2l-loading-spinner hidden$="[[!_imageLoadingProgress]]" size="85"></d2l-loading-spinner>
+				<div class="icon-container" hidden$="[[_imageLoadingProgress]]">
+					<d2l-icon></d2l-icon>
+				</div>
+			</div>
 			<div class="alert-colour-circle" hidden$="[[!startedInactive]]"></div>
 			<div class="flex">
 				<div class="course-text">
@@ -223,10 +277,6 @@
 						<span class="course-code-text uppercase">[[_organization.properties.code]]</span>
 						<d2l-icon hidden$="[[!_showSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
 						<span class="semester-text">[[_semesterName]]</span>
-					</div>
-					<div hidden$="[[!_showUpdateCount]]">
-						<d2l-offscreen>[[localize('courseTile.updates')]]</d2l-offscreen>
-						<span class="update-text-box">[[_updateCount]]</span>
 					</div>
 				</div>
 				<div hidden$="[[!_showUpdateCount]]">
@@ -289,6 +339,14 @@
 					value: 'emphasize-image lower-menu'
 				},
 				_image: Object,
+				_imageLoading: {
+					type: Boolean,
+					value: false
+				},
+				_imageLoadingProgress: {
+					type: Boolean,
+					value: false
+				},
 				_load: Boolean,
 				_organization: Object,
 				_organizationHomepageUrl: String,
@@ -334,6 +392,8 @@
 				'_fetchEnrollmentData(_load, enrollment)'
 			],
 			attached: function() {
+				document.body.addEventListener('set-course-image', this._onSetCourseImage.bind(this));
+
 				Polymer.RenderStatus.afterNextRender(this, function() {
 					var imageTile = this.$$('d2l-image-tile');
 
@@ -373,8 +433,27 @@
 					observer.observe(imageTile);
 				});
 			},
+			detached: function() {
+				document.body.removeEventListener('set-course-image', this._onSetCourseImage.bind(this));
+			},
 			ready: function() {
 				Polymer.IronA11yAnnouncer.requestAvailability();
+			},
+
+			refreshImage: function(organization) {
+				if (this.getEntityIdentifier(organization) !== this.getEntityIdentifier(this._organization)) {
+					return;
+				}
+
+				this._imageLoading = true;
+				this._imageLoadingProgress = true;
+
+				var organizationHref = organization.getLinkByRel('self').href;
+				organizationHref += '?embedDepth=1';
+
+				return this._fetchOrganization(organizationHref)
+					.then(this._displaySetImageResult.bind(this, true, true))
+					.catch(this._displaySetImageResult.bind(this, false));
 			},
 
 			_computeCanAccessCourseInfo: function(organization) {
@@ -447,6 +526,29 @@
 				return updateCount + (updateCount > 99 ? '+' : '');
 			},
 
+			_displaySetImageResult: function(success, skipSetImage) {
+				setTimeout(function() {
+					var icon = this.$$('.icon-container d2l-icon');
+					this.toggleClass('checkmark', false, icon);
+					this.toggleClass('fail-icon', false, icon);
+					var iconName = success ? 'd2l-tier2:check' : 'd2l-tier3:close';
+					var className = success ? 'checkmark' : 'fail-icon';
+					icon.setAttribute('icon', iconName);
+					this.toggleClass(className, true, icon);
+
+					// Hide the loading spinner, so that the success/failure icon shows
+					this._imageLoadingProgress = false;
+
+					if (success && !skipSetImage) {
+						this._image = this._nextImage;
+					}
+
+					setTimeout(function() {
+						// Hide the entire image-loading overlay and contents
+						this._imageLoading = false;
+					}.bind(this), 1000);
+				}.bind(this), 1000);
+			},
 			_fetchEnrollmentData: function(load, enrollment) {
 				if (!load || !enrollment || !enrollment.hasLinkByRel(this.HypermediaRels.organization)) {
 					return;
@@ -556,6 +658,41 @@
 				}
 
 				return Promise.resolve();
+			},
+			_launchCourseImageSelector: function() {
+				this.fire('open-change-image-view', {
+					organization: this._organization
+				});
+			},
+			_onSetCourseImage: function(e) {
+				if (this.getEntityIdentifier(e.detail.organization) !== this.getEntityIdentifier(this._organization)) {
+					return;
+				}
+
+				this._imageLoading = true;
+
+				var status = e.detail.status;
+				var newImageHref = this.getDefaultImageLink(e.detail.image);
+				var newSrcSet = this.getImageSrcset(e.detail.image, 'tile');
+
+				switch (status) {
+					case 'set':
+						this._imageLoadingProgress = true;
+						// load the image while the loading spinner runs to that we have it when the spinner ends
+						this._nextImage = e.detail.image;
+						var imagePreloader = document.createElement('img');
+						imagePreloader.setAttribute('src', newImageHref);
+						imagePreloader.setAttribute('srcset', newSrcSet);
+						imagePreloader.setAttribute('sizes', this.$$('d2l-course-image').getTileSizes());
+						break;
+					case 'success':
+						this._displaySetImageResult(true);
+						break;
+					case 'failure':
+					default:
+						this._displaySetImageResult(false);
+						break;
+				}
 			},
 			_pinClickHandler: function() {
 				var pinAction = this.pinned
