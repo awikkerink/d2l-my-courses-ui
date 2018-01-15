@@ -103,6 +103,33 @@
 				margin-right: auto;
 			}
 
+			.overlay {
+				box-sizing: border-box;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				position: absolute;
+				top: calc(-1 * var(--course-image-height));
+				height: var(--course-image-height);
+				width: 100%;
+				border-top-left-radius: 6px;
+				border-top-right-radius: 6px;
+				color: white;
+				padding: 10px;
+				text-align: center;
+				background-color: rgba(0,0,0,0.7);
+			}
+			.overlay.transparent {
+				background-color: transparent;
+			}
+			.overlay-text {
+				font-size: 1rem;
+				font-weight: bold;
+			}
+			.overlay-date {
+				font-size: 0.8rem;
+			}
+
 			.update-text-box {
 				border: 2px solid var(--d2l-color-carnelian);
 				color: var(--d2l-color-carnelian);
@@ -116,6 +143,21 @@
 				margin-top: 0.25rem;
 				align-items: center;
 				justify-content: center;
+			}
+
+			.alert-colour-circle {
+				height: 24px;
+				width: 24px;
+				border-radius: 12px;
+				border: 3px solid white;
+				background-color: #ffce51;
+				position: absolute;
+				top: calc(-1 * var(--course-image-height) - 12px);
+				right: -12px;
+			}
+			[dir="rtl"] .alert-colour-circle {
+				right: auto;
+				left: -2px;
 			}
 		</style>
 
@@ -167,6 +209,13 @@
 				<d2l-icon hidden$="[[!pinned]]" icon="d2l-tier1:pin-filled"></d2l-icon>
 			</button>
 
+			<div hidden$="[[!_hasOverlay]]" class="overlay">
+				<div class="overlay-text">[[_overlayTitle]]</div>
+				<div class="overlay-date">[[_overlayDate]]</div>
+				<div>[[_overlayInactive]]</div>
+			</div>
+			<div hidden$="[[_hasOverlay]]" class="overlay transparent"></div>
+			<div class="alert-colour-circle" hidden$="[[!startedInactive]]"></div>
 			<div class="flex">
 				<div class="course-text">
 					[[_organization.properties.name]]
@@ -231,6 +280,10 @@
 					type: String,
 					computed: '_computeCourseSettingsLabel(_organization)'
 				},
+				_hasOverlay: {
+					type: Boolean,
+					value: false
+				},
 				_hoverEffects: {
 					type: String,
 					value: 'emphasize-image lower-menu'
@@ -239,6 +292,13 @@
 				_load: Boolean,
 				_organization: Object,
 				_organizationHomepageUrl: String,
+				_overlayAnnounceText: {
+					type: String,
+					computed: '_computeOverlayAnnounceText(_organization)'
+				},
+				_overlayDate: String,
+				_overlayInactive: String,
+				_overlayTitle: String,
 				_pinButtonLabel: {
 					type: String,
 					computed: '_computePinButtonLabel(_organization)'
@@ -329,6 +389,48 @@
 				return organization
 					&& organization.properties
 					&& this.localize('courseSettings', 'course', organization.properties.name);
+			},
+			_computeOverlayAnnounceText: function(organization) {
+				var nowDate = Date.now();
+				var endDate = Date.parse(organization.properties.endDate);
+				var startDate = Date.parse(organization.properties.startDate);
+				var inactive = !organization.properties.isActive;
+
+				this.removeAttribute('past-course');
+				this._hasOverlay = true;
+
+				if (endDate < nowDate) {
+					this.setAttribute('past-course', '');
+					endDate = new Date(endDate);
+					this._overlayDate = this.formatDateTime(endDate, {format: 'medium'});
+					this._overlayInactive = null;
+					this._overlayTitle = this.localize('overlay.courseClosed');
+					return this.localize('courseEnded', 'date', this.formatDate(endDate, {format: 'MMMM d, yyyy'}), 'time', this.formatTime(endDate));
+				} else if (startDate > nowDate) {
+					startDate = new Date(startDate);
+					this._overlayDate = this.formatDateTime(startDate, {format: 'medium'});
+					this._overlayInactive = inactive ? null : this.localize('brackets', 'content', this.localize('overlay.inactive'));
+					this._overlayTitle = this.localize('overlay.courseOpens');
+					return this.localize('courseStarting', 'date', this.formatDate(startDate, {format: 'MMMM d, yyyy'}), 'time', this.formatTime(startDate));
+				} else if (startDate && inactive) {
+					this._overlayInactive = this.localize('brackets', 'content', this.localize('overlay.inactive'));
+					this._overlayTitle = this.localize('overlay.courseStarted');
+					if (this.pinned) {
+						// We only care about calling out started-inactive courses if they're pinned
+						this.startedInactive = true;
+						this.fire('started-inactive');
+					}
+					return this._overlayTitle + ' ' + this._overlayInactive;
+				} else if (inactive) {
+					this._overlayTitle = this.localize('overlay.inactive');
+					return this._overlayTitle;
+				} else {
+					this._overlayDate = null;
+					this._overlayInactive = null;
+					this._overlayTitle = null;
+					this._hasOverlay = false;
+					return null;
+				}
 			},
 			_computePinButtonLabel: function(organization) {
 				return organization
