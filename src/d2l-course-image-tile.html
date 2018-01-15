@@ -371,6 +371,49 @@
 				}
 
 				return Promise.resolve();
+			},
+			_pinClickHandler: function() {
+				var pinAction = this.pinned
+					? this.enrollment.getActionByName(this.HypermediaActions.enrollments.unpinCourse)
+					: this.enrollment.getActionByName(this.HypermediaActions.enrollments.pinCourse);
+
+				var body = '';
+				var fields = pinAction.fields || [];
+				fields.forEach(function(field) {
+					body = body + encodeURIComponent(field.name) + '=' + encodeURIComponent(field.value) + '&';
+				});
+
+				this.fire(this.pinned ? 'enrollment-pinned' : 'enrollment-unpinned', {
+					enrollment: this.enrollment,
+					organization: this._organization
+				});
+
+				var localizeKey = this.pinned ? 'unpinActionResult' : 'pinActionResult';
+				this.fire('iron-announce', {
+					text: this.localize(localizeKey, 'course', this._organization.properties.name)
+				}, { bubbles: true });
+
+				return window.d2lfetch
+					.fetch(new Request(pinAction.href, {
+						method: pinAction.method,
+						body: body,
+						headers: {
+							'accept':'application/vnd.siren+json',
+							'content-type':'application/x-www-form-urlencoded'
+						}
+					}))
+					.then(this.responseToSirenEntity.bind(this))
+					.then(function(enrollment) {
+						this.enrollment = enrollment;
+					}.bind(this))
+					.then(function() {
+						// Wait until after PUT has finished to fire, so that
+						// listeners are guaranteed to fetch updated entity
+						this.fire('d2l-course-pinned-change', {
+							enrollment: this.enrollment,
+							isPinned: this.pinned
+						});
+					}.bind(this));
 			}
 		});
 	</script>
