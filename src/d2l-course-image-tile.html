@@ -47,12 +47,12 @@
 			:host:focus .course-text {
 				text-decoration: underline;
 			}
-			:host:hover a[disabled],
-			:host:focus a[disabled] {
+			:host:hover a[aria-disabled],
+			:host:focus a[aria-disabled] {
 				cursor: default;
 			}
-			:host:hover a[disabled] .course-text,
-			:host:focus a[disabled] .course-text {
+			:host:hover a[aria-disabled] .course-text,
+			:host:focus a[aria-disabled] .course-text {
 				text-decoration: none;
 			}
 
@@ -104,6 +104,8 @@
 		</style>
 
 		<d2l-image-tile
+			href="[[_organizationHomepageUrl]]"
+			aria-disabled$="[[!_canAccessCourse]]"
 			hover-effect="[[_hoverEffects]]"
 			dropdown-label="[[_courseSettingsLabel]]"
 			no-mobile-more-button>
@@ -149,20 +151,16 @@
 				<d2l-icon hidden$="[[!pinned]]" icon="d2l-tier1:pin-filled"></d2l-icon>
 			</button>
 
-			<a
-				href="[[_organizationHomepageUrl]]"
-				aria-disabled="[[!_canAccessCourse]]">
-				<div class="flex">
-					<div class="course-text">
-						[[_organization.properties.name]]
-						<div>
-							<span class="course-code-text uppercase">[[_organization.properties.code]]</span>
-							<d2l-icon hidden$="[[!_showSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
-							<span class="semester-text">[[_semesterName]]</span>
-						</div>
+			<div class="flex">
+				<div class="course-text">
+					[[_organization.properties.name]]
+					<div>
+						<span class="course-code-text uppercase">[[_organization.properties.code]]</span>
+						<d2l-icon hidden$="[[!_showSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
+						<span class="semester-text">[[_semesterName]]</span>
 					</div>
 				</div>
-			</a>
+			</div>
 		</d2l-image-tile>
 	</template>
 	<script>
@@ -240,7 +238,7 @@
 			],
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
-					var anchorElement = this.$$('d2l-image-tile');
+					var imageTile = this.$$('d2l-image-tile');
 
 					var observerCallback = function(entries, observer) {
 						if (this._load) {
@@ -253,7 +251,7 @@
 							// so we need to also make sure the tile is visible for that first run
 							// see https://bugs.chromium.org/p/chromium/issues/detail?id=713819
 							if (entries[i].intersectionRatio > 0) {
-								observer.unobserve(anchorElement);
+								observer.unobserve(imageTile);
 								this.fire('initially-visible-course-tile');
 								this._load = true;
 								break;
@@ -270,12 +268,12 @@
 						}
 						// Whether we load because the tile became visible, or because we got some
 						// idle time, we want to disconnect the observer either way
-						observer.unobserve(anchorElement);
+						observer.unobserve(imageTile);
 						this._load = true;
 					}.bind(this));
 
 					var observer = new IntersectionObserver(observerCallback.bind(this));
-					observer.observe(anchorElement);
+					observer.observe(imageTile);
 				});
 			},
 			ready: function() {
