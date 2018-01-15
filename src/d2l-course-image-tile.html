@@ -175,6 +175,10 @@
 						<d2l-icon hidden$="[[!_showSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
 						<span class="semester-text">[[_semesterName]]</span>
 					</div>
+					<div hidden$="[[!_showUpdateCount]]">
+						<d2l-offscreen>[[localize('courseTile.updates')]]</d2l-offscreen>
+						<span class="update-text-box">[[_updateCount]]</span>
+					</div>
 				</div>
 				<div hidden$="[[!_showUpdateCount]]">
 					<d2l-offscreen>[[localize('courseTile.updates')]]</d2l-offscreen>
