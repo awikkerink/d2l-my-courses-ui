@@ -91,6 +91,77 @@ describe('d2l-my-courses-content-animated', function() {
 				href: searchHref
 			}]
 		},
+		enrollment1Pinned = {
+			class: ['unpinned', 'enrollment'],
+			rel: ['https://api.brightspace.com/rels/user-enrollment'],
+			actions: [{
+				name: 'pin-course',
+				method: 'PUT',
+				href: '/enrollments/users/169/organizations/1',
+				fields: [{
+					name: 'pinned',
+					type: 'hidden',
+					value: true
+				}]
+			}],
+			links: [{
+				rel: ['https://api.brightspace.com/rels/organization'],
+				href: '/organizations/1'
+			}, {
+				rel: ['self'],
+				href: '/enrollments/users/169/organizations/1'
+			}]
+		},
+		enrollment1Unpinned = {
+			class: ['unpinned', 'enrollment'],
+			rel: ['https://api.brightspace.com/rels/user-enrollment'],
+			actions: [{
+				name: 'pin-course',
+				method: 'PUT',
+				href: '/enrollments/users/169/organizations/1',
+				fields: [{
+					name: 'pinned',
+					type: 'hidden',
+					value: true
+				}]
+			}],
+			links: [{
+				rel: ['https://api.brightspace.com/rels/organization'],
+				href: '/organizations/1'
+			}, {
+				rel: ['self'],
+				href: '/enrollments/users/169/organizations/1'
+			}]
+		},
+		enrollment2Pinned = {
+			class: ['pinned', 'enrollment'],
+			rel: ['https://api.brightspace.com/rels/user-enrollment'],
+			actions: [{
+				name: 'unpin-course',
+				method: 'PUT',
+				href: '/enrollments/users/169/organizations/2',
+				fields: [{
+					name: 'pinned',
+					type: 'hidden',
+					value: false
+				}]
+			}],
+			links: [{
+				rel: ['https://api.brightspace.com/rels/organization'],
+				href: '/organizations/2'
+			}, {
+				rel: ['self'],
+				href: '/enrollments/users/169/organizations/2'
+			}]
+		},
+		enrollmentsSearchResponseOneUnpinned = {
+			actions: [searchAction],
+			entities: [enrollment1Pinned, enrollment2Pinned],
+			links: [{
+				rel: ['self'],
+				href: searchHref
+			}]
+		},
 		enrollmentsNextPageSearchResponse = {
 			entities: [{
 				class: ['unpinned', 'enrollment'],
@@ -122,27 +193,7 @@ describe('d2l-my-courses-content-animated', function() {
 			entities: []
 		},
 		noPinnedEnrollmentsResponse = {
-			entities: [{
-				class: ['unpinned', 'enrollment'],
-				rel: ['https://api.brightspace.com/rels/user-enrollment'],
-				actions: [{
-					name: 'pin-course',
-					method: 'PUT',
-					href: '/enrollments/users/169/organizations/1',
-					fields: [{
-						name: 'pinned',
-						type: 'hidden',
-						value: true
-					}]
-				}],
-				links: [{
-					rel: ['https://api.brightspace.com/rels/organization'],
-					href: '/organizations/1'
-				}, {
-					rel: ['self'],
-					href: '/enrollments/users/169/organizations/1'
-				}]
-			}],
+			entities: [enrollment1Unpinned],
 			links: [{
 				rel: ['self'],
 				href: searchHref
@@ -554,6 +605,60 @@ describe('d2l-my-courses-content-animated', function() {
 			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 			widget.$$('d2l-all-courses').children['all-courses']._handleClose();
 			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+		});
+	});
+
+	describe('Pinning and unpinning enrollments', () => {
+		it('should populate the _pinnedEnrollmentsMap when populating enrollments', () => {
+			widget.fetchSirenEntity = sandbox.stub();
+			widget.fetchSirenEntity.returns(Promise.resolve());
+			widget._populateEnrollments(window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse));
+			expect(widget._pinnedEnrollmentsMap.hasOwnProperty('/enrollments/users/169/organizations/1')).to.be.true;
+			expect(widget._pinnedEnrollmentsMap.hasOwnProperty('/enrollments/users/169/organizations/2')).to.be.true;
+		});
+
+		it('should remove unpinned enrollments from the _pinnedEnrollmentsMap when populating enrollments', () => {
+			widget.fetchSirenEntity = sandbox.stub();
+			widget.fetchSirenEntity.returns(Promise.resolve());
+			widget._populateEnrollments(window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse));
+			expect(widget._pinnedEnrollmentsMap.hasOwnProperty('/enrollments/users/169/organizations/1')).to.be.true;
+			expect(widget._pinnedEnrollmentsMap.hasOwnProperty('/enrollments/users/169/organizations/2')).to.be.true;
+
+			widget._populateEnrollments(window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponseOneUnpinned));
+			expect(widget._pinnedEnrollmentsMap.hasOwnProperty('/enrollments/users/169/organizations/1')).to.be.false;
+			expect(widget._pinnedEnrollmentsMap.hasOwnProperty('/enrollments/users/169/organizations/2')).to.be.true;
+		});
+
+		it('should add a pinned enrollment to the list if it doesnt exist in the map', () => {
+			var parsedEnrollment = window.D2L.Hypermedia.Siren.Parse(enrollment1Pinned);
+			widget._pinnedEnrollmentsMap = {};
+			widget._addToPinnedEnrollments(parsedEnrollment);
+
+			expect(widget._pinnedEnrollments).to.include(parsedEnrollment);
+		});
+
+		it('should add a pinned enrollment to the _pinnedEnrollmentsMap if it doesnt exist in the map', () => {
+			var parsedEnrollment = window.D2L.Hypermedia.Siren.Parse(enrollment1Pinned);
+			widget._pinnedEnrollmentsMap = {};
+			widget._addToPinnedEnrollments(parsedEnrollment);
+
+			expect(widget._pinnedEnrollmentsMap.hasOwnProperty('/enrollments/users/169/organizations/1')).to.be.true;
+		});
+
+		it('should not add a pinned enrollment to the list if it exist in the map', () => {
+			var parsedEnrollment = window.D2L.Hypermedia.Siren.Parse(enrollment1Pinned);
+			widget._pinnedEnrollmentsMap = { '/enrollments/users/169/organizations/1': true };
+			widget._addToPinnedEnrollments(parsedEnrollment);
+
+			expect(widget._pinnedEnrollments).to.not.include(parsedEnrollment);
+		});
+
+		it('should remove the enrollment from the _pinnedEnrollmentsMap when _removeFromPinnedEnrollment', () => {
+			var parsedEnrollment = window.D2L.Hypermedia.Siren.Parse(enrollment1Pinned);
+			widget._pinnedEnrollments = [parsedEnrollment];
+			widget._pinnedEnrollmentsMap = { '/enrollments/users/169/organizations/1': true };
+			widget._removeFromPinnedEnrollments(parsedEnrollment);
+			expect(widget._pinnedEnrollmentsMap.hasOwnProperty('/enrollments/users/169/organizations/1')).to.be.false;
 		});
 	});
 });
