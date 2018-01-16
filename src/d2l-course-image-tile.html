@@ -17,14 +17,15 @@
 	<template strip-whitespace>
 		<style>
 			:host {
-				margin-bottom: 0.75rem;
-				--course-image-height: 5rem;
+				--course-tile-height: 200px;
+				--course-image-height: 43%;
 			}
 
 			d2l-image-tile {
 				border-color: transparent;
 				text-align: inherit;
 				width: 100%;
+				height: var(--course-tile-height);
 				--d2l-image-tile-image-height: var(--course-image-height);
 			}
 			d2l-icon {
@@ -110,8 +111,10 @@
 				flex-direction: column;
 				justify-content: center;
 				position: absolute;
-				top: calc(-1 * var(--course-image-height));
-				height: var(--course-image-height);
+				/* can't do calc(--course-tile-height * --course-image-height * -1) */
+				top: -86px;
+				/* can't do calc(--course-tile-height * --course-image-height) */
+				height: 86px;
 				width: 100%;
 				border-top-left-radius: 6px;
 				border-top-right-radius: 6px;
@@ -194,9 +197,9 @@
 			}
 
 			.alert-colour-circle {
-				height: 24px;
-				width: 24px;
-				border-radius: 12px;
+				height: 20px;
+				width: 20px;
+				border-radius: 20px;
 				border: 3px solid white;
 				background-color: #ffce51;
 				position: absolute;
@@ -654,7 +657,7 @@
 					// If the user doens't have access, don't animate image/show menu/underline on hover
 					this._hoverEffects = '';
 					this._canAccessCourse = false;
-					this.$$('a').setAttribute('disabled', '');
+					this.$$('d2l-image-tile').setAttribute('disabled', '');
 				}
 
 				return Promise.resolve();
