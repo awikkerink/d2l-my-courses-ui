@@ -128,6 +128,10 @@
 				_viewAllCoursesText: {
 					type: String,
 					computed: '_getViewAllCoursesText(_hasMoreEnrollments, _allEnrollments)'
+				},
+				_pinnedEnrollmentsMap: {
+					type: Object,
+					value: function() { return {}; }
 				}
 			},
 			behaviors: [
@@ -273,10 +277,12 @@
 					var enrollmentId = this.getEntityIdentifier(enrollment);
 
 					if (enrollment.hasClass('pinned')) {
-						if (!this._existingEnrollmentsMap.hasOwnProperty(enrollmentId)) {
+						if (!this._pinnedEnrollmentsMap.hasOwnProperty(enrollmentId)) {
 							newPinnedEnrollments.push(enrollment);
-							this._existingEnrollmentsMap[enrollmentId] = true;
+							this._pinnedEnrollmentsMap[enrollmentId] = true;
 						}
+					} else {
+						if (this._pinnedEnrollmentsMap.hasOwnProperty(enrollmentId)) delete this._pinnedEnrollmentsMap[enrollmentId];
 					}
 
 					var orgHref = (enrollment.getLinkByRel(this.HypermediaRels.organization) || {}).href;
@@ -305,7 +311,11 @@
 				}
 			},
 			_addToPinnedEnrollments: function(enrollment) {
-				if (enrollment) {
+				if (!enrollment) return;
+
+				var enrollmentId = this.getEntityIdentifier(enrollment);
+				if (!this._pinnedEnrollmentsMap.hasOwnProperty(enrollmentId)) {
+					this._pinnedEnrollmentsMap[enrollmentId] = true;
 					this.unshift('_pinnedEnrollments', enrollment);
 				}
 			},
@@ -318,6 +328,7 @@
 					var unpinnedEnrollmentId = this.getEntityIdentifier(this._pinnedEnrollments[index]);
 					if (unpinnedEnrollmentId === enrollmentId) {
 						this.splice('_pinnedEnrollments', index, 1);
+						if (this._pinnedEnrollmentsMap.hasOwnProperty(enrollmentId)) delete this._pinnedEnrollmentsMap[enrollmentId];
 						break;
 					}
 				}
