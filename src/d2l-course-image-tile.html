@@ -1,0 +1,377 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-course-image/d2l-course-image.html">
+<link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
+<link rel="import" href="../../d2l-icons/d2l-icon.html">
+<link rel="import" href="../../d2l-icons/tier1-icons.html">
+<link rel="import" href="../../d2l-dropdown/d2l-dropdown-menu.html">
+<link rel="import" href="../../d2l-menu/d2l-menu-item.html">
+<link rel="import" href="../../d2l-menu/d2l-menu-item-link.html">
+<link rel="import" href="../../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
+<link rel="import" href="../../d2l-tile/d2l-image-tile.html">
+<link rel="import" href="localize-behavior.html">
+<link rel="import" href="d2l-utility-behavior.html">
+
+<dom-module id="d2l-course-image-tile">
+	<template strip-whitespace>
+		<style>
+			:host {
+				margin-bottom: 0.75rem;
+				--course-image-height: 5rem;
+			}
+
+			d2l-image-tile {
+				border-color: transparent;
+				text-align: inherit;
+				width: 100%;
+				--d2l-image-tile-image-height: var(--course-image-height);
+			}
+			d2l-icon {
+				color: white;
+				--d2l-icon-width: 18px;
+				--d2l-icon-height: 18px;
+			}
+
+			.flex {
+				display: flex;
+			}
+
+			.course-text {
+				margin-top: 0.6rem;
+				float: left;
+				flex: 1;
+				overflow: hidden;
+				word-wrap: break-word; /* IE/Edge */
+				overflow-wrap: break-word; /* replaces 'word-wrap' in Firefox, Chrome, Safari */
+			}
+			:host:hover .course-text,
+			:host:focus .course-text {
+				text-decoration: underline;
+			}
+			:host:hover a[aria-disabled],
+			:host:focus a[aria-disabled] {
+				cursor: default;
+			}
+			:host:hover a[aria-disabled] .course-text,
+			:host:focus a[aria-disabled] .course-text {
+				text-decoration: none;
+			}
+
+			.course-code-text,
+			.separator-icon,
+			.semester-text {
+				display: none;
+			}
+			:host([show-course-code]) .course-code-text,
+			:host([show-course-code]) .separator-icon,
+			:host([show-semester]) .semester-text {
+				display: inline-block;
+			}
+			.course-code-text,
+			.semester-text  {
+				-ms-word-break: break-all;
+				word-break: break-all;
+				word-break: break-word; /* Best case, only works in Chrome though */
+				@apply --d2l-body-small-text;
+			}
+			.separator-icon {
+				color: var(--d2l-color-tungsten)
+			}
+			.uppercase {
+				text-transform: uppercase;
+			}
+
+			.pin-indicator {
+				line-height: 20px;
+				opacity: 1;
+				background: rgba(0,0,0,0.5);
+				border: none;
+				border-radius: 5px;
+				transition: color 0.5s, background 0.5s, opacity 0.25s, width 0.15s, margin-right 0.25s, padding-left 0.25s, padding-right 0.25s;
+				cursor: pointer;
+				width: 35px;
+				height: 35px;
+				margin-right: 10px;
+			}
+			.pin-indicator:hover,
+			.pin-indicator:focus {
+				color: rgba(255,255,255,1);
+				background: var(--d2l-color-celestine);
+			}
+			:host-context([dir="rtl"]) .pin-indicator {
+				margin-left: 10px;
+				margin-right: auto;
+			}
+		</style>
+
+		<d2l-image-tile
+			href="[[_organizationHomepageUrl]]"
+			aria-disabled$="[[!_canAccessCourse]]"
+			hover-effect="[[_hoverEffects]]"
+			dropdown-label="[[_courseSettingsLabel]]"
+			no-mobile-more-button>
+			<d2l-course-image
+				slot="d2l-image-tile-image"
+				aria-hidden="true"
+				class="image-layer-bottom"
+				image="[[_image]]"
+				sizes="[[tileSizes]]"
+				type="tile">
+			</d2l-course-image>
+			<d2l-dropdown-menu slot="d2l-image-tile-dropdown">
+				<d2l-menu>
+					<d2l-menu-item-link
+						hidden$="[[!_canAccessCourseInfo]]"
+						text="[[localize('courseOfferingInformation')]]"
+						href="[[_courseInfoUrl]]">
+					</d2l-menu-item-link>
+					<d2l-menu-item
+						on-d2l-menu-item-select="_launchCourseImageSelector"
+						hidden$="[[!_canChangeCourseImage]]"
+						text="[[localize('changeImage')]]">
+					</d2l-menu-item>
+					<d2l-menu-item
+						on-d2l-menu-item-select="_pinClickHandler"
+						hidden$="[[pinned]]"
+						text="[[localize('pin')]]">
+					</d2l-menu-item>
+					<d2l-menu-item
+						on-d2l-menu-item-select="_pinClickHandler"
+						hidden$="[[!pinned]]"
+						text="[[localize('unpin')]]">
+					</d2l-menu-item>
+				</d2l-menu>
+			</d2l-dropdown-menu>
+			<button
+				slot="d2l-image-tile-menu-adjacent"
+				hidden$="[[!pinned]]"
+				class="pin-indicator"
+				on-tap="_pinClickHandler"
+				on-keypress="_pinClickHandler"
+				aria-label$="[[_pinButtonLabel]]">
+				<d2l-icon hidden$="[[!pinned]]" icon="d2l-tier1:pin-filled"></d2l-icon>
+			</button>
+
+			<div class="flex">
+				<div class="course-text">
+					[[_organization.properties.name]]
+					<div>
+						<span class="course-code-text uppercase">[[_organization.properties.code]]</span>
+						<d2l-icon hidden$="[[!_showSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
+						<span class="semester-text">[[_semesterName]]</span>
+					</div>
+				</div>
+			</div>
+		</d2l-image-tile>
+	</template>
+	<script>
+		Polymer({
+			is: 'd2l-course-image-tile',
+
+			properties: {
+				courseUpdatesConfig: Object,
+				enrollment: Object,
+				pinned: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+				showCourseCode: {
+					type: Boolean,
+					reflectToAttribute: true
+				},
+				showSemester: {
+					type: Boolean,
+					reflectToAttribute: true
+				},
+				startedInactive: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+				tileSizes: Object,
+
+				_canAccessCourse: {
+					type: Boolean,
+					value: false
+				},
+				_canAccessCourseInfo: {
+					type: Boolean,
+					computed: '_computeCanAccessCourseInfo(_organization)'
+				},
+				_canChangeCourseImage: {
+					type: Boolean,
+					computed: '_computeCanChangeCourseImage(_organization)'
+				},
+				_courseInfoUrl: String,
+				_courseSettingsLabel: {
+					type: String,
+					computed: '_computeCourseSettingsLabel(_organization)'
+				},
+				_hoverEffects: {
+					type: String,
+					value: 'emphasize-image lower-menu'
+				},
+				_image: Object,
+				_load: Boolean,
+				_organization: Object,
+				_organizationHomepageUrl: String,
+				_pinButtonLabel: {
+					type: String,
+					computed: '_computePinButtonLabel(_organization)'
+				},
+				_semesterName: String,
+				_semesterUrl: String,
+				_showSeparator: {
+					type: Boolean,
+					value: false,
+					computed: '_computeShowSeparator(_semesterName)'
+				}
+			},
+			behaviors: [
+				window.D2L.Hypermedia.HMConstantsBehavior,
+				window.D2L.Hypermedia.OrganizationHMBehavior,
+				window.D2L.MyCourses.UtilityBehavior,
+				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
+			],
+			observers: [
+				'_fetchEnrollmentData(_load, enrollment)'
+			],
+			attached: function() {
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					var imageTile = this.$$('d2l-image-tile');
+
+					var observerCallback = function(entries, observer) {
+						if (this._load) {
+							// The tile already loaded via requestIdleCallback/setTimeout
+							return;
+						}
+
+						for (var i = 0; i < entries.length; i++) {
+							// Chrome/FF immediately call the callback when we observer.observe()
+							// so we need to also make sure the tile is visible for that first run
+							// see https://bugs.chromium.org/p/chromium/issues/detail?id=713819
+							if (entries[i].intersectionRatio > 0) {
+								observer.unobserve(imageTile);
+								this.fire('initially-visible-course-tile');
+								this._load = true;
+								break;
+							}
+						}
+					};
+
+					// Small shim for Edge/IE/Safari
+					var delayFunction = window.requestIdleCallback || setTimeout;
+					delayFunction(function() {
+						if (this._load) {
+							// The tile already loaded via the IntersectionObserver
+							return;
+						}
+						// Whether we load because the tile became visible, or because we got some
+						// idle time, we want to disconnect the observer either way
+						observer.unobserve(imageTile);
+						this._load = true;
+					}.bind(this));
+
+					var observer = new IntersectionObserver(observerCallback.bind(this));
+					observer.observe(imageTile);
+				});
+			},
+			ready: function() {
+				Polymer.IronA11yAnnouncer.requestAvailability();
+			},
+
+			_computeCanAccessCourseInfo: function(organization) {
+				return organization
+					&& organization.hasLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
+			},
+			_computeCanChangeCourseImage: function(organization) {
+				return organization
+					&& organization.hasActionByName(this.HypermediaActions.organizations.setCatalogImage);
+			},
+			_computeCourseSettingsLabel: function(organization) {
+				return organization
+					&& organization.properties
+					&& this.localize('courseSettings', 'course', organization.properties.name);
+			},
+			_computePinButtonLabel: function(organization) {
+				return organization
+					&& organization.properties
+					&& this.localize('coursePinButton', 'course', organization.properties.name);
+			},
+			_computeShowSeparator: function(semesterName) {
+				return this.showSemester && semesterName.length > 0;
+			},
+
+			_fetchEnrollmentData: function(load, enrollment) {
+				if (!load || !enrollment || !enrollment.hasLinkByRel(this.HypermediaRels.organization)) {
+					return;
+				}
+
+				this.pinned = enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
+
+				var organizationHref = enrollment.getLinkByRel(this.HypermediaRels.organization).href;
+				organizationHref += '?embedDepth=1';
+
+				return this._fetchOrganization(organizationHref)
+					.then(this._fetchSemester.bind(this));
+			},
+			_fetchOrganization: function(url) {
+				return window.d2lfetch
+					.fetch(new Request(url, {
+						headers: {
+							'accept': 'application/vnd.siren+json',
+							// Needs no-cache so that images refresh if the users here using the back button
+							'cache-control': 'no-cache',
+							'pragma': 'no-cache'
+						}
+					}))
+					.then(this.responseToSirenEntity.bind(this))
+					.then(this._handleOrganizationResponse.bind(this));
+			},
+			_fetchSemester: function() {
+				if (!this._semesterUrl || !this.showSemester) {
+					return Promise.resolve();
+				}
+
+				return this.fetchSirenEntity(this._semesterUrl)
+					.then(function(semester) {
+						this._semesterName = (semester.properties || {}).name;
+					}.bind(this));
+			},
+			_handleOrganizationResponse: function(organization) {
+				this._organization = organization;
+
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					// Telemetry event for organization loaded, meaning tile is interactive
+					this.fire('course-tile-organization');
+				});
+
+				if (organization.hasLinkByRel(this.HypermediaRels.courseOfferingInfoPage)) {
+					this._courseInfoUrl = organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage).href;
+				}
+				if (organization.hasLinkByRel(this.HypermediaRels.parentSemester)) {
+					this._semesterUrl = organization.getLinkByRel(this.HypermediaRels.parentSemester).href;
+				}
+				if (organization.hasLinkByRel(this.HypermediaRels.Notifications.organizationNotifications)) {
+					this._notificationsUrl = organization.getLinkByRel(this.HypermediaRels.Notifications.organizationNotifications).href;
+				}
+				if (organization.hasSubEntityByClass(this.HypermediaClasses.courseImage.courseImage)) {
+					this._image = organization.getSubEntityByClass(this.HypermediaClasses.courseImage.courseImage);
+				}
+				if (organization.hasSubEntityByRel(this.HypermediaRels.organizationHomepage)) {
+					var homepageEntity = organization.getSubEntityByRel(this.HypermediaRels.organizationHomepage);
+					this._organizationHomepageUrl = homepageEntity
+						&& homepageEntity.properties
+						&& homepageEntity.properties.path;
+				} else {
+					// If the user doens't have access, don't animate image/show menu/underline on hover
+					this._hoverEffects = '';
+					this._canAccessCourse = false;
+					this.$$('a').setAttribute('disabled', '');
+				}
+
+				return Promise.resolve();
+			}
+		});
+	</script>
+</dom-module>

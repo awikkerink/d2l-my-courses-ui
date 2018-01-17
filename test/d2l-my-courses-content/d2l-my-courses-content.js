@@ -19,7 +19,7 @@ describe('d2l-my-courses-content', () => {
 			}));
 	}
 
-	beforeEach(() => {
+	beforeEach(done => {
 		sandbox = sinon.sandbox.create();
 		searchAction = {
 			name: 'search-my-enrollments',
@@ -126,6 +126,10 @@ describe('d2l-my-courses-content', () => {
 
 		component = fixture('d2l-my-courses-content-fixture');
 		component.enrollmentsUrl = '/enrollments';
+
+		setTimeout(() => {
+			done();
+		});
 	});
 
 	afterEach(() => {
