@@ -318,19 +318,20 @@
 			courseTileGrid.classList.add('columns-' + numColumns);
 		},
 		_onStartedInactiveAlert: function(e) {
-			var type = e && e.detail && e.detail.type;
-
 			this._removeAlert('startedInactiveCourses');
+			if (this._checkIfStartedInactiveCourses(e)) {
+				this._addAlert('warning', 'startedInactiveCourses', this.localize('startedInactiveAlert'));
+			}
+		},
+		_checkIfStartedInactiveCourses: function(e) {
+			var type = e && e.detail && e.detail.type;
 			var hasStartedInactiveCourses = false;
 			if (this.cssGridView) {
 				hasStartedInactiveCourses = !!this.$$('.course-tile-grid d2l-course-image-tile[started-inactive]');
 			} else {
 				hasStartedInactiveCourses = this.$$('d2l-course-tile-grid').checkForStartedInactive(type);
 			}
-
-			if (hasStartedInactiveCourses) {
-				this._addAlert('warning', 'startedInactiveCourses', this.localize('startedInactiveAlert'));
-			}
+			return hasStartedInactiveCourses;
 		},
 		_onSimpleOverlayClosed: function() {
 			this._removeAlert('setCourseImageFailure');
