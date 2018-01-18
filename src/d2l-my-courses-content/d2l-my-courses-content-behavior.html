@@ -548,9 +548,11 @@
 		},
 		_addOnlyPastCoursesAlert: function(hasCurrentOrFutureCourseArg, hidesPastCoursesArg) {
 			var courseTileGrid = this.cssGridView ? this.$$('.course-tile-grid') : this.$$('d2l-course-tile-grid');
-			var selector = 'd2l-course-' + (this.cssGridView ? 'image-' : '') + 'tile:not([past-course])';
+			var hasCurrentOrFutureSelector = this.cssGridView
+				? this.$$('.course-tile-grid d2l-course-image-tile:not([past-course])')
+				: courseTileGrid.$$('d2l-course-tile:not([past-course])');
 
-			var hasCurrentOrFutureCourse = hasCurrentOrFutureCourseArg || courseTileGrid.$$(selector),
+			var hasCurrentOrFutureCourse = hasCurrentOrFutureCourseArg || hasCurrentOrFutureSelector,
 				hidesPastCourses = hidesPastCoursesArg || courseTileGrid.hasAttribute('hide-past-courses');
 			if (this._hasEnrollments && !hasCurrentOrFutureCourse && hidesPastCourses && !this._hasAlert('onlyPastCourses')) {
 				this._addAlert('call-to-action', 'onlyPastCourses', this.localize('onlyPastCoursesMessage'));
