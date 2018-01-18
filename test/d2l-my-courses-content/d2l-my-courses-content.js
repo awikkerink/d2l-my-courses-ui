@@ -29,7 +29,7 @@ describe('d2l-my-courses-content', () => {
 				{ name: 'search', type: 'search', value: '' },
 				{ name: 'pageSize', type: 'number', value: 20 },
 				{ name: 'embedDepth', type: 'number', value: 0 },
-				{ name: 'sort', type: 'text', value: '' },
+				{ name: 'sort', type: 'text', value: 'current' },
 				{ name: 'autoPinCourses', type: 'checkbox', value: false },
 				{ name: 'promotePins', type: 'checkbox', value: false }
 			]
@@ -139,6 +139,13 @@ describe('d2l-my-courses-content', () => {
 		sandbox.restore();
 	});
 
+	it('should properly implement d2l-my-courses-behavior', () => {
+		expect(component.courseImageUploadCompleted).to.be.a('function');
+		expect(component.getLastOrgUnitId).to.be.a('function');
+		expect(component.updatedSortLogic).to.equal(false);
+		expect(component.cssGridView).to.equal(false);
+	});
+
 	it('should properly implement d2l-my-courses-content-behavior', () => {
 		expect(component).to.exist;
 		expect(component._alerts).to.be.an.instanceof(Array);
@@ -149,6 +156,77 @@ describe('d2l-my-courses-content', () => {
 		expect(component._setImageOrg).to.be.an('object');
 		expect(component._showContent).to.be.false;
 		expect(component._tileSizes).to.be.an('object');
+	});
+
+	describe('When cssGridView = true', () => {
+		beforeEach(() => {
+			component = fixture('d2l-my-courses-content-css-grid-view-fixture');
+			component.enrollmentsUrl = '/enrollments';
+
+			return component._fetchRoot();
+		});
+
+		it('should render the correct tile grid', () => {
+			var courseTileGrid = component.$$('.course-tile-grid');
+			expect(courseTileGrid).to.not.be.null;
+
+			var oldCourseTileGrid = component.$$('d2l-course-tile-grid');
+			expect(oldCourseTileGrid).to.be.null;
+		});
+
+		it('should set the columns-"n" class on the correct tile grid on resize', done => {
+			var listener = () => {
+				window.removeEventListener('resize', listener);
+
+				setTimeout(() => {
+					var courseTileGrid = component.$$('.course-tile-grid');
+					expect(courseTileGrid.classList.toString()).to.contain('columns-');
+					done();
+				}, 100);
+			};
+
+			window.addEventListener('resize', listener);
+
+			window.dispatchEvent(new Event('resize'));
+		});
+
+		it('should call refreshImage on each course image tile in courseImageUploadCompleted', () => {
+			var courseTiles = component.querySelectorAll('d2l-course-image-tile');
+			var stub1 = sandbox.stub(courseTiles[0], 'refreshImage');
+			var stub2 = sandbox.stub(courseTiles[1], 'refreshImage');
+
+			component.courseImageUploadCompleted(true);
+
+			expect(stub1).to.have.been.called;
+			expect(stub2).to.have.been.called;
+		});
+
+		it('should call focus on the correct tile grid when focus is called', () => {
+			var courseTileGrid = component.$$('.course-tile-grid');
+			var spy = sandbox.spy(courseTileGrid, 'focus');
+
+			component.focus();
+
+			expect(spy).to.have.been.called;
+		});
+
+		it('should correctly determine whether there are started-inactive courses in _onStartedInactiveAlert', () => {
+			var spy = sandbox.spy(component, '_addAlert');
+
+			var firstCourseTile = component.$$('.course-tile-grid d2l-course-image-tile');
+			firstCourseTile.setAttribute('started-inactive', '');
+
+			component._onStartedInactiveAlert();
+
+			expect(spy).to.have.been.called;
+		});
+
+		it('should add the hide-past-attributes to the correct tile grid in _populateEnrollments', () => {
+			var spy = sandbox.spy(component.$$('.course-tile-grid'), 'setAttribute');
+			return component._fetchRoot().then(() => {
+				expect(spy).to.have.been.calledWith('hide-past-courses', '');
+			});
+		});
 	});
 
 	describe('Listener setup', () => {
