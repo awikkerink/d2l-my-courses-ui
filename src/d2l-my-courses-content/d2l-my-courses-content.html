@@ -73,11 +73,6 @@
 			<template is="dom-repeat" items="[[_alerts]]">
 				<d2l-alert type="[[item.alertType]]">
 					[[item.alertMessage]]
-					<a
-						is="d2l-link"
-						href="javascript:void(0);"
-						hidden$="[[_hasEnrollments]]"
-						on-tap="_refreshPage">[[localize('refresh')]]</a>
 				</d2l-alert>
 			</template>
 			<template is="dom-if" if="[[cssGridView]]">
