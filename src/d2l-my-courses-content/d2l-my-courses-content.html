@@ -47,13 +47,13 @@
 				grid-template-columns: 100%;
 			}
 			.course-tile-grid.columns-2 {
-				grid-template-columns: 50% 50%;
+				grid-template-columns: repeat(2, 1fr);
 			}
 			.course-tile-grid.columns-3 {
-				grid-template-columns: 33% 33% 33%;
+				grid-template-columns: repeat(3, 1fr);
 			}
 			.course-tile-grid.columns-4 {
-				grid-template-columns: 25% 25% 25% 25%;
+				grid-template-columns: repeat(4, 1fr);
 			}
 
 			:host[hide-past-courses] d2l-course-image-tile[past-course]:not([pinned]),
