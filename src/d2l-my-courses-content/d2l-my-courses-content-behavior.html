@@ -545,9 +545,6 @@
 			return this.fetchSirenEntity(this._enrollmentsSearchUrl)
 				.then(this._populateEnrollments.bind(this));
 		},
-		_refreshPage: function() {
-			document.location.reload(true);
-		},
 		_addOnlyPastCoursesAlert: function(hasCurrentOrFutureCourseArg, hidesPastCoursesArg) {
 			var hasCurrentOrFutureCourse = hasCurrentOrFutureCourseArg || this.$$('d2l-course-tile-grid').$$('d2l-course-tile:not([past-course])'),
 				hidesPastCourses = hidesPastCoursesArg || this.$$('d2l-course-tile-grid').hasAttribute('hide-past-courses');
