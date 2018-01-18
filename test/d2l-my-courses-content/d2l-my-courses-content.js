@@ -635,7 +635,7 @@ describe('d2l-my-courses-content', () => {
 				expect(component._alerts).to.include({
 					alertName: 'noCourses',
 					alertType: 'call-to-action',
-					alertMessage: 'Your courses aren\'t quite ready. Please check back soon.'
+					alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.'
 				});
 			});
 		});
@@ -658,7 +658,7 @@ describe('d2l-my-courses-content', () => {
 				expect(component._alerts).to.include({
 					alertName: 'noCourses',
 					alertType: 'call-to-action',
-					alertMessage: 'Your courses aren\'t quite ready. Please check back soon.'
+					alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.'
 				});
 				component._enrollments = [enrollmentEntity];
 				expect(component._alerts).to.be.empty;
@@ -728,6 +728,27 @@ describe('d2l-my-courses-content', () => {
 			component._hasMoreEnrollments = true;
 			component._enrollments = new Array(23);
 			expect(component._viewAllCoursesText).to.equal('View All Courses (20+)');
+		});
+
+		it('should not add the Only Past Courses alert if not hiding past courses', () => {
+			this._alerts = [];
+			component._hasEnrollments = true;
+			component._addOnlyPastCoursesAlert(false, false);
+			expect(component._alerts).not.to.include({ alertName: 'onlyPastCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any current or future courses. View All Courses to browse your past courses.' });
+		});
+
+		it('should not add the Only Past Courses alert if not there are present or future courses', () => {
+			this._alerts = [];
+			component._hasEnrollments = true;
+			component._addOnlyPastCoursesAlert(true, true);
+			expect(component._alerts).not.to.include({ alertName: 'onlyPastCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any current or future courses. View All Courses to browse your past courses.' });
+		});
+
+		it('should add the Only Past Courses alert if there are only past courses and hides past courses', () => {
+			this._alerts = [];
+			component._hasEnrollments = true;
+			component._addOnlyPastCoursesAlert(false, true);
+			expect(component._alerts).to.include({ alertName: 'onlyPastCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any current or future courses. View All Courses to browse your past courses.' });
 		});
 	});
 });

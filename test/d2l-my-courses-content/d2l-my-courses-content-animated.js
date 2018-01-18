@@ -292,7 +292,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(false);
-				expect(widget._alerts).to.include({ alertName: 'noCourses', alertType: 'call-to-action', alertMessage: 'Your courses aren\'t quite ready. Please check back soon.' });
+				expect(widget._alerts).to.include({ alertName: 'noCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.' });
 			});
 		});
 
@@ -303,7 +303,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(true);
-				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
+				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. View All Courses to browse all available courses.' });
 			});
 		});
 
@@ -314,7 +314,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(true);
-				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
+				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. View All Courses to browse all available courses.' });
 				var enrollmentsLengthChangedSpy = sandbox.spy(widget, '_enrollmentsChanged');
 				widget._hasPinnedEnrollments = true;
 				expect(enrollmentsLengthChangedSpy.called);

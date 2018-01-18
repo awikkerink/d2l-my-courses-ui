@@ -548,11 +548,10 @@
 		_refreshPage: function() {
 			document.location.reload(true);
 		},
-		_addOnlyPastCoursesAlert: function() {
-			if (this._hasEnrollments
-			&& !this.$$('d2l-course-tile-grid').$$('d2l-course-tile:not([past-course])')
-			&& this.$$('d2l-course-tile-grid').hasAttribute('hide-past-courses')
-			&& !this._hasAlert('onlyPastCourses')) {
+		_addOnlyPastCoursesAlert: function(hasCurrentOrFutureCourseArg, hidesPastCoursesArg) {
+			var hasCurrentOrFutureCourse = hasCurrentOrFutureCourseArg || this.$$('d2l-course-tile-grid').$$('d2l-course-tile:not([past-course])'),
+				hidesPastCourses = hidesPastCoursesArg || this.$$('d2l-course-tile-grid').hasAttribute('hide-past-courses');
+			if (this._hasEnrollments && !hasCurrentOrFutureCourse && hidesPastCourses && !this._hasAlert('onlyPastCourses')) {
 				this._addAlert('call-to-action', 'onlyPastCourses', this.localize('onlyPastCoursesMessage'));
 			}
 		}
