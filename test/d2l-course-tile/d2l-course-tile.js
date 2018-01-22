@@ -776,4 +776,35 @@ describe('<d2l-course-tile>', function() {
 			});
 		});
 	});
+
+	describe('Setting alerts', () => {
+		describe('_setOverlayStartedInactive', () => {
+			it('should fire startedInactiveAlert event when course is inactive but started, and instructor can access course info link', () => {
+				widget.hasCourseInfoUrl = true;
+				var fireSpy = sandbox.spy(widget, 'fire');
+				widget._setOverlayStartedInactive();
+				expect(fireSpy).to.have.been.calledWith('startedInactiveAlert');
+			});
+
+			it('should not fire startedInactiveAlert event when course is inactive but started, and instructor cant access course info link', () => {
+				widget.hasCourseInfoUrl = false;
+				var fireSpy = sandbox.spy(widget, 'fire');
+				widget._setOverlayStartedInactive();
+				expect(fireSpy).to.not.have.been.calledWith('startedInactiveAlert');
+			});
+
+			it('should add warning circle when course is inactive but started, and instructor can access course info link', () => {
+				widget.hasCourseInfoUrl = true;
+				widget._setOverlayStartedInactive();
+				expect(widget.$$('.alert-color-circle').classList.contains('warning-circle')).to.be.true;
+			});
+
+			it('should not add warning circle when course is inactive but started, and instructor cant access course info link', () => {
+				Polymer.dom.flush();
+				widget.hasCourseInfoUrl = false;
+				widget._setOverlayStartedInactive();
+				expect(widget.$$('.alert-color-circle').classList.contains('warning-circle')).to.be.false;
+			});
+		});
+	});
 });
