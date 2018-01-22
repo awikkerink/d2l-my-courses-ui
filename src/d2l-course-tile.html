@@ -168,6 +168,12 @@ the user has in that organization - student, teacher, TA, etc.
 					value: false,
 					observer: '_updatedSortLogicChanged'
 				},
+				// Indicates whether the course has the info urls
+				hasCourseInfoUrl: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
 				// Types of notifications to include in update count
 				courseUpdatesConfig: Object,
 				//number of course updates to show
@@ -532,10 +538,13 @@ the user has in that organization - student, teacher, TA, etc.
 					this.fire('course-tile-organization');
 				}.bind(this));
 
-				this._checkDateBounds(organization);
-
 				var courseInfoUrl = organization && organization.getLinkByRel(this.HypermediaRels.courseOfferingInfoPage);
 				this._courseInfoUrl = courseInfoUrl ? courseInfoUrl.href : null;
+				if (this._courseInfoUrl) {
+					this.hasCourseInfoUrl = true;
+				}
+
+				this._checkDateBounds(organization);
 
 				var semesterUrl = organization && organization.getLinkByRel(this.HypermediaRels.parentSemester);
 				this._semesterUrl = semesterUrl ? semesterUrl.href : null;
@@ -655,9 +664,11 @@ the user has in that organization - student, teacher, TA, etc.
 				this._courseNotificationLabel = this._notificationTitle + ' ' + this._notificationInactive;
 				this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
 				this.isStartedInactive = true;
-				this.fire('startedInactiveAlert', { type: 'add' });
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
-				this.toggleClass('warning-circle', true, this.$$('.alert-color-circle'));
+				if (this.hasCourseInfoUrl) {
+					this.fire('startedInactiveAlert', { type: 'add' });
+					this.toggleClass('warning-circle', true, this.$$('.alert-color-circle'));
+				}
 			},
 			_clearOverlayContent: function() {
 				this._notificationDate = null;
