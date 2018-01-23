@@ -18,6 +18,7 @@
 	<template strip-whitespace>
 		<style>
 			:host {
+				display: block;
 				--course-image-height: 6rem;
 			}
 
@@ -249,7 +250,7 @@
 				hidden$="[[!pinned]]"
 				class="pin-indicator"
 				on-tap="_pinClickHandler"
-				on-keypress="_pinClickHandler"
+				on-keypress="_pinPressHandler"
 				aria-label$="[[_pinButtonLabel]]">
 				<d2l-icon icon="d2l-tier1:pin-filled"></d2l-icon>
 			</button>
@@ -761,6 +762,11 @@
 							isPinned: this.pinned
 						});
 					}.bind(this));
+			},
+			_pinPressHandler: function(e) {
+				if (e.code === 'Space' || e.code === 'Enter') {
+					this._pinClickHandler();
+				}
 			}
 		});
 	</script>

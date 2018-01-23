@@ -308,16 +308,43 @@
 					}
 				}.bind(this));
 		},
-		_onResize: function() {
+		_onResize: function(ie11retryCount) {
 			var courseTileGrid = this.$$('.course-tile-grid');
 
 			var containerWidth = this.$$('.spinner-container').offsetWidth;
-			var numColumns = Math.min(Math.floor(containerWidth / 300), 4) + 1;
+			var numColumns = Math.min(Math.floor(containerWidth / 350), 4) + 1;
 			courseTileGrid.classList.remove('columns-1');
 			courseTileGrid.classList.remove('columns-2');
 			courseTileGrid.classList.remove('columns-3');
 			courseTileGrid.classList.remove('columns-4');
 			courseTileGrid.classList.add('columns-' + numColumns);
+
+			var cssGridStyle = document.body.style['grid-template-columns'];
+			// Can be empty string, hence the strict comparison
+			if (cssGridStyle !== undefined) {
+				return;
+			}
+
+			var courseTileDivs = this.querySelectorAll('.course-tile-grid > div');
+			ie11retryCount = ie11retryCount || 0;
+			if (
+				ie11retryCount < 10
+				&& courseTileDivs.length === 0
+			) {
+				// If course tiles haven't yet rendered, try again for up to one second
+				// (only happens sometimes, only in IE)
+				setTimeout(this._onResize.bind(this, ie11retryCount++), 100);
+				return;
+			}
+
+			for (var i = 0; i < courseTileDivs.length; i++) {
+				var div = courseTileDivs[i];
+				// The (* 2 - 1) accounts for the grid-gap-esque columns
+				var column = (i % numColumns + 1) * 2 - 1;
+				var row = Math.floor(i / numColumns) + 1;
+				div.style['-ms-grid-column'] = column;
+				div.style['-ms-grid-row'] = row;
+			}
 		},
 		_onStartedInactiveAlert: function(e) {
 			this._removeAlert('startedInactiveCourses');
