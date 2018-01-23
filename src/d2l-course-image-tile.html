@@ -1,4 +1,5 @@
 <link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../iron-a11y-announcer/iron-a11y-announcer.html">
 <link rel="import" href="../../d2l-course-image/d2l-course-image.html">
 <link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../../d2l-icons/d2l-icon.html">
@@ -17,15 +18,13 @@
 	<template strip-whitespace>
 		<style>
 			:host {
-				--course-tile-height: 200px;
-				--course-image-height: 43%;
+				--course-image-height: 6rem;
 			}
 
 			d2l-image-tile {
 				border-color: transparent;
 				text-align: inherit;
 				width: 100%;
-				height: var(--course-tile-height);
 				--d2l-image-tile-image-height: var(--course-image-height);
 			}
 			d2l-icon {
@@ -93,7 +92,7 @@
 				cursor: pointer;
 				width: 35px;
 				height: 35px;
-				margin-right: 10px;
+				margin-right: 15px;
 			}
 			.pin-indicator:hover,
 			.pin-indicator:focus {
@@ -101,7 +100,7 @@
 				background: var(--d2l-color-celestine);
 			}
 			:host-context([dir="rtl"]) .pin-indicator {
-				margin-left: 10px;
+				margin-left: 15px;
 				margin-right: auto;
 			}
 
@@ -111,10 +110,8 @@
 				flex-direction: column;
 				justify-content: center;
 				position: absolute;
-				/* can't do calc(--course-tile-height * --course-image-height * -1) */
-				top: -86px;
-				/* can't do calc(--course-tile-height * --course-image-height) */
-				height: 86px;
+				top: calc(-1 * var(--course-image-height));
+				height: var(--course-image-height);
 				width: 100%;
 				border-top-left-radius: 6px;
 				border-top-right-radius: 6px;
@@ -122,9 +119,6 @@
 				padding: 10px;
 				text-align: center;
 				background-color: rgba(0,0,0,0.7);
-			}
-			.overlay.transparent {
-				background-color: transparent;
 			}
 			.overlay-text {
 				font-size: 1rem;
@@ -257,7 +251,7 @@
 				on-tap="_pinClickHandler"
 				on-keypress="_pinClickHandler"
 				aria-label$="[[_pinButtonLabel]]">
-				<d2l-icon hidden$="[[!pinned]]" icon="d2l-tier1:pin-filled"></d2l-icon>
+				<d2l-icon icon="d2l-tier1:pin-filled"></d2l-icon>
 			</button>
 
 			<div hidden$="[[!_hasOverlay]]" class="overlay">
@@ -265,7 +259,6 @@
 				<div class="overlay-date">[[_overlayDate]]</div>
 				<div>[[_overlayInactive]]</div>
 			</div>
-			<div hidden$="[[_hasOverlay]]" class="overlay transparent"></div>
 			<div hidden$="[[!_imageLoading]]" class="overlay">
 				<d2l-loading-spinner hidden$="[[!_imageLoadingProgress]]" size="85"></d2l-loading-spinner>
 				<div class="icon-container" hidden$="[[_imageLoadingProgress]]">
@@ -281,10 +274,11 @@
 						<d2l-icon hidden$="[[!_showSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
 						<span class="semester-text">[[_semesterName]]</span>
 					</div>
+					<d2l-offscreen>[[_overlayAnnounceText]]</d2l-offscreen>
 				</div>
 				<div hidden$="[[!_showUpdateCount]]">
 					<d2l-offscreen>[[localize('courseTile.updates')]]</d2l-offscreen>
-					<span class="update-text-box">[[_updateCount]]</span>
+					<span class="update-text-box">[[_updateString]]</span>
 				</div>
 			</div>
 		</d2l-image-tile>
@@ -294,8 +288,14 @@
 			is: 'd2l-course-image-tile',
 
 			properties: {
-				courseUpdatesConfig: Object,
-				enrollment: Object,
+				courseUpdatesConfig: {
+					type: Object,
+					value: function() { return {}; }
+				},
+				enrollment: {
+					type: Object,
+					value: function() { return {}; }
+				},
 				pinned: {
 					type: Boolean,
 					value: false,
@@ -303,10 +303,12 @@
 				},
 				showCourseCode: {
 					type: Boolean,
+					value: false,
 					reflectToAttribute: true
 				},
 				showSemester: {
 					type: Boolean,
+					value: false,
 					reflectToAttribute: true
 				},
 				startedInactive: {
@@ -314,7 +316,10 @@
 					value: false,
 					reflectToAttribute: true
 				},
-				tileSizes: Object,
+				tileSizes: {
+					type: Object,
+					value: function() { return {}; }
+				},
 
 				_canAccessCourse: {
 					type: Boolean,
@@ -369,7 +374,7 @@
 				_showSeparator: {
 					type: Boolean,
 					value: false,
-					computed: '_computeShowSeparator(_semesterName)'
+					computed: '_computeShowSeparator(showSemester, showCourseCode, _organization, _semesterName)'
 				},
 				_showUpdateCount: {
 					type: Boolean,
@@ -394,10 +399,16 @@
 			observers: [
 				'_fetchEnrollmentData(_load, enrollment)'
 			],
+			ready: function() {
+				Polymer.IronA11yAnnouncer.requestAvailability();
+				this._boundOnSetCourseImage = this._onSetCourseImage.bind(this);
+			},
 			attached: function() {
-				document.body.addEventListener('set-course-image', this._onSetCourseImage.bind(this));
+				window.addEventListener('set-course-image', this._boundOnSetCourseImage);
 
 				Polymer.RenderStatus.afterNextRender(this, function() {
+					window.addEventListener('resize', this._onResize.bind(this));
+
 					var imageTile = this.$$('d2l-image-tile');
 
 					var observerCallback = function(entries, observer) {
@@ -437,10 +448,8 @@
 				});
 			},
 			detached: function() {
-				document.body.removeEventListener('set-course-image', this._onSetCourseImage.bind(this));
-			},
-			ready: function() {
-				Polymer.IronA11yAnnouncer.requestAvailability();
+				window.removeEventListener('set-course-image', this._boundOnSetCourseImage);
+				window.removeEventListener('resize', this._onResize.bind(this));
 			},
 
 			refreshImage: function(organization) {
@@ -487,25 +496,23 @@
 					this._overlayDate = this.formatDateTime(endDate, {format: 'medium'});
 					this._overlayInactive = null;
 					this._overlayTitle = this.localize('overlay.courseClosed');
-					return this.localize('courseEnded', 'date', this.formatDate(endDate, {format: 'MMMM d, yyyy'}), 'time', this.formatTime(endDate));
+					return this.localize('overlay.courseClosedOn', 'dateTime', this.formatDate(endDate, {format: 'MMMM d, yyyy'}) + ' ' + this.formatTime(endDate));
 				} else if (startDate > nowDate) {
 					startDate = new Date(startDate);
 					this._overlayDate = this.formatDateTime(startDate, {format: 'medium'});
-					this._overlayInactive = inactive ? null : this.localize('brackets', 'content', this.localize('overlay.inactive'));
+					this._overlayInactive = inactive ? this.localize('brackets', 'content', this.localize('overlay.inactive')) : null;
 					this._overlayTitle = this.localize('overlay.courseOpens');
-					return this.localize('courseStarting', 'date', this.formatDate(startDate, {format: 'MMMM d, yyyy'}), 'time', this.formatTime(startDate));
-				} else if (startDate && inactive) {
-					this._overlayInactive = this.localize('brackets', 'content', this.localize('overlay.inactive'));
-					this._overlayTitle = this.localize('overlay.courseStarted');
-					if (this.pinned) {
-						// We only care about calling out started-inactive courses if they're pinned
+					return this.localize('overlay.courseOpeningOn', 'dateTime', this.formatDate(startDate, {format: 'MMMM d, yyyy'}) + ' ' + this.formatTime(startDate));
+				} else if (inactive) {
+					this._overlayDate = null;
+					this._overlayInactive = this.localize('overlay.inactive');
+					this._overlayTitle = null;
+					if (startDate && this.pinned && organization.hasLinkByRel(this.HypermediaRels.courseOfferingInfoPage)) {
+						// We only care about calling out started-inactive courses if they're pinned, and if the user is admin-ish
 						this.startedInactive = true;
 						this.fire('started-inactive');
 					}
-					return this._overlayTitle + ' ' + this._overlayInactive;
-				} else if (inactive) {
-					this._overlayTitle = this.localize('overlay.inactive');
-					return this._overlayTitle;
+					return this._overlayInactive;
 				} else {
 					this._overlayDate = null;
 					this._overlayInactive = null;
@@ -519,14 +526,20 @@
 					&& organization.properties
 					&& this.localize('coursePinButton', 'course', organization.properties.name);
 			},
-			_computeShowSeparator: function(semesterName) {
-				return this.showSemester && semesterName.length > 0;
+			_computeShowSeparator: function(showSemester, showCourseCode, organization, semesterName) {
+				return showSemester
+					&& showCourseCode
+					&& organization
+					&& organization.properties
+					&& organization.properties.code
+					&& organization.properties.code.length > 0
+					&& semesterName.length > 0;
 			},
 			_computeShowUpdateCount: function(courseUpdatesConfig, updateCount) {
 				return !!courseUpdatesConfig && updateCount > 0;
 			},
 			_computeUpdateString: function(updateCount) {
-				return updateCount + (updateCount > 99 ? '+' : '');
+				return updateCount > 99 ? '99+' : updateCount;
 			},
 
 			_displaySetImageResult: function(success, skipSetImage) {
@@ -553,7 +566,12 @@
 				}.bind(this), 1000);
 			},
 			_fetchEnrollmentData: function(load, enrollment) {
-				if (!load || !enrollment || !enrollment.hasLinkByRel(this.HypermediaRels.organization)) {
+				if (
+					!load
+					|| !enrollment
+					|| !enrollment.hasLinkByRel
+					|| !enrollment.hasLinkByRel(this.HypermediaRels.organization)
+				) {
 					return;
 				}
 
@@ -654,7 +672,7 @@
 						&& homepageEntity.properties
 						&& homepageEntity.properties.path;
 				} else {
-					// If the user doens't have access, don't animate image/show menu/underline on hover
+					// If the user doesn't have access, don't animate image/show menu/underline on hover
 					this._hoverEffects = '';
 					this._canAccessCourse = false;
 					this.$$('d2l-image-tile').setAttribute('disabled', '');
@@ -666,6 +684,10 @@
 				this.fire('open-change-image-view', {
 					organization: this._organization
 				});
+			},
+			_onResize: function() {
+				this.customStyle['--course-image-height'] = this.offsetWidth * 0.43 + 'px';
+				this.updateStyles();
 			},
 			_onSetCourseImage: function(e) {
 				if (this.getEntityIdentifier(e.detail.organization) !== this.getEntityIdentifier(this._organization)) {
