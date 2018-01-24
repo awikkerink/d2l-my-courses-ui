@@ -313,11 +313,14 @@
 
 			var containerWidth = this.$$('.spinner-container').offsetWidth;
 			var numColumns = Math.min(Math.floor(containerWidth / 350), 4) + 1;
-			courseTileGrid.classList.remove('columns-1');
-			courseTileGrid.classList.remove('columns-2');
-			courseTileGrid.classList.remove('columns-3');
-			courseTileGrid.classList.remove('columns-4');
-			courseTileGrid.classList.add('columns-' + numColumns);
+			var columnClass = 'columns-' + numColumns;
+			if (courseTileGrid.classList.toString().indexOf(columnClass) === -1) {
+				courseTileGrid.classList.remove('columns-1');
+				courseTileGrid.classList.remove('columns-2');
+				courseTileGrid.classList.remove('columns-3');
+				courseTileGrid.classList.remove('columns-4');
+				courseTileGrid.classList.add('columns-' + numColumns);
+			}
 
 			var cssGridStyle = document.body.style['grid-template-columns'];
 			// Can be empty string, hence the strict comparison
