@@ -249,7 +249,9 @@
 
 				this.fire('d2l-filter-menu-change', {
 					url: searchUrl,
-					filterCount: 0
+					departmentFilterCount: 0,
+					semesterFilterCount: 0,
+					roleFilterCount: 0
 				});
 			},
 
@@ -258,7 +260,9 @@
 
 				this.fire('d2l-filter-menu-change', {
 					url: e.detail.url,
-					filterCount: this._roleFiltersCount + this._semesterFilters.concat(this._departmentFilters).length
+					departmentFilterCount: this._departmentFilters.length,
+					semesterFilterCount: this._semesterFilters.length,
+					roleFilterCount: this.roleFiltersCount
 				});
 			},
 			_onDepartmentOrSemesterFiltersChanged: function() {
@@ -272,9 +276,12 @@
 					parentOrganizations: departmentSemesterFilters.join(',')
 				});
 
+				// include number of department and semester filters
 				this.fire('d2l-filter-menu-change', {
 					url: searchUrl,
-					filterCount: this._roleFiltersCount + departmentSemesterFilters.length
+					departmentFilterCount: this._departmentFilters.length,
+					semesterFilterCount: this._semesterFilters.length,
+					roleFilterCount: this._roleFiltersCount
 				});
 			},
 			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {

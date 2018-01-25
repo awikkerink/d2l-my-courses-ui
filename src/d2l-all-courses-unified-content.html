@@ -22,6 +22,15 @@
 		<span class="bottom-pad" hidden$="[[!_noCoursesInSelection]]">
 			[[localize('noCoursesInSelection')]]
 		</span>
+		<span class="bottom-pad" hidden$="[[!_noCoursesInDepartment]]">
+			[[localize('noCoursesInDepartment')]]
+		</span>
+		<span class="bottom-pad" hidden$="[[!_noCoursesInSemester]]">
+			[[localize('noCoursesInSemester')]]
+		</span>
+		<span class="bottom-pad" hidden$="[[!_noCoursesInRole]]">
+			[[localize('noCoursesInRole')]]
+		</span>
 
 		<d2l-course-tile-grid
 			id="all-courses-unified-tile-grid"
@@ -44,6 +53,9 @@
 				courseUpdatesConfig: Object,
 				updatedSortLogic: Boolean,
 				filterCount: Number,
+				departmentFilterCount: Number,
+				semesterFilterCount: Number,
+				roleFilterCount: Number,
 				isSearched: Boolean,
 				filteredEnrollments: Array,
 
@@ -53,6 +65,9 @@
 				},
 				_noCoursesInSearch: Boolean,
 				_noCoursesInSelection: Boolean,
+				_noCoursesInDepartment: Boolean,
+				_noCoursesInSemester: Boolean,
+				_noCoursesInRole: Boolean,
 				_tileSizes: Object,
 				_itemCount: {
 					type: Number,
@@ -101,10 +116,21 @@
 			_enrollmentsChanged: function(enrollmentLength) {
 				this._noCoursesInSearch = false;
 				this._noCoursesInSelection = false;
+				this._noCoursesInDepartment = false;
+				this._noCoursesInSemester = false;
+				this._noCoursesInRole = false;
 				if (enrollmentLength === 0) {
 					if (this.isSearched) {
 						this._noCoursesInSearch = true;
-					} else if (this.filterCount > 0) {
+					} else if (this.filterCount === 1) {
+						if (this.departmentFilterCount === 1) {
+							this._noCoursesInDepartment = true;
+						} else if (this.semesterFilterCount === 1) {
+							this._noCoursesInSemester = true;
+						} else if (this.roleFilterCount === 1) {
+							this._noCoursesInRole = true;
+						}
+					} else if (this.filterCount > 1) {
 						this._noCoursesInSelection = true;
 					}
 				} else {
