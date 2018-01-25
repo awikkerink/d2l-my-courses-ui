@@ -828,5 +828,19 @@ describe('d2l-my-courses-content', () => {
 			component._addOnlyPastCoursesAlert(false, true);
 			expect(component._alerts).to.include({ alertName: 'onlyPastCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any current or future courses. View All Courses to browse your past courses.' });
 		});
+
+		it('should add the Only Past Courses alert if there are only past courses, hides past courses and no pinned enrollments', () => {
+			this._alerts = [];
+			component._hasEnrollments = true;
+			component._addOnlyPastCoursesAlert(false, true, false);
+			expect(component._alerts).to.include({ alertName: 'onlyPastCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any current or future courses. View All Courses to browse your past courses.' });
+		});
+
+		it('should remove the Only Past Courses alert if there is a pinned enrollments', () => {
+			this._alerts = [{ alertName: 'onlyPastCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any current or future courses. View All Courses to browse your past courses.' }];
+			component._hasEnrollments = true;
+			component._addOnlyPastCoursesAlert(false, true, true);
+			expect(component._alerts).to.not.include({ alertName: 'onlyPastCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any current or future courses. View All Courses to browse your past courses.' });
+		});
 	});
 });
