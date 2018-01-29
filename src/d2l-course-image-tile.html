@@ -408,6 +408,7 @@
 				window.addEventListener('set-course-image', this._boundOnSetCourseImage);
 
 				Polymer.RenderStatus.afterNextRender(this, function() {
+					this._onResize();
 					window.addEventListener('resize', this._onResize.bind(this));
 
 					var imageTile = this.$$('d2l-image-tile');
