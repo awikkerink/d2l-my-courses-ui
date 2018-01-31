@@ -150,9 +150,9 @@ describe('d2l-all-courses-segregated-content', function() {
 		[
 			{ isSearched: false, filterCount: 0, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: false },
 			{ isSearched: true, filterCount: 0, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: true, _noPinnedCoursesInSelection: false },
-			{ isSearched: false, filterCount: 1, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: true },
-			{ isSearched: true, filterCount: 1, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: true, _noPinnedCoursesInSelection: false },
-			{ isSearched: true, filterCount: 1, hasPinnedEnrollments: true, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: false }
+			{ isSearched: false, filterCount: 6, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: true },
+			{ isSearched: true, filterCount: 6, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: true, _noPinnedCoursesInSelection: false },
+			{ isSearched: true, filterCount: 6, hasPinnedEnrollments: true, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: false }
 		].forEach(testCase => {
 			it(`should set _noPinnedCoursesInSearch to ${testCase._noPinnedCoursesInSearch} and _noPinnedCoursesInSelection to ${testCase._noPinnedCoursesInSelection} when hasPinnedEnrollments changes to ${testCase.hasPinnedEnrollments}, isSearched is ${testCase.isSearched} and filterCount is ${testCase.filterCount}`, () => {
 				widget._alerts = [];
@@ -187,9 +187,9 @@ describe('d2l-all-courses-segregated-content', function() {
 		[
 			{ isSearched: false, filterCount: 0, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: false },
 			{ isSearched: true, filterCount: 0, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: true, _noUnpinnedCoursesInSelection: false },
-			{ isSearched: false, filterCount: 1, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: true },
-			{ isSearched: true, filterCount: 1, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: true, _noUnpinnedCoursesInSelection: false },
-			{ isSearched: true, filterCount: 1, hasUnpinnedEnrollments: true, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: false }
+			{ isSearched: false, filterCount: 6, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: true },
+			{ isSearched: true, filterCount: 6, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: true, _noUnpinnedCoursesInSelection: false },
+			{ isSearched: true, filterCount: 6, hasUnpinnedEnrollments: true, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: false }
 		].forEach(testCase => {
 			it(`should set _noUnpinnedCoursesInSearch to ${testCase._noUnpinnedCoursesInSearch} and _noUnpinnedCoursesInSelection to ${testCase._noUnpinnedCoursesInSelection} when hasUnpinnedEnrollments changes to ${testCase.hasUnpinnedEnrollments}, isSearched is ${testCase.isSearched} and filterCount is ${testCase.filterCount}`, () => {
 				widget._alerts = [];
