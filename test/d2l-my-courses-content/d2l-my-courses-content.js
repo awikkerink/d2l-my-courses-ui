@@ -575,6 +575,20 @@ describe('d2l-my-courses-content', () => {
 				});
 			});
 		});
+
+		describe('set-course-image', () => {
+			it('should close the image-selector overlay', done => {
+				var spy = sandbox.spy(component.$['basic-image-selector-overlay'], 'close');
+
+				var event = new CustomEvent('set-course-image');
+				document.body.dispatchEvent(event);
+
+				setTimeout(() => {
+					expect(spy).to.have.been.called;
+					done();
+				});
+			});
+		});
 	});
 
 	describe('Performance measures', () => {
