@@ -281,7 +281,8 @@
 			var url = enrollment.getLinkByRel('self').href;
 			url += (url.indexOf('?') === -1 ? '?' : '&') + 'bustCache=' + Math.random();
 
-			this._addOnlyPastCoursesAlert();
+			var isPinned = lastPinnedIndex === 1 ? e.detail.isPinned : true;
+			this._addOnlyPastCoursesAlert(undefined, undefined, isPinned);
 
 			return this.fetchSirenEntity(url)
 				.then(function(updatedEnrollment) {
@@ -591,11 +592,12 @@
 				hasPinnedEnrollmentSelector = courseTileGrid.$$('d2l-course-tile[pinned]');
 			}
 
-			var hasCurrentOrFutureCourse = hasCurrentOrFutureCourseArg || hasCurrentOrFutureSelector,
-				hidesPastCourses = hidesPastCoursesArg || courseTileGrid.hasAttribute('hide-past-courses'),
-				hasPinnedEnrollment = hasPinnedEnrollmentArg || hasPinnedEnrollmentSelector;
-			if (!hasPinnedEnrollment && this._hasEnrollments && !hasCurrentOrFutureCourse && hidesPastCourses && !this._hasAlert('onlyPastCourses')) {
-				this._addAlert('call-to-action', 'onlyPastCourses', this.localize('onlyPastCoursesMessage'));
+			var hasCurrentOrFutureCourse = hasCurrentOrFutureCourseArg !== undefined ? hasCurrentOrFutureCourseArg : hasCurrentOrFutureSelector,
+				hidesPastCourses = hidesPastCoursesArg !== undefined ? hidesPastCoursesArg : courseTileGrid.hasAttribute('hide-past-courses'),
+				hasPinnedEnrollment = hasPinnedEnrollmentArg !== undefined ? hasPinnedEnrollmentArg : hasPinnedEnrollmentSelector;
+
+			if (!hasPinnedEnrollment && this._hasEnrollments && !hasCurrentOrFutureCourse && hidesPastCourses) {
+				if (!this._hasAlert('onlyPastCourses')) this._addAlert('call-to-action', 'onlyPastCourses', this.localize('onlyPastCoursesMessage'));
 			} else {
 				this._removeAlert('onlyPastCourses');
 			}
