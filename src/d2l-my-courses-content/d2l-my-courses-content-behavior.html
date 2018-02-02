@@ -286,6 +286,7 @@
 
 			return this.fetchSirenEntity(url)
 				.then(function(updatedEnrollment) {
+					if (!updatedEnrollment) return;
 					var orgUnitId = this._getOrgUnitIdFromHref(this.getEntityIdentifier(updatedEnrollment));
 					this._orgUnitIdMap[orgUnitId] = updatedEnrollment;
 

@@ -856,5 +856,48 @@ describe('d2l-my-courses-content', () => {
 			component._addOnlyPastCoursesAlert(false, true, true);
 			expect(component._alerts).to.not.include({ alertName: 'onlyPastCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any current or future courses. View All Courses to browse your past courses.' });
 		});
+
+		it('should set past courses alert with pinned enrollment when a course is pinned', () => {
+			var enrollmentMock = {
+				getLinkByRel: sandbox.stub().returns({ href: 'href' })
+			};
+			var e = {
+				target: 'notthis',
+				detail: {
+					orgUnitId: 69,
+					enrollment: enrollmentMock,
+					isPinned: true
+				}
+			};
+			component._enrollments = [];
+			component.getEntityIdentifier = sinon.stub().returns(69);
+			var spy = sandbox.spy(component, '_addOnlyPastCoursesAlert');
+			sandbox.stub(component, 'fetchSirenEntity').returns(Promise.resolve());
+
+			component._onEnrollmentPinnedMessage(e);
+			expect(spy).to.have.been.calledWith(undefined, undefined, true);
+		});
+
+		it('should set past courses alert with unpinned enrollment when a course is unpinned', () => {
+			var enrollmentMock = {
+				getLinkByRel: sandbox.stub().returns({ href: 'href' }),
+				hasClass: sandbox.stub().returns(true)
+			};
+			var e = {
+				target: 'notthis',
+				detail: {
+					orgUnitId: 69,
+					enrollment: enrollmentMock,
+					isPinned: false
+				}
+			};
+			component._enrollments = [enrollmentMock];
+			component.getEntityIdentifier = sinon.stub().returns(69);
+			var spy = sandbox.spy(component, '_addOnlyPastCoursesAlert');
+			sandbox.stub(component, 'fetchSirenEntity').returns(Promise.resolve());
+
+			component._onEnrollmentPinnedMessage(e);
+			expect(spy).to.have.been.calledWith(undefined, undefined, false);
+		});
 	});
 });
