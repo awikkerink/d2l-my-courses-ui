@@ -57,4 +57,46 @@ describe('d2l-all-courses-unified-content', function() {
 			});
 		});
 	});
+
+	describe('filtering when there are no courses', () => {
+		[
+			{ target: '_noCoursesInDepartment', filter: 'departments' },
+			{ target: '_noCoursesInSemester', filter: 'semesters' },
+			{ target: '_noCoursesInRole', filter: 'roles' }
+		].forEach(testCase => {
+			it(`should set ${testCase.target} when there are no enrollments and one ${testCase.filter} is filtered`, () => {
+				widget.isSearched = false;
+				widget.totalFilterCount = 1;
+				widget.filterCounts = {};
+				widget.filterCounts[testCase.filter] = 1;
+				widget._enrollmentsChanged(0);
+				expect(widget[testCase.target]).to.be.true;
+			});
+		});
+
+		[
+			{ target: '_noCoursesInDepartment', filter: 'departments' },
+			{ target: '_noCoursesInSemester', filter: 'semesters' },
+			{ target: '_noCoursesInRole', filter: 'roles' }
+		].forEach(testCase => {
+			it(`should not set ${testCase.target} when there are no enrollments and more than one ${testCase.filter} are filtered`, () => {
+				widget.isSearched = false;
+				widget.totalFilterCount = 1;
+				widget.filterCounts = {};
+				widget.filterCounts[testCase.filter] = 3;
+				widget._enrollmentsChanged(0);
+				expect(widget[testCase.target]).to.be.false;
+			});
+		});
+
+		it('should not set empty filter messages when there are more than one filters', () => {
+			widget.isSearched = false;
+			widget.totalFilterCount = 4;
+			widget.filterCounts = {};
+			widget._enrollmentsChanged(0);
+			expect(widget._noCoursesInDepartment).to.be.false;
+			expect(widget._noCoursesInSemester).to.be.false;
+			expect(widget._noCoursesInRole).to.be.false;
+		});
+	});
 });

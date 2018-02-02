@@ -270,4 +270,57 @@ describe('d2l-all-courses-segregated-content', function() {
 			expect(widget.filteredPinnedEnrollments.length).to.equal(1);
 		});
 	});
+
+	describe('filtering when there are no courses', () => {
+		[
+			{ target: '_noPinnedCoursesInDepartment', filter: 'departments' },
+			{ target: '_noPinnedCoursesInSemester', filter: 'semesters' },
+			{ target: '_noPinnedCoursesInRole', filter: 'roles' },
+			{ target: '_noUnpinnedCoursesInDepartment', filter: 'departments' },
+			{ target: '_noUnpinnedCoursesInSemester', filter: 'semesters' },
+			{ target: '_noUnpinnedCoursesInRole', filter: 'roles' }
+		].forEach(testCase => {
+			it(`should set ${testCase.target} when there are no enrollments and one ${testCase.filter} is filtered`, () => {
+				widget._alerts = [];
+				widget.isSearched = false;
+				widget.totalFilterCount = 1;
+				widget.filterCounts = {};
+				widget.filterCounts[testCase.filter] = 1;
+				widget._updateEnrollmentAlerts(false, false);
+				expect(widget[testCase.target]).to.be.true;
+			});
+		});
+
+		[
+			{ target: '_noPinnedCoursesInDepartment', filter: 'departments' },
+			{ target: '_noPinnedCoursesInSemester', filter: 'semesters' },
+			{ target: '_noPinnedCoursesInRole', filter: 'roles' },
+			{ target: '_noUnpinnedCoursesInDepartment', filter: 'departments' },
+			{ target: '_noUnpinnedCoursesInSemester', filter: 'semesters' },
+			{ target: '_noUnpinnedCoursesInRole', filter: 'roles' }
+		].forEach(testCase => {
+			it(`should set ${testCase.target} when there are no enrollments and one ${testCase.filter} is filtered`, () => {
+				widget._alerts = [];
+				widget.isSearched = false;
+				widget.totalFilterCount = 1;
+				widget.filterCounts = {};
+				widget.filterCounts[testCase.filter] = 3;
+				widget._updateEnrollmentAlerts(false, false);
+				expect(widget[testCase.target]).to.be.false;
+			});
+		});
+
+		it('should not set empty filter messages when there are more than one filters', () => {
+			widget.isSearched = false;
+			widget.totalFilterCount = 4;
+			widget.filterCounts = {};
+			widget._updateEnrollmentAlerts(false, false);
+			expect(widget._noPinnedCoursesInDepartment).to.be.false;
+			expect(widget._noPinnedCoursesInSemester).to.be.false;
+			expect(widget._noPinnedCoursesInRole).to.be.false;
+			expect(widget._noUnpinnedCoursesInDepartment).to.be.false;
+			expect(widget._noUnpinnedCoursesInSemester).to.be.false;
+			expect(widget._noUnpinnedCoursesInRole).to.be.false;
+		});
+	});
 });
