@@ -31,13 +31,13 @@ describe('d2l-all-courses-unified-content', function() {
 
 	describe('changing enrollment entities', function() {
 		[
-			{ isSearched: true, filterCount: 0, enrollmentsChanged: 0, noCoursesInSearch: true, noCoursesInSelection: false },
-			{ isSearched: true, filterCount: 0, enrollmentsChanged: 3, noCoursesInSearch: false, noCoursesInSelection: false },
-			{ isSearched: false, filterCount: 2, enrollmentsChanged: 0, noCoursesInSearch: false, noCoursesInSelection: true }
+			{ isSearched: true, totalFilterCount: 0, enrollmentsChanged: 0, noCoursesInSearch: true, noCoursesInSelection: false },
+			{ isSearched: true, totalFilterCount: 0, enrollmentsChanged: 3, noCoursesInSearch: false, noCoursesInSelection: false },
+			{ isSearched: false, totalFilterCount: 2, enrollmentsChanged: 0, noCoursesInSearch: false, noCoursesInSelection: true }
 		].forEach(testCase => {
-			it(`should set noCoursesInSearch to ${testCase.noCoursesInSearch} and noCoursesInSelection to ${testCase.noCoursesInSelection} when enrollments change to ${testCase.enrollmentsChanged}, isSearched is ${testCase.isSearched} and filterCount is ${testCase.filterCount}`, () => {
+			it(`should set noCoursesInSearch to ${testCase.noCoursesInSearch} and noCoursesInSelection to ${testCase.noCoursesInSelection} when enrollments change to ${testCase.enrollmentsChanged}, isSearched is ${testCase.isSearched} and totalFilterCount is ${testCase.totalFilterCount}`, () => {
 				widget.isSearched = testCase.isSearched;
-				widget.filterCount = testCase.filterCount;
+				widget.totalFilterCount = testCase.totalFilterCount;
 				widget._enrollmentsChanged(testCase.enrollmentsChanged);
 				expect(widget._noCoursesInSearch).to.equal(testCase.noCoursesInSearch);
 				expect(widget._noCoursesInSelection).to.equal(testCase.noCoursesInSelection);
@@ -45,13 +45,13 @@ describe('d2l-all-courses-unified-content', function() {
 		});
 
 		[
-			{ isSearched: false, filterCount: 0, enrollmentsChanged: 3, itemCount: 3 },
-			{ isSearched: true, filterCount: 0, enrollmentsChanged: 2, itemCount: 0 },
-			{ isSearched: false, filterCount: 1, enrollmentsChanged: 2, itemCount: 0 }
+			{ isSearched: false, totalFilterCount: 0, enrollmentsChanged: 3, itemCount: 3 },
+			{ isSearched: true, totalFilterCount: 0, enrollmentsChanged: 2, itemCount: 0 },
+			{ isSearched: false, totalFilterCount: 1, enrollmentsChanged: 2, itemCount: 0 }
 		].forEach(testCase => {
-			it(`should set itemCount to ${testCase.itemCount} when enrollments change to ${testCase.enrollmentsChanged}, isSearched is ${testCase.isSearched} and filterCount is ${testCase.filterCount}`, () => {
+			it(`should set itemCount to ${testCase.itemCount} when enrollments change to ${testCase.enrollmentsChanged}, isSearched is ${testCase.isSearched} and totalFilterCount is ${testCase.totalFilterCount}`, () => {
 				widget.isSearched = testCase.isSearched;
-				widget.filterCount = testCase.filterCount;
+				widget.totalFilterCount = testCase.totalFilterCount;
 				widget._enrollmentsChanged(testCase.enrollmentsChanged);
 				expect(widget._itemCount).to.equal(testCase.itemCount);
 			});

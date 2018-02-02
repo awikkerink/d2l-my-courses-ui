@@ -108,7 +108,7 @@ describe('d2l-all-courses', function() {
 	});
 
 	describe('d2l-filter-menu-change event', function() {
-		it('should set the _searchUrl and filterCount', function() {
+		it('should set the _searchUrl and filterCounts', function() {
 			widget.$.filterMenu.fire('d2l-filter-menu-change', {
 				url: 'http://example.com',
 				filterCounts: {
@@ -119,7 +119,7 @@ describe('d2l-all-courses', function() {
 			});
 
 			expect(widget._searchUrl).to.equal('http://example.com');
-			expect(widget._filterCount).to.equal(12);
+			expect(widget._totalFilterCount).to.equal(12);
 		});
 	});
 

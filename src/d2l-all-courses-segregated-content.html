@@ -88,7 +88,7 @@
 				showSemester: Boolean,
 				courseUpdatesConfig: Object,
 				updatedSortLogic: Boolean,
-				filterCount: Number,
+				totalFilterCount: Number,
 				filterCounts: Object,
 				isSearched: Boolean,
 				filteredPinnedEnrollments: Array,
@@ -237,13 +237,13 @@
 				this._noUnpinnedCoursesInSemester = false;
 				this._noUnpinnedCoursesInRole = false;
 				var hasAlert = this._hasAlert('noPinnedCourses'),
-					isFiltered = this.filterCount > 0;
+					isFiltered = this.totalFilterCount > 0;
 				this._clearAlerts();
 				if (!hasPinnedEnrollments) {
 					if (!hasAlert && this.isSearched) {
 						this._noPinnedCoursesInSearch = true;
 					} else if (!hasAlert && isFiltered) {
-						if (this.filterCount === 1) {
+						if (this.totalFilterCount === 1) {
 							if (this.filterCounts.departments === 1) {
 								this._noPinnedCoursesInDepartment = true;
 							} else if (this.filterCounts.semesters === 1) {
@@ -262,7 +262,7 @@
 				if (!hasUnpinnedEnrollments && this.isSearched) {
 					this._noUnpinnedCoursesInSearch = true;
 				} else if (!hasUnpinnedEnrollments && isFiltered) {
-					if (this.filterCount === 1) {
+					if (this.totalFilterCount === 1) {
 						if (this.filterCounts.departments === 1) {
 							this._noUnpinnedCoursesInDepartment = true;
 						} else if (this.filterCounts.semesters === 1) {
