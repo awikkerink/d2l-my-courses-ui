@@ -111,9 +111,11 @@ describe('d2l-all-courses', function() {
 		it('should set the _searchUrl and filterCount', function() {
 			widget.$.filterMenu.fire('d2l-filter-menu-change', {
 				url: 'http://example.com',
-				departmentFilterCount: 12,
-				semesterFilterCount: 0,
-				roleFilterCount: 0
+				filterCounts: {
+					departments: 12,
+					semesters: 0,
+					roles: 0
+				}
 			});
 
 			expect(widget._searchUrl).to.equal('http://example.com');
@@ -135,9 +137,11 @@ describe('d2l-all-courses', function() {
 		function fireEvents(filterCount) {
 			widget.$.filterMenu.fire('d2l-filter-menu-change', {
 				url: 'http://example.com',
-				departmentFilterCount: filterCount,
-				semesterFilterCount: 0,
-				roleFilterCount: 0
+				filterCounts: {
+					departments: filterCount,
+					semesters: 0,
+					roles: 0
+				}
 			});
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 		}
@@ -223,9 +227,11 @@ describe('d2l-all-courses', function() {
 			var spy = sandbox.spy(widget.$.filterMenu, 'clearFilters');
 
 			widget.$.filterMenu.fire('d2l-filter-menu-change', {
-				departmentFilterCount: 1,
-				semesterFilterCount: 0,
-				roleFilterCount: 0
+				filterCounts: {
+					departments: 1,
+					semesters: 0,
+					roles: 0
+				}
 			});
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 

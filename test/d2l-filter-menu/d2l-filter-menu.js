@@ -169,9 +169,9 @@ describe('d2l-filter-menu', function() {
 			var listener = function(e) {
 				component.removeEventListener('d2l-filter-menu-change', listener);
 				expect(e.detail.url).to.equal('/enrollments?parentOrganizations=&roles=');
-				expect(e.detail.departmentFilterCount).to.equal(0);
-				expect(e.detail.semesterFilterCount).to.equal(0);
-				expect(e.detail.roleFilterCount).to.equal(0);
+				expect(e.detail.filterCounts.departments).to.equal(0);
+				expect(e.detail.filterCounts.semesters).to.equal(0);
+				expect(e.detail.filterCounts.roles).to.equal(0);
 				done();
 			};
 			component.addEventListener('d2l-filter-menu-change', listener);
@@ -196,7 +196,7 @@ describe('d2l-filter-menu', function() {
 				var listener = function(e) {
 					component.removeEventListener('d2l-filter-menu-change', listener);
 					expect(e.detail.url).to.equal('http://example.com');
-					expect(e.detail.roleFilterCount).to.equal(4);
+					expect(e.detail.filterCounts.roles).to.equal(4);
 					done();
 				};
 				component.addEventListener('d2l-filter-menu-change', listener);
@@ -211,9 +211,9 @@ describe('d2l-filter-menu', function() {
 				var listener = function(e) {
 					component.removeEventListener('d2l-filter-menu-change', listener);
 					expect(e.detail.url).to.equal('http://example.com');
-					expect(e.detail.semesterFilterCount).to.equal(1);
-					expect(e.detail.departmentFilterCount).to.equal(2);
-					expect(e.detail.roleFilterCount).to.equal(4);
+					expect(e.detail.filterCounts.semesters).to.equal(1);
+					expect(e.detail.filterCounts.departments).to.equal(2);
+					expect(e.detail.filterCounts.roles).to.equal(4);
 					done();
 				};
 				component.addEventListener('d2l-filter-menu-change', listener);
@@ -228,15 +228,15 @@ describe('d2l-filter-menu', function() {
 		});
 
 		[
-			{ path: '_semesterFilters', target: 'semesterFilterCount', otherPath: '_departmentFilters', name: 'semester', otherName: 'departments'},
-			{ path: '_departmentFilters', target: 'departmentFilterCount', otherPath: '_semesterFilters', name: 'department', otherName: 'semesters'}
+			{ path: '_semesterFilters', target: 'semesters', otherPath: '_departmentFilters', name: 'semester', otherName: 'departments'},
+			{ path: '_departmentFilters', target: 'departments', otherPath: '_semesterFilters', name: 'department', otherName: 'semesters'}
 		].forEach(function(testCase) {
 			describe('when ' + testCase.name + ' filters change', function() {
 				it('should fire a d2l-filter-menu-change event', function(done) {
 					var listener = function(e) {
 						component.removeEventListener('d2l-filter-menu-change', listener);
 						expect(e.detail.url).to.equal('/enrollments?parentOrganizations=a,b&roles=');
-						expect(e.detail[testCase.target]).to.equal(2);
+						expect(e.detail.filterCounts[testCase.target]).to.equal(2);
 						done();
 					};
 					component.myEnrollmentsEntity = myEnrollmentsEntity;
@@ -251,8 +251,8 @@ describe('d2l-filter-menu', function() {
 					var listener = function(e) {
 						component.removeEventListener('d2l-filter-menu-change', listener);
 						expect(e.detail.url).to.equal('/enrollments?parentOrganizations=a,b&roles=');
-						expect(e.detail[testCase.target]).to.equal(2);
-						expect(e.detail.roleFilterCount).to.equal(2);
+						expect(e.detail.filterCounts[testCase.target]).to.equal(2);
+						expect(e.detail.filterCounts.roles).to.equal(2);
 						done();
 					};
 					component.myEnrollmentsEntity = myEnrollmentsEntity;

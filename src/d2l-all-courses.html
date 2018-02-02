@@ -101,9 +101,7 @@
 							course-updates-config="[[courseUpdatesConfig]]"
 							updated-sort-logic="[[updatedSortLogic]]"
 							filter-count="[[_filterCount]]"
-							department-filter-count="[[_departmentFilterCount]]"
-							semester-filter-count="[[_semesterFilterCount]]"
-							role-filter-count="[[_roleFilterCount]]"
+							filter-counts="[[_filterCounts]]"
 							is-searched="[[_isSearched]]"
 							filtered-enrollments="[[_filteredEnrollments]]"
 						></d2l-all-courses-segregated-content>
@@ -115,9 +113,7 @@
 							course-updates-config="[[courseUpdatesConfig]]"
 							updated-sort-logic="[[updatedSortLogic]]"
 							filter-count="[[_filterCount]]"
-							department-filter-count="[[_departmentFilterCount]]"
-							semester-filter-count="[[_semesterFilterCount]]"
-							role-filter-count="[[_roleFilterCount]]"
+							filter-counts="[[_filterCounts]]"
 							is-searched="[[_isSearched]]"
 							filtered-pinned-enrollments="[[_filteredPinnedEnrollments]]"
 							filtered-unpinned-enrollments="[[_filteredUnpinnedEnrollments]]"
@@ -236,17 +232,13 @@
 					type: Number,
 					value: 0
 				},
-				_departmentFilterCount: {
-					type: Number,
-					value: 0
-				},
-				_semesterFilterCount: {
-					type: Number,
-					value: 0
-				},
-				_roleFilterCount: {
-					type: Number,
-					value: 0
+				_filterCounts: {
+					type: Object,
+					value: function() { return {
+						departments: 0,
+						semesters: 0,
+						roles: 0
+					}; }
 				},
 				_updatedSortLogicInitallyObserved: false,
 				_isSearched: Boolean
@@ -351,10 +343,8 @@
 			},
 			_onFilterChanged: function(e) {
 				this._searchUrl = e.detail.url;
-				this._departmentFilterCount = e.detail.departmentFilterCount;
-				this._semesterFilterCount = e.detail.semesterFilterCount;
-				this._roleFilterCount = e.detail.roleFilterCount;
-				this._filterCount = this._departmentFilterCount + this._semesterFilterCount + this._roleFilterCount;
+				this._filterCounts = e.detail.filterCounts;
+				this._filterCount = this._filterCounts.departments + this._filterCounts.semesters + this._filterCounts.roles;
 			},
 			_onFilterDropdownClose: function() {
 				var text;

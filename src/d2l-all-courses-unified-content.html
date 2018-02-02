@@ -53,9 +53,7 @@
 				courseUpdatesConfig: Object,
 				updatedSortLogic: Boolean,
 				filterCount: Number,
-				departmentFilterCount: Number,
-				semesterFilterCount: Number,
-				roleFilterCount: Number,
+				filterCounts: Object,
 				isSearched: Boolean,
 				filteredEnrollments: Array,
 
@@ -123,11 +121,11 @@
 					if (this.isSearched) {
 						this._noCoursesInSearch = true;
 					} else if (this.filterCount === 1) {
-						if (this.departmentFilterCount === 1) {
+						if (this.filterCounts.departments === 1) {
 							this._noCoursesInDepartment = true;
-						} else if (this.semesterFilterCount === 1) {
+						} else if (this.filterCounts.semesters === 1) {
 							this._noCoursesInSemester = true;
-						} else if (this.roleFilterCount === 1) {
+						} else if (this.filterCounts.roles === 1) {
 							this._noCoursesInRole = true;
 						}
 					} else if (this.filterCount > 1) {
