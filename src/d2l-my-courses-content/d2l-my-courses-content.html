@@ -111,8 +111,7 @@
 					animate="[[_animateCourseTileGrid]]">
 				</d2l-course-tile-grid>
 			</template>
-			<a
-				is="d2l-link"
+			<d2l-link
 				id="viewAllCourses"
 				hidden$="[[!_hasEnrollments]]"
 				href="javascript:void(0);"
@@ -122,7 +121,7 @@
 				on-focus="_createAllCourses"
 				tabindex="0">
 				<h3 class="d2l-body-standard">[[_viewAllCoursesText]]</h3>
-			</a>
+			</d2l-link>
 		</div>
 
 		<div id="allCoursesPlaceholder">
