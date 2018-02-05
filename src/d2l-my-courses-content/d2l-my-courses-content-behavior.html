@@ -378,6 +378,7 @@
 			this.$['basic-image-selector-overlay'].open();
 		},
 		_onSetCourseImage: function(e) {
+			this.$['basic-image-selector-overlay'].close();
 			this._removeAlert('setCourseImageFailure');
 			if (e && e.detail) {
 				if (e.detail.status === 'failure') {
