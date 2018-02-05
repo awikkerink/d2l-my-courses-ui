@@ -930,9 +930,9 @@ describe('d2l-my-courses-content', () => {
 				}
 			};
 			component._enrollments = [];
-			component.getEntityIdentifier = sinon.stub().returns(69);
+			component.getEntityIdentifier = sinon.stub().returns('69');
 			var spy = sandbox.spy(component, '_addOnlyPastCoursesAlert');
-			sandbox.stub(component, 'fetchSirenEntity').returns(Promise.resolve());
+			sandbox.stub(component, 'fetchSirenEntity').returns(Promise.resolve(enrollmentMock));
 
 			component._onEnrollmentPinnedMessage(e);
 			expect(spy).to.have.been.calledWith(true);
@@ -952,9 +952,9 @@ describe('d2l-my-courses-content', () => {
 				}
 			};
 			component._enrollments = [enrollmentMock];
-			component.getEntityIdentifier = sinon.stub().returns(69);
+			component.getEntityIdentifier = sinon.stub().returns('69');
 			var spy = sandbox.spy(component, '_addOnlyPastCoursesAlert');
-			sandbox.stub(component, 'fetchSirenEntity').returns(Promise.resolve());
+			sandbox.stub(component, 'fetchSirenEntity').returns(Promise.resolve(enrollmentMock));
 
 			component._onEnrollmentPinnedMessage(e);
 			expect(spy).to.have.been.calledWith(false);
