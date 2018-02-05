@@ -19,6 +19,15 @@
 		<span hidden$="[[!_noPinnedCoursesInSelection]]">
 			[[localize('noPinnedCoursesInSelection')]]
 		</span>
+		<span class="bottom-pad" hidden$="[[!_noPinnedCoursesInDepartment]]">
+			[[localize('noPinnedCoursesInDepartment')]]
+		</span>
+		<span class="bottom-pad" hidden$="[[!_noPinnedCoursesInSemester]]">
+			[[localize('noPinnedCoursesInSemester')]]
+		</span>
+		<span class="bottom-pad" hidden$="[[!_noPinnedCoursesInRole]]">
+			[[localize('noPinnedCoursesInRole')]]
+		</span>
 
 		<template is="dom-repeat" items="[[_alerts]]">
 			<d2l-alert type="[[item.alertType]]">
@@ -49,6 +58,15 @@
 		<span class="bottom-pad" hidden$="[[!_noUnpinnedCourses]]">
 			[[localize('noUnpinnedCoursesMessage')]]
 		</span>
+		<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInDepartment]]">
+			[[localize('noUnpinnedCoursesInDepartment')]]
+		</span>
+		<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInSemester]]">
+			[[localize('noUnpinnedCoursesInSemester')]]
+		</span>
+		<span class="bottom-pad" hidden$="[[!_noUnpinnedCoursesInRole]]">
+			[[localize('noUnpinnedCoursesInRole')]]
+		</span>
 
 		<d2l-course-tile-grid
 			id="all-courses-segregated-unpinned-tile-grid"
@@ -70,7 +88,8 @@
 				showSemester: Boolean,
 				courseUpdatesConfig: Object,
 				updatedSortLogic: Boolean,
-				filterCount: Number,
+				totalFilterCount: Number,
+				filterCounts: Object,
 				isSearched: Boolean,
 				filteredPinnedEnrollments: Array,
 				filteredUnpinnedEnrollments: Array,
@@ -80,6 +99,12 @@
 				_noUnpinnedCoursesInSearch: Boolean,
 				_noUnpinnedCoursesInSelection: Boolean,
 				_noUnpinnedCourses: Boolean,
+				_noPinnedCoursesInDepartment: Boolean,
+				_noPinnedCoursesInSemester: Boolean,
+				_noPinnedCoursesInRole: Boolean,
+				_noUnpinnedCoursesInDepartment: Boolean,
+				_noUnpinnedCoursesInSemester: Boolean,
+				_noUnpinnedCoursesInRole: Boolean,
 				_pinnedEnrollmentsToAnimate: {
 					type: Array,
 					value: function() { return []; }
@@ -205,14 +230,30 @@
 				this._noUnpinnedCoursesInSearch = false;
 				this._noUnpinnedCoursesInSelection = false;
 				this._noUnpinnedCourses = false;
+				this._noPinnedCoursesInDepartment = false;
+				this._noPinnedCoursesInSemester = false;
+				this._noPinnedCoursesInRole = false;
+				this._noUnpinnedCoursesInDepartment = false;
+				this._noUnpinnedCoursesInSemester = false;
+				this._noUnpinnedCoursesInRole = false;
 				var hasAlert = this._hasAlert('noPinnedCourses'),
-					isFiltered = this.filterCount > 0;
+					isFiltered = this.totalFilterCount > 0;
 				this._clearAlerts();
 				if (!hasPinnedEnrollments) {
 					if (!hasAlert && this.isSearched) {
 						this._noPinnedCoursesInSearch = true;
 					} else if (!hasAlert && isFiltered) {
-						this._noPinnedCoursesInSelection = true;
+						if (this.totalFilterCount === 1) {
+							if (this.filterCounts.departments === 1) {
+								this._noPinnedCoursesInDepartment = true;
+							} else if (this.filterCounts.semesters === 1) {
+								this._noPinnedCoursesInSemester = true;
+							} else if (this.filterCounts.roles === 1) {
+								this._noPinnedCoursesInRole = true;
+							}
+						} else {
+							this._noPinnedCoursesInSelection = true;
+						}
 					}
 					else {
 						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
@@ -221,7 +262,17 @@
 				if (!hasUnpinnedEnrollments && this.isSearched) {
 					this._noUnpinnedCoursesInSearch = true;
 				} else if (!hasUnpinnedEnrollments && isFiltered) {
-					this._noUnpinnedCoursesInSelection = true;
+					if (this.totalFilterCount === 1) {
+						if (this.filterCounts.departments === 1) {
+							this._noUnpinnedCoursesInDepartment = true;
+						} else if (this.filterCounts.semesters === 1) {
+							this._noUnpinnedCoursesInSemester = true;
+						} else if (this.filterCounts.roles === 1) {
+							this._noUnpinnedCoursesInRole = true;
+						}
+					} else {
+						this._noUnpinnedCoursesInSelection = true;
+					}
 				}
 				if (!hasUnpinnedEnrollments && !this.isSearched && !isFiltered) {
 					this._noUnpinnedCourses = true;

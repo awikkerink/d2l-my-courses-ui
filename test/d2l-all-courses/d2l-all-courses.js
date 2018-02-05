@@ -108,14 +108,18 @@ describe('d2l-all-courses', function() {
 	});
 
 	describe('d2l-filter-menu-change event', function() {
-		it('should set the _searchUrl and filterCount', function() {
+		it('should set the _searchUrl and filterCounts', function() {
 			widget.$.filterMenu.fire('d2l-filter-menu-change', {
 				url: 'http://example.com',
-				filterCount: 12
+				filterCounts: {
+					departments: 12,
+					semesters: 0,
+					roles: 0
+				}
 			});
 
 			expect(widget._searchUrl).to.equal('http://example.com');
-			expect(widget._filterCount).to.equal(12);
+			expect(widget._totalFilterCount).to.equal(12);
 		});
 	});
 
@@ -133,7 +137,11 @@ describe('d2l-all-courses', function() {
 		function fireEvents(filterCount) {
 			widget.$.filterMenu.fire('d2l-filter-menu-change', {
 				url: 'http://example.com',
-				filterCount: filterCount
+				filterCounts: {
+					departments: filterCount,
+					semesters: 0,
+					roles: 0
+				}
 			});
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 		}
@@ -218,7 +226,13 @@ describe('d2l-all-courses', function() {
 		it('should clear filters', function() {
 			var spy = sandbox.spy(widget.$.filterMenu, 'clearFilters');
 
-			widget.$.filterMenu.fire('d2l-filter-menu-change', { filterCount: 1 });
+			widget.$.filterMenu.fire('d2l-filter-menu-change', {
+				filterCounts: {
+					departments: 1,
+					semesters: 0,
+					roles: 0
+				}
+			});
 			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 
 			expect(widget._filterText).to.equal('Filter: 1 Filter');

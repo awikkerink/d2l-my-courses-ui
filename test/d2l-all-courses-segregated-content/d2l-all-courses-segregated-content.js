@@ -148,16 +148,16 @@ describe('d2l-all-courses-segregated-content', function() {
 		});
 
 		[
-			{ isSearched: false, filterCount: 0, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: false },
-			{ isSearched: true, filterCount: 0, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: true, _noPinnedCoursesInSelection: false },
-			{ isSearched: false, filterCount: 1, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: true },
-			{ isSearched: true, filterCount: 1, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: true, _noPinnedCoursesInSelection: false },
-			{ isSearched: true, filterCount: 1, hasPinnedEnrollments: true, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: false }
+			{ isSearched: false, totalFilterCount: 0, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: false },
+			{ isSearched: true, totalFilterCount: 0, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: true, _noPinnedCoursesInSelection: false },
+			{ isSearched: false, totalFilterCount: 6, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: true },
+			{ isSearched: true, totalFilterCount: 6, hasPinnedEnrollments: false, _noPinnedCoursesInSearch: true, _noPinnedCoursesInSelection: false },
+			{ isSearched: true, totalFilterCount: 6, hasPinnedEnrollments: true, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: false }
 		].forEach(testCase => {
-			it(`should set _noPinnedCoursesInSearch to ${testCase._noPinnedCoursesInSearch} and _noPinnedCoursesInSelection to ${testCase._noPinnedCoursesInSelection} when hasPinnedEnrollments changes to ${testCase.hasPinnedEnrollments}, isSearched is ${testCase.isSearched} and filterCount is ${testCase.filterCount}`, () => {
+			it(`should set _noPinnedCoursesInSearch to ${testCase._noPinnedCoursesInSearch} and _noPinnedCoursesInSelection to ${testCase._noPinnedCoursesInSelection} when hasPinnedEnrollments changes to ${testCase.hasPinnedEnrollments}, isSearched is ${testCase.isSearched} and totalFilterCount is ${testCase.totalFilterCount}`, () => {
 				widget._alerts = [];
 				widget.isSearched = testCase.isSearched;
-				widget.filterCount = testCase.filterCount;
+				widget.totalFilterCount = testCase.totalFilterCount;
 				widget._updateEnrollmentAlerts(testCase.hasPinnedEnrollments, true);
 				expect(widget._noPinnedCoursesInSearch).to.equal(testCase._noPinnedCoursesInSearch);
 				expect(widget._noPinnedCoursesInSelection).to.equal(testCase._noPinnedCoursesInSelection);
@@ -173,7 +173,7 @@ describe('d2l-all-courses-segregated-content', function() {
 			it(`should include(${testCase.showAlert}) No Pinned Courses alert when hasPinnedEnrollments(${testCase.hasPinnedEnrollments}), searched(${testCase.isSearched}) and filtered(${testCase.isFiltered})`, () => {
 				widget._alerts = [];
 				widget.isSearched = testCase.isSearched;
-				widget.filterCount = testCase.isFiltered ? 3 : 0;
+				widget.totalFilterCount = testCase.isFiltered ? 3 : 0;
 				widget._updateEnrollmentAlerts(testCase.hasPinnedEnrollments, true);
 				var noPinnedCoursesAlert = { alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' };
 				if (testCase.showAlert) {
@@ -185,16 +185,16 @@ describe('d2l-all-courses-segregated-content', function() {
 		});
 
 		[
-			{ isSearched: false, filterCount: 0, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: false },
-			{ isSearched: true, filterCount: 0, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: true, _noUnpinnedCoursesInSelection: false },
-			{ isSearched: false, filterCount: 1, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: true },
-			{ isSearched: true, filterCount: 1, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: true, _noUnpinnedCoursesInSelection: false },
-			{ isSearched: true, filterCount: 1, hasUnpinnedEnrollments: true, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: false }
+			{ isSearched: false, totalFilterCount: 0, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: false },
+			{ isSearched: true, totalFilterCount: 0, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: true, _noUnpinnedCoursesInSelection: false },
+			{ isSearched: false, totalFilterCount: 6, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: true },
+			{ isSearched: true, totalFilterCount: 6, hasUnpinnedEnrollments: false, _noUnpinnedCoursesInSearch: true, _noUnpinnedCoursesInSelection: false },
+			{ isSearched: true, totalFilterCount: 6, hasUnpinnedEnrollments: true, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: false }
 		].forEach(testCase => {
-			it(`should set _noUnpinnedCoursesInSearch to ${testCase._noUnpinnedCoursesInSearch} and _noUnpinnedCoursesInSelection to ${testCase._noUnpinnedCoursesInSelection} when hasUnpinnedEnrollments changes to ${testCase.hasUnpinnedEnrollments}, isSearched is ${testCase.isSearched} and filterCount is ${testCase.filterCount}`, () => {
+			it(`should set _noUnpinnedCoursesInSearch to ${testCase._noUnpinnedCoursesInSearch} and _noUnpinnedCoursesInSelection to ${testCase._noUnpinnedCoursesInSelection} when hasUnpinnedEnrollments changes to ${testCase.hasUnpinnedEnrollments}, isSearched is ${testCase.isSearched} and totalFilterCount is ${testCase.totalFilterCount}`, () => {
 				widget._alerts = [];
 				widget.isSearched = testCase.isSearched;
-				widget.filterCount = testCase.filterCount;
+				widget.totalFilterCount = testCase.totalFilterCount;
 				widget._updateEnrollmentAlerts(true, testCase.hasUnpinnedEnrollments);
 				expect(widget._noUnpinnedCoursesInSearch).to.equal(testCase._noUnpinnedCoursesInSearch);
 				expect(widget._noUnpinnedCoursesInSelection).to.equal(testCase._noUnpinnedCoursesInSelection);
@@ -210,7 +210,7 @@ describe('d2l-all-courses-segregated-content', function() {
 			it(`should update itemCount to ${testCase.itemCount} when filteredPinnedEnrollments is ${testCase.filteredPinnedEnrollments}, filteredUnpinnedEnrollments is ${testCase.filteredUnpinnedEnrollments}, searched is (true) and filtered is (true)`, () => {
 				widget._itemCount = 0;
 				widget.isSearched = testCase.isSearched;
-				widget.filterCount = testCase.isFiltered ? 3 : 0;
+				widget.totalFilterCount = testCase.isFiltered ? 3 : 0;
 				widget.filteredPinnedEnrollments = new Array(testCase.filteredPinnedEnrollments);
 				widget.filteredUnpinnedEnrollments = new Array(testCase.filteredUnpinnedEnrollments);
 
@@ -268,6 +268,59 @@ describe('d2l-all-courses-segregated-content', function() {
 			widget._moveEnrollmentToPinnedList(pinnedEnrollmentEntity);
 			expect(widget.filteredUnpinnedEnrollments.length).to.equal(2);
 			expect(widget.filteredPinnedEnrollments.length).to.equal(1);
+		});
+	});
+
+	describe('filtering when there are no courses', () => {
+		[
+			{ target: '_noPinnedCoursesInDepartment', filter: 'departments' },
+			{ target: '_noPinnedCoursesInSemester', filter: 'semesters' },
+			{ target: '_noPinnedCoursesInRole', filter: 'roles' },
+			{ target: '_noUnpinnedCoursesInDepartment', filter: 'departments' },
+			{ target: '_noUnpinnedCoursesInSemester', filter: 'semesters' },
+			{ target: '_noUnpinnedCoursesInRole', filter: 'roles' }
+		].forEach(testCase => {
+			it(`should set ${testCase.target} when there are no enrollments and one ${testCase.filter} is filtered`, () => {
+				widget._alerts = [];
+				widget.isSearched = false;
+				widget.totalFilterCount = 1;
+				widget.filterCounts = {};
+				widget.filterCounts[testCase.filter] = 1;
+				widget._updateEnrollmentAlerts(false, false);
+				expect(widget[testCase.target]).to.be.true;
+			});
+		});
+
+		[
+			{ target: '_noPinnedCoursesInDepartment', filter: 'departments' },
+			{ target: '_noPinnedCoursesInSemester', filter: 'semesters' },
+			{ target: '_noPinnedCoursesInRole', filter: 'roles' },
+			{ target: '_noUnpinnedCoursesInDepartment', filter: 'departments' },
+			{ target: '_noUnpinnedCoursesInSemester', filter: 'semesters' },
+			{ target: '_noUnpinnedCoursesInRole', filter: 'roles' }
+		].forEach(testCase => {
+			it(`should set ${testCase.target} when there are no enrollments and one ${testCase.filter} is filtered`, () => {
+				widget._alerts = [];
+				widget.isSearched = false;
+				widget.totalFilterCount = 1;
+				widget.filterCounts = {};
+				widget.filterCounts[testCase.filter] = 3;
+				widget._updateEnrollmentAlerts(false, false);
+				expect(widget[testCase.target]).to.be.false;
+			});
+		});
+
+		it('should not set empty filter messages when there are more than one filters', () => {
+			widget.isSearched = false;
+			widget.totalFilterCount = 4;
+			widget.filterCounts = {};
+			widget._updateEnrollmentAlerts(false, false);
+			expect(widget._noPinnedCoursesInDepartment).to.be.false;
+			expect(widget._noPinnedCoursesInSemester).to.be.false;
+			expect(widget._noPinnedCoursesInRole).to.be.false;
+			expect(widget._noUnpinnedCoursesInDepartment).to.be.false;
+			expect(widget._noUnpinnedCoursesInSemester).to.be.false;
+			expect(widget._noUnpinnedCoursesInRole).to.be.false;
 		});
 	});
 });

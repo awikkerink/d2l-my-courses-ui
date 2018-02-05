@@ -100,7 +100,8 @@
 							show-semester="[[showSemester]]"
 							course-updates-config="[[courseUpdatesConfig]]"
 							updated-sort-logic="[[updatedSortLogic]]"
-							filter-count="[[_filterCount]]"
+							total-filter-count="[[_totalFilterCount]]"
+							filter-counts="[[_filterCounts]]"
 							is-searched="[[_isSearched]]"
 							filtered-enrollments="[[_filteredEnrollments]]"
 						></d2l-all-courses-segregated-content>
@@ -111,7 +112,8 @@
 							show-semester="[[showSemester]]"
 							course-updates-config="[[courseUpdatesConfig]]"
 							updated-sort-logic="[[updatedSortLogic]]"
-							filter-count="[[_filterCount]]"
+							total-filter-count="[[_totalFilterCount]]"
+							filter-counts="[[_filterCounts]]"
 							is-searched="[[_isSearched]]"
 							filtered-pinned-enrollments="[[_filteredPinnedEnrollments]]"
 							filtered-unpinned-enrollments="[[_filteredUnpinnedEnrollments]]"
@@ -226,9 +228,17 @@
 					value: false
 				},
 				// Number of filters currently selected; used to change opener text when menu closes
-				_filterCount: {
+				_totalFilterCount: {
 					type: Number,
 					value: 0
+				},
+				_filterCounts: {
+					type: Object,
+					value: function() { return {
+						departments: 0,
+						semesters: 0,
+						roles: 0
+					}; }
 				},
 				_updatedSortLogicInitallyObserved: false,
 				_isSearched: Boolean
@@ -333,16 +343,17 @@
 			},
 			_onFilterChanged: function(e) {
 				this._searchUrl = e.detail.url;
-				this._filterCount = e.detail.filterCount;
+				this._filterCounts = e.detail.filterCounts;
+				this._totalFilterCount = this._filterCounts.departments + this._filterCounts.semesters + this._filterCounts.roles;
 			},
 			_onFilterDropdownClose: function() {
 				var text;
-				if (this._filterCount === 0) {
+				if (this._totalFilterCount === 0) {
 					text = this.localize('filtering.filter');
-				} else if (this._filterCount === 1) {
+				} else if (this._totalFilterCount === 1) {
 					text = this.localize('filtering.filterSingle');
 				} else {
-					text = this.localize('filtering.filterMultiple', 'num', this._filterCount);
+					text = this.localize('filtering.filterMultiple', 'num', this._totalFilterCount);
 				}
 				this.set('_filterText', text);
 			},

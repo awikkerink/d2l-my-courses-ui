@@ -249,7 +249,11 @@
 
 				this.fire('d2l-filter-menu-change', {
 					url: searchUrl,
-					filterCount: 0
+					filterCounts: {
+						departments: 0,
+						semesters: 0,
+						roles: 0
+					}
 				});
 			},
 
@@ -258,7 +262,11 @@
 
 				this.fire('d2l-filter-menu-change', {
 					url: e.detail.url,
-					filterCount: this._roleFiltersCount + this._semesterFilters.concat(this._departmentFilters).length
+					filterCounts: {
+						departments: this._departmentFilters.length,
+						semesters: this._semesterFilters.length,
+						roles: this._roleFiltersCount
+					}
 				});
 			},
 			_onDepartmentOrSemesterFiltersChanged: function() {
@@ -274,7 +282,11 @@
 
 				this.fire('d2l-filter-menu-change', {
 					url: searchUrl,
-					filterCount: this._roleFiltersCount + departmentSemesterFilters.length
+					filterCounts: {
+						departments: this._departmentFilters.length,
+						semesters: this._semesterFilters.length,
+						roles: this._roleFiltersCount
+					}
 				});
 			},
 			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
