@@ -9,9 +9,9 @@
 	* This contains the majority of the layout design logic, based on the number of courses in the course tile
 	* grid.
 	*
-	* @polymerBehavior window.D2L.MyCourses.CourseTileResponsiveGridBehavior
+	* @polymerBehavior D2L.MyCourses.CourseTileResponsiveGridBehavior
 	*/
-	window.D2L.MyCourses.CourseTileResponsiveGridBehavior = {
+	D2L.MyCourses.CourseTileResponsiveGridBehavior = {
 		attached: function() {
 			window.addEventListener('recalculate-columns', this._rescaleCourseTileRegions.bind(this));
 
