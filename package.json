@@ -3,7 +3,7 @@
   "description": "Brightspace My Courses homepage widget",
   "private": true,
   "scripts": {
-    "postinstall": "polymer install",
+    "postinstall": "polymer install --variants",
     "lint": "npm run lint:js && npm run lint:wc",
     "lint:js": "eslint --ext .js,.html .",
     "lint:wc": "polymer lint",
