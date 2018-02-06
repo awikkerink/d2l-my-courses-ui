@@ -1,6 +1,7 @@
 window.D2L = window.D2L || {};
 window.D2L.MyCourses = window.D2L.MyCourses || {};
-window.D2L.MyCourses.CourseTileSlidingGridBehaviorUtility = {
+
+D2L.MyCourses.CourseTileSlidingGridBehaviorUtility = {
 	/**
 	 * this method, given an index in the grid, and a count of inserted
 	 * or removed tiles, will describe the visual position change of the tile.
