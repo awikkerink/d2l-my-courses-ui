@@ -14,17 +14,17 @@
   "main": "d2l-my-courses.html",
   "private": true,
   "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
+    "demo",
+    "test",
     ".editorconfig",
-    ".eslintrc",
+    ".eslintrc.json",
     ".gitignore",
     ".travis.yml",
+    "CODEOWNERS",
     "package.json",
-    "test",
-    "tests",
-    "/demo/"
+    "package-lock.json",
+    "polymer.json",
+    "wct.conf.json"
   ],
   "dependencies": {
     "d2l-alert": "^3.0.1",
