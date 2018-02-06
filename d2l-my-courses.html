@@ -3,6 +3,14 @@
 <link rel="import" href="src/d2l-my-courses-content/d2l-my-courses-content-animated.html">
 <link rel="import" href="src/d2l-my-courses-content/d2l-my-courses-behavior.html">
 
+<!--
+`d2l-my-courses`
+Polymer-based web component for the my-courses widget that appears on the LE homepage.
+If the `US90527-my-courses-updates` LD flag is on, the `updated-sort-logic` attribute is added and the `d2l-my-courses-content` component is rendered.
+If it is off and the attribute is not added, the `d2l-my-courses-content-animated` component is rendered.
+
+-->
+
 <dom-module id="d2l-my-courses">
 	<template>
 		<template is="dom-if" if="[[!updatedSortLogic]]">
@@ -39,7 +47,7 @@
 		Polymer({
 			is: 'd2l-my-courses',
 			behaviors: [
-				window.D2L.MyCourses.MyCoursesBehavior
+				D2L.MyCourses.MyCoursesBehavior
 			]
 		});
 	</script>
