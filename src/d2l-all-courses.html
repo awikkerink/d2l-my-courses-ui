@@ -21,6 +21,15 @@
 <link rel="import" href="d2l-all-courses-segregated-content.html">
 <link rel="import" href="d2l-all-courses-unified-content.html">
 
+<!--
+`d2l-all-courses`
+Polymer-based web component for all courses.
+
+If the `US90527-my-courses-updates` LD flag is on, the `updated-sort-logic` attribute is added and the `d2l-all-courses-unified-content` component is rendered.
+If it is off and the attribute is not added, the `d2l-all-courses-segregated-content` component is rendered.
+
+-->
+
 <dom-module id="d2l-all-courses">
 	<template>
 		<style include="d2l-all-courses-styles"></style>
