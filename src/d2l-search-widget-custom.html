@@ -43,15 +43,16 @@ Polymer-based web component for the search widget.
 
 		<d2l-dropdown no-auto-open>
 			<div class="search-bar d2l-dropdown-opener" id="opener">
-				<input
-					is="iron-input"
-					bind-value="{{_searchInput}}"
-					role="combobox"
-					aria-autocomplete="list"
-					placeholder="{{localize('courseSearchInputPlaceholder')}}"
-					on-keydown="_onSearchInputKeyPressed"
-					on-focus="_onSearchInputFocused">
-				</input>
+				<iron-input bind-value="{{_searchInput}}">
+					<input
+						aria-autocomplete="list"
+						role="combobox"
+						placeholder="{{localize('courseSearchInputPlaceholder')}}"
+						value="{{_searchInput}}"
+						on-keydown="_onSearchInputKeyPressed"
+						on-focus="_onSearchInputFocused">
+					</input>
+				</iron-input>
 
 				<button
 					type="button"

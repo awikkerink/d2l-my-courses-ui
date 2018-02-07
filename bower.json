@@ -42,7 +42,7 @@
     "d2l-menu": "^1.0.4",
     "d2l-offscreen": "^3.0.3",
     "d2l-polymer-behaviors": "^1.2.0",
-    "d2l-search-widget": "git://github.com/Brightspace/d2l-search-widget-ui.git#^3.0.0",
+    "d2l-search-widget": "git://github.com/Brightspace/d2l-search-widget-ui.git#^3.0.2",
     "d2l-simple-overlay": "git://github.com/Brightspace/simple-overlay#^2.0.0",
     "d2l-tile": "^3.0.2",
     "d2l-typography": "^6.1.2",
