@@ -148,9 +148,8 @@ This can be removed when that flag is removed.
 					y: -(menuItem.height / 2) + (layoutDirY * radius)
 				};
 
-				menuItem.customStyle['--translate-x-coefficient'] = (translationCoefficient * layoutDirX).toString();
-				menuItem.customStyle['--translate-y-coefficient'] = (translationCoefficient * layoutDirY).toString();
-				menuItem.updateStyles();
+				menuItem.updateStyles({'--translate-x-coefficient': (translationCoefficient * layoutDirX).toString()});
+				menuItem.updateStyles({'--translate-y-coefficient': (translationCoefficient * layoutDirY).toString()});
 
 				menuItem.offset = menuItemPosition;
 				menuItem.touchRegion = {

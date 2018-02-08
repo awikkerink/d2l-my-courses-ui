@@ -696,8 +696,7 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				});
 			},
 			_onResize: function() {
-				this.customStyle['--course-image-height'] = this.offsetWidth * 0.43 + 'px';
-				this.updateStyles();
+				this.updateStyles({'--course-image-height': this.offsetWidth * 0.43 + 'px'});
 			},
 			_onSetCourseImage: function(e) {
 				if (this.getEntityIdentifier(e.detail.organization) !== this.getEntityIdentifier(this._organization)) {
