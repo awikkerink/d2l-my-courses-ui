@@ -1,0 +1,35 @@
+<dom-module id="d2l-css-grid-view-styles">
+	<template strip-whitespace>
+		<style>
+			.course-tile-grid {
+				display: -ms-grid;
+				display: grid;
+				grid-column-gap: 15px;
+			}
+			.course-tile-grid.columns-1 {
+				grid-template-columns: 100%;
+				-ms-grid-columns: 100%;
+			}
+			.course-tile-grid.columns-2 {
+				grid-template-columns: repeat(2, 1fr);
+				-ms-grid-columns: 1fr 15px 1fr;
+			}
+			.course-tile-grid.columns-3 {
+				grid-template-columns: repeat(3, 1fr);
+				-ms-grid-columns: 1fr 15px 1fr 15px 1fr;
+			}
+			.course-tile-grid.columns-4 {
+				grid-template-columns: repeat(4, 1fr);
+				-ms-grid-columns: 1fr 15px 1fr 15px 1fr 15px 1fr;
+			}
+
+			.course-tile-grid d2l-course-image-tile {
+				margin-bottom: 0.75rem;
+			}
+			:host([hide-past-courses]) .course-tile-grid d2l-course-image-tile[past-course]:not([pinned]),
+			.course-tile-grid > div:nth-child(n+13) > d2l-course-image-tile:not([pinned]):not([past-course]) {
+				display:none;
+			}
+		</style>
+	</template>
+</dom-module>

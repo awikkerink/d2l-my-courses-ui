@@ -6,6 +6,7 @@
 <link rel="import" href="../../../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../../../d2l-simple-overlay/d2l-simple-overlay.html">
 <link rel="import" href="../../../d2l-image-selector/d2l-basic-image-selector.html">
+<link rel="import" href="../d2l-css-grid-view/d2l-css-grid-view-styles.html">
 <link rel="import" href="../d2l-all-courses.html">
 <link rel="import" href="../d2l-course-image-tile.html">
 <link rel="import" href="../d2l-course-tile-grid.html">
@@ -24,7 +25,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 
 <dom-module id="d2l-my-courses-content">
 	<template strip-whitespace>
-		<style>
+		<style include="d2l-css-grid-view-styles">
 			:host {
 				display: block;
 			}
@@ -46,36 +47,6 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				display: block;
 				margin-bottom: 20px;
 				clear: both;
-			}
-
-			.course-tile-grid {
-				display: -ms-grid;
-				display: grid;
-				grid-column-gap: 15px;
-			}
-			.course-tile-grid.columns-1 {
-				grid-template-columns: 100%;
-				-ms-grid-columns: 100%;
-			}
-			.course-tile-grid.columns-2 {
-				grid-template-columns: repeat(2, 1fr);
-				-ms-grid-columns: 1fr 15px 1fr;
-			}
-			.course-tile-grid.columns-3 {
-				grid-template-columns: repeat(3, 1fr);
-				-ms-grid-columns: 1fr 15px 1fr 15px 1fr;
-			}
-			.course-tile-grid.columns-4 {
-				grid-template-columns: repeat(4, 1fr);
-				-ms-grid-columns: 1fr 15px 1fr 15px 1fr 15px 1fr;
-			}
-
-			d2l-course-image-tile {
-				margin-bottom: 0.75rem;
-			}
-			:host([hide-past-courses]) d2l-course-image-tile[past-course]:not([pinned]),
-			div:nth-child(n+13) > d2l-course-image-tile:not([pinned]):not([past-course]) {
-				display:none;
 			}
 		</style>
 

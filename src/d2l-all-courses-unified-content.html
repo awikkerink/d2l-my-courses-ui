@@ -1,5 +1,7 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../d2l-alert/d2l-alert.html">
+<link rel="import" href="d2l-css-grid-view/d2l-css-grid-view-behavior.html">
+<link rel="import" href="d2l-css-grid-view/d2l-css-grid-view-styles.html">
 <link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-all-courses-styles.html">
 <link rel="import" href="d2l-course-tile-grid.html">
@@ -18,6 +20,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 <dom-module id="d2l-all-courses-unified-content">
 	<template strip-whitespace>
 		<style include="d2l-all-courses-styles"></style>
+		<style include="d2l-css-grid-view-styles"></style>
 
 		<template is="dom-repeat" items="[[_alerts]]">
 			<d2l-alert type="[[item.alertType]]">
@@ -84,7 +87,8 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
 				D2L.MyCourses.AlertBehavior,
-				D2L.MyCourses.CourseTileResponsiveGridBehavior
+				D2L.MyCourses.CourseTileResponsiveGridBehavior,
+				D2L.MyCourses.CssGridBehavior
 			],
 			observers: [
 				'_enrollmentsChanged(filteredEnrollments.length)'
@@ -92,10 +96,19 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 
 			ready: function() {
 				this.$$('#all-courses-unified-tile-grid').getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
-				this._updateTileSizes();
+				if (!this.cssGridView) {
+					this._updateTileSizes();
+				}
 			},
 			attached: function() {
-				window.addEventListener('resize', this._updateTileSizes.bind(this));
+				if (!this.cssGridView) {
+					window.addEventListener('resize', this._updateTileSizes.bind(this));
+				}
+			},
+			detached: function() {
+				if (!this.cssGridView) {
+					window.removeEventListener('resize', this._updateTileSizes.bind(this));
+				}
 			},
 
 			getCourseTileItemCount: function() {
