@@ -13,10 +13,12 @@
 				--scale-fade-max-scale: 1.5;
 				--scale-fade-min-scale: 1.05;
 			}
-			:host:not([updated-sort-logic]) #pin-indicator-button,
+
+			:host(:not([updated-sort-logic])) #pin-indicator-button,
 			.d2l-course-tile-hidden {
 				display: none;
 			}
+
 			.tile-container {
 				position: relative;
 				background-color: transparent;
@@ -187,7 +189,7 @@
 				right: auto;
 			}
 
-			:host:not([pinned]) .pin-indicator {
+			:host(:not([pinned])) .pin-indicator {
 				visibility: hidden;
 				width: 0.1px; /* needed so d2l-icon doesnt overflow on safari */
 				margin-right: 0;
@@ -195,9 +197,11 @@
 				padding-right: 0;
 				opacity: 0;
 			}
+
 			:host-context([dir="rtl"]):not([pinned]) .pin-indicator {
 				margin-left: 0;
 			}
+
 			.pin-indicator {
 				margin-top: 10px;
 				line-height: 20px;

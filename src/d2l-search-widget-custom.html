@@ -168,7 +168,9 @@ Polymer-based web component for the search widget.
 				document.body.addEventListener('focus', this._handleFocusBound, true);
 				document.body.addEventListener('click', this._handleClickBound, true);
 
-				this._listboxes = Polymer.dom(this.root).querySelectorAll('d2l-search-listbox').slice();
+				var nodes = Polymer.dom(this.root).querySelectorAll('d2l-search-listbox');
+
+				this._listboxes = Array.prototype.slice(nodes);
 
 				for (var i = 0; i < this._listboxes.length; i++) {
 					this._listboxes[i].owner = this.$$('input');

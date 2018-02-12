@@ -110,8 +110,7 @@
 			if (!insert) {
 				this.__slide_resizeContainer(delay + 100);
 			} else {
-				this.customStyle['--insertion-delay'] = (delay + 300) + 'ms';
-				this.updateStyles();
+				this.updateStyles({'--insertion-delay': (delay + 300) + 'ms'});
 			}
 		},
 

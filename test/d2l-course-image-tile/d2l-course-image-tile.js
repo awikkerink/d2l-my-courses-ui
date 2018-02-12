@@ -1,4 +1,5 @@
 describe('d2l-course-image-tile', () => {
+
 	var component,
 		fetchStub,
 		sandbox,
@@ -168,6 +169,7 @@ describe('d2l-course-image-tile', () => {
 	});
 
 	describe('Public API', () => {
+
 		it('should implement all properties', () => {
 			expect(component.courseUpdatesConfig).to.be.an('object');
 			expect(component.enrollment).to.be.an('object');
@@ -181,9 +183,11 @@ describe('d2l-course-image-tile', () => {
 		it('should implement refreshImage', () => {
 			expect(component.refreshImage).to.be.a('function');
 		});
+
 	});
 
 	describe('Setting the enrollment attribute', () => {
+
 		beforeEach(done => loadEnrollment(done));
 
 		it('should fetch the organization', () => {
@@ -213,9 +217,11 @@ describe('d2l-course-image-tile', () => {
 		it('should set the pin state', () => {
 			expect(component.pinned).to.equal(true);
 		});
+
 	});
 
 	describe('Updating the organization', () => {
+
 		it('should update _canAccessCourseInfo', () => {
 			var spy = sandbox.spy(component, '_computeCanAccessCourseInfo');
 
@@ -269,6 +275,7 @@ describe('d2l-course-image-tile', () => {
 		});
 
 		describe('Course code', () => {
+
 			it('should show the course code if configured true', done => {
 				component.showCourseCode = true;
 				var courseCode = component.$$('.course-code-text');
@@ -287,11 +294,15 @@ describe('d2l-course-image-tile', () => {
 					expect(window.getComputedStyle(courseCode).getPropertyValue('display')).to.equal('none');
 					done();
 				});
+
 			});
+
 		});
+
 	});
 
 	describe('Semester name', () => {
+
 		beforeEach(done => loadEnrollment(done));
 
 		it('should show the semester if the showSemester is set', () => {
@@ -312,10 +323,13 @@ describe('d2l-course-image-tile', () => {
 			return component._fetchSemester().then(() => {
 				expect(spy).to.have.not.been.called;
 			});
+
 		});
+
 	});
 
 	describe('Separator between course code and semester name', () => {
+
 		function testName(testCase) {
 			return 'should ' + (testCase.showSeparator ? '' : ' not ')
 				+ 'show the separator when '
@@ -335,6 +349,7 @@ describe('d2l-course-image-tile', () => {
 			{ showCourseCode: true, showSemester: true, semesterName: '', courseCode: 'bar', showSeparator: false },
 			{ showCourseCode: true, showSemester: true, semesterName: 'foo', courseCode: 'bar', showSeparator: true }
 		].forEach(testCase => {
+
 			it(testName(testCase), () => {
 				component.showCourseCode = testCase.showCourseCode;
 				component.showSemester = testCase.showSemester;
@@ -345,18 +360,22 @@ describe('d2l-course-image-tile', () => {
 				var separator = component.$$('.separator-icon');
 				expect(separator.hasAttribute('hidden')).to.equal(!testCase.showSeparator);
 			});
+
 		});
+
 	});
 
 	describe('Pinning functionality', () => {
+
 		beforeEach(done => loadEnrollment(done));
 
 		it('should have a visible "Unpin" menu item when pinned', () => {
 			component.pinned = true;
 
 			var unpinMenuItem = component.$$('d2l-menu-item.d2l-menu-item-last');
+
 			expect(unpinMenuItem).to.not.be.null;
-			expect(unpinMenuItem.querySelector('span').innerText).to.equal('Unpin');
+			expect(unpinMenuItem.text).to.equal('Unpin');
 		});
 
 		it('should have a visible "Pin" menu item when pinned', () => {
@@ -364,7 +383,7 @@ describe('d2l-course-image-tile', () => {
 
 			var pinMenuItem = component.$$('d2l-menu-item.d2l-menu-item-last');
 			expect(pinMenuItem).to.not.be.null;
-			expect(pinMenuItem.querySelector('span').innerText).to.equal('Pin');
+			expect(pinMenuItem.text).to.equal('Pin');
 		});
 
 		it('should have a visible pinned button when pinned', () => {
@@ -404,9 +423,11 @@ describe('d2l-course-image-tile', () => {
 
 			component._pinClickHandler();
 		});
+
 	});
 
 	describe('set-course-image event', () => {
+
 		beforeEach(done => loadEnrollment(done));
 
 		it('should have a change-image-button if the set-catalog-image action exists on the organization', () => {
@@ -422,7 +443,7 @@ describe('d2l-course-image-tile', () => {
 			);
 			var changeImageMenuItem = component.$$('d2l-menu-item[hidden]');
 			expect(changeImageMenuItem).to.not.be.null;
-			expect(changeImageMenuItem.innerText).to.contain('Change Image');
+			expect(changeImageMenuItem.text).to.contain('Change Image');
 		});
 
 		it('shows the loading spinner overlay when event status=set', () => {
@@ -484,9 +505,11 @@ describe('d2l-course-image-tile', () => {
 			expect(imageOverlay.hasAttribute('hidden')).to.be.true;
 			clock.restore();
 		});
+
 	});
 
 	describe('Course updates functionality', () => {
+
 		beforeEach(done => loadEnrollment(done));
 
 		function testName(testCase) {
@@ -502,6 +525,7 @@ describe('d2l-course-image-tile', () => {
 			{ count: 99, updateString: '99', updatesShown: true },
 			{ count: 100, updateString: '99+', updatesShown: true },
 		].forEach(testCase => {
+
 			it(testName(testCase), () => {
 				fetchStub.restore();
 				fetchStub = sandbox.stub(window.d2lfetch, 'fetch');
@@ -526,11 +550,15 @@ describe('d2l-course-image-tile', () => {
 					var updateString = component.$$('.update-text-box').innerText;
 					expect(updateString).to.equal(testCase.updateString);
 				});
+
 			});
+
 		});
+
 	});
 
 	describe('Notification Overlay', () => {
+
 		var futureDate = new Date(3000, 0, 1, 15, 5).toISOString(),
 			pastDate = new Date(1900, 3, 30, 4, 38).toISOString(),
 			formattedFutureDateTime = 'Jan 1, 3000 3:05 PM',
@@ -546,6 +574,7 @@ describe('d2l-course-image-tile', () => {
 			{ start: null, end: futureDate, active: false },
 			{ start: null, end: futureDate, active: true }
 		].forEach(testCase => {
+
 			it(`${testCase.start}, ${testCase.end}, ${testCase.active}`, () => {
 				organizationEntity.properties.startDate = testCase.start;
 				organizationEntity.properties.endDate = testCase.end;
@@ -585,7 +614,11 @@ describe('d2l-course-image-tile', () => {
 				} else {
 					expect(overlayInactiveText).to.equal('Inactive');
 				}
+
 			});
+
 		});
+
 	});
+
 });

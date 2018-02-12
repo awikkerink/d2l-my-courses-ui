@@ -31,6 +31,7 @@ afterEach(function() {
 });
 
 describe('d2l-filter-menu', function() {
+
 	it('should update actions from myEnrollmentsEntity', function() {
 		var spy = sandbox.spy(component, '_myEnrollmentsEntityChanged');
 
@@ -46,6 +47,7 @@ describe('d2l-filter-menu', function() {
 	});
 
 	describe('setting org unit type names', function() {
+
 		it('should set the empty state text correctly for the tabs', function() {
 			component.filterStandardSemesterName = 'foo';
 			component.filterStandardDepartmentName = 'bar';
@@ -55,6 +57,7 @@ describe('d2l-filter-menu', function() {
 		});
 
 		describe('tab text', function() {
+
 			it('should render semester name', function() {
 				component.filterStandardSemesterName = 'foo';
 
@@ -99,9 +102,11 @@ describe('d2l-filter-menu', function() {
 				var button = component.$.rolesTabButton;
 				expect(button.innerText).to.equal('foo (1)');
 			});
+
 		});
 
 		describe('search input placeholder text', function() {
+
 			it('should set the search placeholder text for semesters', function() {
 				component.filterStandardSemesterName = 'foo';
 
@@ -113,10 +118,13 @@ describe('d2l-filter-menu', function() {
 
 				expect(component._departmentsSearchPlaceholderText).to.equal('Search by foo');
 			});
+
 		});
+
 	});
 
 	describe('clear button', function() {
+
 		beforeEach(function() {
 			component._semesterFilters = [];
 			component._departmentFilters = [];
@@ -162,27 +170,35 @@ describe('d2l-filter-menu', function() {
 		});
 
 		it('should generate a d2l-filter-menu-change event with filterCount = 0 when clicked', function(done) {
+
 			component._semesterFilters = [1];
 			component._departmentFilters = [1];
 			component._roleFiltersCount = 1;
 			component.fire('selected-filters-changed');
-			var listener = function(e) {
-				component.removeEventListener('d2l-filter-menu-change', listener);
-				expect(e.detail.url).to.equal('/enrollments?parentOrganizations=&roles=');
-				expect(e.detail.filterCounts.departments).to.equal(0);
-				expect(e.detail.filterCounts.semesters).to.equal(0);
-				expect(e.detail.filterCounts.roles).to.equal(0);
-				done();
-			};
-			component.addEventListener('d2l-filter-menu-change', listener);
+
 			component.myEnrollmentsEntity = myEnrollmentsEntity;
 
+			var listener = function(e) {
+				if (e.detail.url === '/enrollments?parentOrganizations=&roles='
+					&& e.detail.filterCounts.departments === 0
+					&& e.detail.filterCounts.semesters === 0
+					&& e.detail.filterCounts.roles === 0) {
+					component.removeEventListener('d2l-filter-menu-change', listener);
+					done();
+				}
+			};
+
+			component.addEventListener('d2l-filter-menu-change', listener);
 			component.$$('.clear-button').click();
+
 		});
+
 	});
 
 	describe('changing filters', function() {
+
 		describe('when role filters change', function() {
+
 			it('should update _roleFiltersCount', function() {
 				component.fire('role-filters-changed', {
 					url: 'http://example.com',
@@ -224,7 +240,9 @@ describe('d2l-filter-menu', function() {
 					url: 'http://example.com',
 					filterCount: 4
 				});
+
 			});
+
 		});
 
 		[
@@ -263,7 +281,11 @@ describe('d2l-filter-menu', function() {
 					component[testCase.path] = ['a', 'b'];
 					component.fire('selected-filters-changed');
 				});
+
 			});
+
 		});
+
 	});
+
 });

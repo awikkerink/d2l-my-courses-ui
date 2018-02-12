@@ -281,7 +281,8 @@
 			var url = enrollment.getLinkByRel('self').href;
 			url += (url.indexOf('?') === -1 ? '?' : '&') + 'bustCache=' + Math.random();
 
-			this._addOnlyPastCoursesAlert();
+			var isPinned = lastPinnedIndex === 1 ? e.detail.isPinned : true;
+			this._addOnlyPastCoursesAlert(isPinned);
 
 			return this.fetchSirenEntity(url)
 				.then(function(updatedEnrollment) {
@@ -579,7 +580,7 @@
 			return this.fetchSirenEntity(this._enrollmentsSearchUrl)
 				.then(this._populateEnrollments.bind(this));
 		},
-		_addOnlyPastCoursesAlert: function(hasCurrentOrFutureCourseArg, hidesPastCoursesArg, hasPinnedEnrollmentArg) {
+		_addOnlyPastCoursesAlert: function(hasPinnedEnrollmentArg) {
 			var courseTileGrid = this.cssGridView ? this.$$('.course-tile-grid') : this.$$('d2l-course-tile-grid');
 			var hasCurrentOrFutureSelector, hasPinnedEnrollmentSelector;
 
@@ -591,11 +592,10 @@
 				hasPinnedEnrollmentSelector = courseTileGrid.$$('d2l-course-tile[pinned]');
 			}
 
-			var hasCurrentOrFutureCourse = hasCurrentOrFutureCourseArg || hasCurrentOrFutureSelector,
-				hidesPastCourses = hidesPastCoursesArg || courseTileGrid.hasAttribute('hide-past-courses'),
-				hasPinnedEnrollment = hasPinnedEnrollmentArg || hasPinnedEnrollmentSelector;
-			if (!hasPinnedEnrollment && this._hasEnrollments && !hasCurrentOrFutureCourse && hidesPastCourses && !this._hasAlert('onlyPastCourses')) {
-				this._addAlert('call-to-action', 'onlyPastCourses', this.localize('onlyPastCoursesMessage'));
+			var hasPinnedEnrollment = hasPinnedEnrollmentArg !== undefined ? hasPinnedEnrollmentArg : hasPinnedEnrollmentSelector;
+
+			if (!hasPinnedEnrollment && this._hasEnrollments && !hasCurrentOrFutureSelector && courseTileGrid.hasAttribute('hide-past-courses')) {
+				if (!this._hasAlert('onlyPastCourses')) this._addAlert('call-to-action', 'onlyPastCourses', this.localize('onlyPastCoursesMessage'));
 			} else {
 				this._removeAlert('onlyPastCourses');
 			}

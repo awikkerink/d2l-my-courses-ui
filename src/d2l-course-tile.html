@@ -338,8 +338,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this.toggleClass('unpin-hovered', false, this);
 
 				if (isTouch) {
-					this.customStyle['--scale-fade-min-scale'] = '1.1';
-					this.updateStyles();
+					this.updateStyles({'--scale-fade-min-scale': '1.1'});
 				}
 
 				if (this.animate) this.toggleClass('unpin', true, this);

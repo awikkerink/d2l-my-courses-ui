@@ -73,7 +73,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			d2l-course-image-tile {
 				margin-bottom: 0.75rem;
 			}
-			:host[hide-past-courses] d2l-course-image-tile[past-course]:not([pinned]),
+			:host([hide-past-courses]) d2l-course-image-tile[past-course]:not([pinned]),
 			div:nth-child(n+13) > d2l-course-image-tile:not([pinned]):not([past-course]) {
 				display:none;
 			}
