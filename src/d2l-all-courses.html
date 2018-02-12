@@ -156,6 +156,11 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				advancedSearchUrl: String,
 				// Types of notifications to include in update count in course tile
 				courseUpdatesConfig: Object,
+				// Pass-through property to set cssGridView on d2l-all-courses-unified-content
+				cssGridView: {
+					type: Boolean,
+					value: false
+				},
 				// Default option in Sort menu
 				defaultSortValue: {
 					type: String,
@@ -436,6 +441,9 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this.myEnrollmentsEntity = e.detail;
 				this.fire('recalculate-columns');
 				this._showContent = true;
+
+				// Forces recalculation of columns in d2l-all-courses-content-unified
+				window.dispatchEvent(new Event('resize'));
 			},
 			_onSimpleOverlayOpening: function() {
 				if (this.updatedSortLogic) {

@@ -26,9 +26,8 @@
 			.course-tile-grid d2l-course-image-tile {
 				margin-bottom: 0.75rem;
 			}
-			:host([hide-past-courses]) .course-tile-grid d2l-course-image-tile[past-course]:not([pinned]),
-			.course-tile-grid > div:nth-child(n+13) > d2l-course-image-tile:not([pinned]):not([past-course]) {
-				display:none;
+			.course-tile-grid[hide-past-courses] > div > d2l-course-image-tile[past-course]:not([pinned]) {
+				display: none;
 			}
 		</style>
 	</template>

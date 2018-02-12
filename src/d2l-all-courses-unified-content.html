@@ -4,6 +4,7 @@
 <link rel="import" href="d2l-css-grid-view/d2l-css-grid-view-styles.html">
 <link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-all-courses-styles.html">
+<link rel="import" href="d2l-course-image-tile.html">
 <link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="localize-behavior.html">
@@ -44,17 +45,34 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			[[localize('noCoursesInRole')]]
 		</span>
 
-		<d2l-course-tile-grid
-			id="all-courses-unified-tile-grid"
-			enrollments="[[filteredEnrollments]]"
-			tile-sizes="[[_tileSizes]]"
-			locale="[[locale]]"
-			show-course-code="[[showCourseCode]]"
-			show-semester="[[showSemester]]"
-			course-updates-config="[[courseUpdatesConfig]]"
-			updated-sort-logic="[[updatedSortLogic]]"
-			animate="[[_animate]]">
-		</d2l-course-tile-grid>
+		<template is="dom-if" if="[[cssGridView]]">
+			<div class="course-tile-grid">
+				<template is="dom-repeat" items="[[filteredEnrollments]]">
+					<div>
+						<d2l-course-image-tile
+							enrollment="[[item]]"
+							tile-sizes="[[_tileSizes]]"
+							show-course-code="[[showCourseCode]]"
+							show-semester="[[showSemester]]"
+							course-updates-config="[[courseUpdatesConfig]]">
+						</d2l-course-image-tile>
+					</div>
+				</template>
+			</div>
+		</template>
+		<template is="dom-if" if="[[!cssGridView]]">
+			<d2l-course-tile-grid
+				id="all-courses-unified-tile-grid"
+				enrollments="[[filteredEnrollments]]"
+				tile-sizes="[[_tileSizes]]"
+				locale="[[locale]]"
+				show-course-code="[[showCourseCode]]"
+				show-semester="[[showSemester]]"
+				course-updates-config="[[courseUpdatesConfig]]"
+				updated-sort-logic="[[updatedSortLogic]]"
+				animate="[[_animate]]">
+			</d2l-course-tile-grid>
+		</template>
 	</template>
 	<script>
 		Polymer({
@@ -94,16 +112,16 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				'_enrollmentsChanged(filteredEnrollments.length)'
 			],
 
-			ready: function() {
-				this.$$('#all-courses-unified-tile-grid').getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
-				if (!this.cssGridView) {
-					this._updateTileSizes();
-				}
-			},
 			attached: function() {
-				if (!this.cssGridView) {
-					window.addEventListener('resize', this._updateTileSizes.bind(this));
-				}
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					if (this.cssGridView) {
+						this._onResize();
+					} else {
+						this._updateTileSizes();
+						this.$$('#all-courses-unified-tile-grid').getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
+						window.addEventListener('resize', this._updateTileSizes.bind(this));
+					}
+				});
 			},
 			detached: function() {
 				if (!this.cssGridView) {
@@ -123,13 +141,17 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
 					}
 				}
-				this.$$('#all-courses-unified-tile-grid').setCourseImage(details);
+				!this.cssGridView && this.$$('#all-courses-unified-tile-grid').setCourseImage(details);
 			},
 			removeSetCourseImageFailure: function() {
 				this._removeAlert('setCourseImageFailure');
 			},
 
 			_updateTileSizes: function() {
+				if (this.cssGridView) {
+					return;
+				}
+
 				this._rescaleCourseTileRegions();
 				this._tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
 			},

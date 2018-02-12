@@ -48,6 +48,11 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				margin-bottom: 20px;
 				clear: both;
 			}
+			.course-tile-grid:not([hide-past-courses]) > div:nth-child(n+13) > d2l-course-image-tile:not([pinned]),
+			/* If hide-past-courses, past courses are already hidden (in d2l-css-grid-view-styles), so exclude them from the n+13 count */
+			.course-tile-grid[hide-past-courses] > div:nth-child(n+13) > d2l-course-image-tile:not([pinned]):not([past-course]) {
+				display: none;
+			}
 		</style>
 
 		<div class="spinner-container">
