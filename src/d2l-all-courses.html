@@ -244,13 +244,18 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				},
 				_filterCounts: {
 					type: Object,
-					value: function() { return {
-						departments: 0,
-						semesters: 0,
-						roles: 0
-					}; }
+					value: function() {
+						return {
+							departments: 0,
+							semesters: 0,
+							roles: 0
+						};
+					}
 				},
-				_updatedSortLogicInitallyObserved: false,
+				_updatedSortLogicInitallyObserved: {
+					type: Boolean,
+					value: false
+				},
 				_isSearched: Boolean
 			},
 			behaviors: [
