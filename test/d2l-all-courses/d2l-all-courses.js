@@ -6,6 +6,7 @@ describe('d2l-all-courses', function() {
 		sandbox;
 
 	beforeEach(function() {
+
 		pinnedEnrollmentEntity = window.D2L.Hypermedia.Siren.Parse({
 			class: ['pinned', 'enrollment'],
 			rel: ['https://api.brightspace.com/rels/user-enrollment'],
@@ -44,8 +45,11 @@ describe('d2l-all-courses', function() {
 				value: ''
 			}]
 		};
+
 		widget.updatedSortLogic = false;
+
 		Polymer.dom.flush();
+
 	});
 
 	afterEach(function() {
@@ -87,9 +91,13 @@ describe('d2l-all-courses', function() {
 	it('should set getCourseTileItemCount on its child course-tile-grids', function() {
 		widget._filteredPinnedEnrollments = [pinnedEnrollmentEntity];
 		widget._filteredUnpinnedEnrollments = [unpinnedEnrollmentEntity];
-
-		var segregatedContent = widget.querySelectorAll('d2l-all-courses-segregated-content');
-		var courseTileGrids = segregatedContent[0].querySelectorAll('d2l-course-tile-grid');
+		var courseTileGrids;
+		var segregatedContent = widget.$$('d2l-all-courses-segregated-content');
+		if (segregatedContent.shadowRoot) {
+			courseTileGrids = segregatedContent.shadowRoot.querySelectorAll('d2l-course-tile-grid');
+		} else {
+			courseTileGrids = segregatedContent.querySelectorAll('d2l-course-tile-grid');
+		}
 		expect(courseTileGrids.length).to.equal(2);
 
 		for (var i = 0; i < courseTileGrids.length; i++) {
@@ -131,6 +139,7 @@ describe('d2l-all-courses', function() {
 
 			expect(widget._searchUrl).to.include('/enrollments/users/169?parentOrganizations=&sort=LastAccessed');
 		});
+
 	});
 
 	describe('Filter text', function() {
@@ -163,12 +172,14 @@ describe('d2l-all-courses', function() {
 	});
 
 	describe('Alerts', function() {
+
 		it('should remove a setCourseImageFailure alert when the overlay is opened', function() {
 			widget.$$('d2l-all-courses-segregated-content')._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
 			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 			widget.$$('d2l-simple-overlay')._renderOpened();
 			expect(widget.$$('d2l-all-courses-segregated-content')._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 		});
+
 	});
 
 	describe('opening the overlay', function() {
@@ -213,6 +224,7 @@ describe('d2l-all-courses', function() {
 	});
 
 	describe('closing the overlay', function() {
+
 		it('should clear search text', function() {
 			var spy = sandbox.spy(widget, '_clearSearchWidget');
 			var searchField = widget.$['search-widget'];
@@ -257,5 +269,7 @@ describe('d2l-all-courses', function() {
 			widget.$$('d2l-simple-overlay')._renderOpened();
 			expect(spy.called).to.be.true;
 		});
+
 	});
+
 });
