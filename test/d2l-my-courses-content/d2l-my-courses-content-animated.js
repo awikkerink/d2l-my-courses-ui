@@ -202,7 +202,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 	var clock;
 
-	beforeEach(function() {
+	beforeEach(function(done) {
 		sandbox = sinon.sandbox.create();
 
 		widget = fixture('d2l-my-courses-content-animated-fixture');
@@ -214,6 +214,10 @@ describe('d2l-my-courses-content-animated', function() {
 		widget.fetchSirenEntity.withArgs(searchHref).returns(Promise.resolve(
 			window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse)
 		));
+
+		setTimeout(() => {
+			done();
+		});
 	});
 
 	afterEach(function() {
@@ -413,13 +417,19 @@ describe('d2l-my-courses-content-animated', function() {
 				'open-change-image-view', {
 					detail: {
 						organization: organization
-					}
+					},
+					bubbles: true,
+					composed: true
 				}
 			);
 
 			it('should focus on view all courses link when focus called initially', function() {
 				widget.focus();
-				expect(widget.$$('#viewAllCourses')).to.equal(document.activeElement);
+				if (widget.shadowRoot) {
+					expect(widget.$$('#viewAllCourses')).to.equal(widget.shadowRoot.activeElement);
+				} else {
+					expect(widget.$$('#viewAllCourses')).to.equal(document.activeElement);
+				}
 			});
 
 			it('should focus on course grid when focus called after course interacted with', function(done) {
@@ -439,12 +449,13 @@ describe('d2l-my-courses-content-animated', function() {
 			});
 
 			it('should return correct org unit id if course tile used', function(done) {
-				widget.dispatchEvent(openChangeImageViewEvent);
 
-				setTimeout(function() {
+				widget.addEventListener('open-change-image-view', function() {
 					expect(widget.getLastOrgUnitId()).to.equal('1');
 					done();
 				});
+
+				widget.dispatchEvent(openChangeImageViewEvent);
 			});
 
 			it('should return correct org unit id from various href', function() {
