@@ -330,8 +330,8 @@ describe('d2l-my-courses-content-animated', function() {
 		});
 	});
 
-		beforeEach(function() {
-	describe.skip('With enrollments', function() {
+	beforeEach(function() {
+		describe.skip('With enrollments', function() {
 			// Prevents the _searchPath of the image selector from being null (causes failures in Firefox)
 			widget.imageCatalogLocation = '/foo/bar';
 
