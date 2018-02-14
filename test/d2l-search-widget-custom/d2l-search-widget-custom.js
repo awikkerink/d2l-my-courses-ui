@@ -45,7 +45,6 @@ describe('<d2l-search-widget-custom>', function() {
 		clock.restore();
 	});
 
-
 	it('should perform a search when the searchUrl changes', function() {
 		var spy = sandbox.spy(widget, '_onSearchUrlChanged');
 		widget.searchUrl = '/organizations/1234';

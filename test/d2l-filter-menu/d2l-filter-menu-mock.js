@@ -3,21 +3,21 @@
 
 	function createEntity() {
 		var baseEntity = {
-			"actions": [{
-				"name": "search-my-semesters",
-				"href": "/enrollments"
+			'actions': [{
+				'name': 'search-my-semesters',
+				'href': '/enrollments'
 			}, {
-				"name": "search-my-departments",
-				"href": "/enrollments"
+				'name': 'search-my-departments',
+				'href': '/enrollments'
 			}, {
-				"name": "search-my-enrollments",
-				"href": "/enrollments",
-				"fields": [{
-					"name": "parentOrganizations",
-					"value": ""
+				'name': 'search-my-enrollments',
+				'href': '/enrollments',
+				'fields': [{
+					'name': 'parentOrganizations',
+					'value': ''
 				}, {
-					"name": "roles",
-					"value": ""
+					'name': 'roles',
+					'value': ''
 				}]
 			}]
 		};
