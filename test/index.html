@@ -8,50 +8,35 @@
 	</head>
 	<body>
 		<script>
-			// Load and run all tests (.html, .js):
-			WCT.loadSuites([
-				'./d2l-all-courses/d2l-all-courses.html?wc-shadydom=true',
-				'./d2l-all-courses/d2l-all-courses.html?dom=shadow',
-				'./d2l-all-courses-unified-content/d2l-all-courses-unified-content.html?wc-shadydom=true',
-				'./d2l-all-courses-unified-content/d2l-all-courses-unified-content.html?dom=shadow',
-				'./d2l-all-courses-segregated-content/d2l-all-courses-segregated-content.html?wc-shadydom=true',
-				'./d2l-all-courses-segregated-content/d2l-all-courses-segregated-content.html?dom=shadow',
-				'./d2l-course-image-tile/d2l-course-image-tile.html?wc-shadydom=true',
-				'./d2l-course-image-tile/d2l-course-image-tile.html?dom=shadow',
-				'./d2l-course-tile/d2l-course-tile.html?wc-shadydom=true',
-				'./d2l-course-tile/d2l-course-tile.html?dom=shadow',
-				'./d2l-course-tile-grid/d2l-course-tile-grid.html?wc-shadydom=true',
-				'./d2l-course-tile-grid/d2l-course-tile-grid.html?dom=shadow',
-				'./d2l-course-tile-responsive-grid-behavior/d2l-course-tile-responsive-grid-behavior.html?wc-shadydom=true',
-				'./d2l-course-tile-responsive-grid-behavior/d2l-course-tile-responsive-grid-behavior.html?dom=shadow',
-				'./d2l-course-tile-sliding-grid-behavior/d2l-course-tile-sliding-grid-behavior-utility.html?wc-shadydom=true',
-				'./d2l-course-tile-sliding-grid-behavior/d2l-course-tile-sliding-grid-behavior-utility.html?dom=shadow',
-				'./d2l-filter-menu/d2l-filter-menu.html?wc-shadydom=true',
-				'./d2l-filter-menu/d2l-filter-menu.html?dom=shadow',
-				'./d2l-filter-menu/d2l-filter-menu-tab-roles.html?wc-shadydom=true',
-				'./d2l-filter-menu/d2l-filter-menu-tab-roles.html?dom=shadow',
-				'./d2l-filter-menu/d2l-filter-menu-tab.html?wc-shadydom=true',
-				'./d2l-filter-menu/d2l-filter-menu-tab.html?dom=shadow',
-				'./d2l-filter-menu/d2l-filter-list-item.html?wc-shadydom=true',
-				'./d2l-filter-menu/d2l-filter-list-item.html?dom=shadow',
-				'./d2l-filter-menu/d2l-filter-list-item-role.html?wc-shadydom=true',
-				'./d2l-filter-menu/d2l-filter-list-item-role.html?dom=shadow',
-				'./d2l-my-courses/d2l-my-courses.html?wc-shadydom=true',
-				'./d2l-my-courses/d2l-my-courses.html?dom=shadow',
-				'./d2l-my-courses-content/d2l-my-courses-content.html?wc-shadydom=true',
-				'./d2l-my-courses-content/d2l-my-courses-content.html?dom=shadow',
-				'./d2l-my-courses-content/d2l-my-courses-content-animated.html?wc-shadydom=true',
-				'./d2l-my-courses-content/d2l-my-courses-content-animated.html?dom=shadow',
-				'./d2l-search-widget-custom/d2l-search-widget-custom.html?wc-shadydom=true',
-				'./d2l-search-widget-custom/d2l-search-widget-custom.html?dom=shadow',
-				'./d2l-touch-menu-item/d2l-touch-menu-item.html?wc-shadydom=true',
-				'./d2l-touch-menu-item/d2l-touch-menu-item.html?dom=shadow',
-				'./d2l-utility-behavior/d2l-utility-behavior.html?wc-shadydom=true',
-				'./d2l-utility-behavior/d2l-utility-behavior.html?dom=shadow',
-				'./localize-behavior/localize-behavior.html?wc-shadydom=true',
-				'./localize-behavior/localize-behavior.html?dom=shadow'
-			]);
+			var testVariants = [], tests = [
+				'./d2l-all-courses/d2l-all-courses.html',
+				'./d2l-all-courses-unified-content/d2l-all-courses-unified-content.html',
+				'./d2l-all-courses-segregated-content/d2l-all-courses-segregated-content.html',
+				'./d2l-course-image-tile/d2l-course-image-tile.html',
+				'./d2l-course-tile/d2l-course-tile.html',
+				'./d2l-course-tile-grid/d2l-course-tile-grid.html',
+				'./d2l-course-tile-responsive-grid-behavior/d2l-course-tile-responsive-grid-behavior.html',
+				'./d2l-course-tile-sliding-grid-behavior/d2l-course-tile-sliding-grid-behavior-utility.html',
+				'./d2l-filter-menu/d2l-filter-menu.html',
+				'./d2l-filter-menu/d2l-filter-menu-tab-roles.html',
+				'./d2l-filter-menu/d2l-filter-menu-tab.html',
+				'./d2l-filter-menu/d2l-filter-list-item.html',
+				'./d2l-filter-menu/d2l-filter-list-item-role.html',
+				'./d2l-my-courses/d2l-my-courses.html',
+				'./d2l-my-courses-content/d2l-my-courses-content.html',
+				'./d2l-my-courses-content/d2l-my-courses-content-animated.html',
+				'./d2l-search-widget-custom/d2l-search-widget-custom.html',
+				'./d2l-touch-menu-item/d2l-touch-menu-item.html',
+				'./d2l-utility-behavior/d2l-utility-behavior.html',
+				'./localize-behavior/localize-behavior.html'
+			];
 
+			for (var i=0; i<tests.length; i++) {
+				testVariants.push(tests[i] + '?wc-shadydom=true');
+				testVariants.push(tests[i] + '?dom=shadow');
+			}
+
+			WCT.loadSuites(testVariants);
 		</script>
 	</body>
 </html>
