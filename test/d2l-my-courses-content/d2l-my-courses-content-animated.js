@@ -426,12 +426,14 @@ describe('d2l-my-courses-content-animated', function() {
 			);
 
 			it('should focus on view all courses link when focus called initially', function() {
-				widget.focus();
-				if (widget.shadowRoot) {
-					expect(widget.$$('#viewAllCourses')).to.equal(widget.shadowRoot.activeElement);
-				} else {
-					expect(widget.$$('#viewAllCourses')).to.equal(document.activeElement);
-				}
+				return widget._fetchRoot().then(function() {
+					widget.focus();
+					if (widget.shadowRoot) {
+						expect(widget.$$('#viewAllCourses')).to.equal(widget.shadowRoot.activeElement);
+					} else {
+						expect(widget.$$('#viewAllCourses')).to.equal(document.activeElement);
+					}
+				});
 			});
 
 			it('should focus on course grid when focus called after course interacted with', function(done) {
