@@ -16,6 +16,10 @@
 <link rel="import" href="d2l-utility-behavior.html">
 
 <!--
+`d2l-course-tile`
+Polymer-based web component for the course tile, used in `d2l-course-tile-grid`.
+
+
 An important distinction to make in understanding the functionality of the course tile is the difference between an
 enrollment and an organization. An organization is what some might call a "course" - it has a name, an image, etc.,
 but it is largely static and doesn't speak to a user's relationship to it. An enrollment, on the other hand, represents
@@ -225,7 +229,7 @@ the user has in that organization - student, teacher, TA, etc.
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
-				window.D2L.MyCourses.UtilityBehavior,
+				D2L.MyCourses.UtilityBehavior,
 				D2L.PolymerBehaviors.Hypermedia.OrganizationHMBehavior
 			],
 			listeners: {
@@ -334,8 +338,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this.toggleClass('unpin-hovered', false, this);
 
 				if (isTouch) {
-					this.customStyle['--scale-fade-min-scale'] = '1.1';
-					this.updateStyles();
+					this.updateStyles({'--scale-fade-min-scale': '1.1'});
 				}
 
 				if (this.animate) this.toggleClass('unpin', true, this);

@@ -5,6 +5,7 @@
 <link rel="import" href="../../d2l-dropdown/d2l-dropdown-menu.html">
 <link rel="import" href="../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
+<link rel="import" href="../../d2l-link/d2l-link.html">
 <link rel="import" href="../../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../../d2l-menu/d2l-menu-item-radio.html">
 <link rel="import" href="../../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
@@ -19,6 +20,15 @@
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-all-courses-segregated-content.html">
 <link rel="import" href="d2l-all-courses-unified-content.html">
+
+<!--
+`d2l-all-courses`
+Polymer-based web component for all courses.
+
+If the `US90527-my-courses-updates` LD flag is on, the `updated-sort-logic` attribute is added and the `d2l-all-courses-unified-content` component is rendered.
+If it is off and the attribute is not added, the `d2l-all-courses-segregated-content` component is rendered.
+
+-->
 
 <dom-module id="d2l-all-courses">
 	<template>
@@ -89,7 +99,7 @@
 						</div>
 					</div>
 					<div class="search-and-filter-row advanced-search-link" hidden$="[[!_showAdvancedSearchLink]]" >
-						<a is="d2l-link" href$="[[advancedSearchUrl]]">{{localize('advancedSearch')}}</a>
+						<d2l-link href$="[[advancedSearchUrl]]">{{localize('advancedSearch')}}</d2l-link>
 					</div>
 				</div>
 
@@ -106,7 +116,7 @@
 							filtered-enrollments="[[_filteredEnrollments]]"
 						></d2l-all-courses-unified-content>
 					</template>
-					<template is="dom-if" if$="[[!updatedSortLogic]]">
+					<template is="dom-if" if="[[!updatedSortLogic]]">
 						<d2l-all-courses-segregated-content
 							show-course-code="[[showCourseCode]]"
 							show-semester="[[showSemester]]"
@@ -234,21 +244,26 @@
 				},
 				_filterCounts: {
 					type: Object,
-					value: function() { return {
-						departments: 0,
-						semesters: 0,
-						roles: 0
-					}; }
+					value: function() {
+						return {
+							departments: 0,
+							semesters: 0,
+							roles: 0
+						};
+					}
 				},
-				_updatedSortLogicInitallyObserved: false,
+				_updatedSortLogicInitallyObserved: {
+					type: Boolean,
+					value: false
+				},
 				_isSearched: Boolean
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
 				D2L.PolymerBehaviors.Hypermedia.OrganizationHMBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
-				window.D2L.MyCourses.CourseManagementBehavior,
-				window.D2L.MyCourses.UtilityBehavior
+				D2L.MyCourses.CourseManagementBehavior,
+				D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
 				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening'

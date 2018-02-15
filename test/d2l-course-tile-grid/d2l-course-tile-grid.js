@@ -122,5 +122,7 @@ describe('d2l-course-tile-grid', () => {
 			var thirteenthTile = component.$$('.course-tile-container d2l-course-tile:nth-of-type(13)');
 			expect(window.getComputedStyle(thirteenthTile).getPropertyValue('display')).to.equal('none');
 		});
+
 	});
+
 });

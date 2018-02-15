@@ -7,9 +7,9 @@
 	/*
 	* Behavior for sliding grid tiles on insertion/removal
 	*
-	* @polymerBehavior window.D2L.MyCourses.CourseTileSlidingGridBehavior
+	* @polymerBehavior D2L.MyCourses.CourseTileSlidingGridBehavior
 	*/
-	window.D2L.MyCourses.CourseTileSlidingGridBehavior = {
+	D2L.MyCourses.CourseTileSlidingGridBehavior = {
 		observers: [
 			'__slide_onEnrollmentsChanged(enrollments.*)'
 		],
@@ -110,8 +110,7 @@
 			if (!insert) {
 				this.__slide_resizeContainer(delay + 100);
 			} else {
-				this.customStyle['--insertion-delay'] = (delay + 300) + 'ms';
-				this.updateStyles();
+				this.updateStyles({'--insertion-delay': (delay + 300) + 'ms'});
 			}
 		},
 

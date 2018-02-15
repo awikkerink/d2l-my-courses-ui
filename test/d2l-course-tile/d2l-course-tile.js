@@ -1,4 +1,5 @@
 describe('<d2l-course-tile>', function() {
+
 	var sandbox,
 		server,
 		widget,
@@ -138,6 +139,7 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	describe('setting the enrollment attribute', function() {
+
 		beforeEach(function(done) {
 			var spy = sandbox.spy(widget, '_onOrganizationResponse');
 
@@ -275,9 +277,11 @@ describe('<d2l-course-tile>', function() {
 				done();
 			});
 		});
+
 	});
 
 	describe('changing the pinned state', function() {
+
 		var event = { preventDefault: function() {} };
 
 		beforeEach(function(done) {
@@ -372,9 +376,11 @@ describe('<d2l-course-tile>', function() {
 
 			widget._pinClickHandler(event);
 		});
+
 	});
 
 	describe('setCourseImage', function() {
+
 		var details,
 			href;
 
@@ -451,6 +457,7 @@ describe('<d2l-course-tile>', function() {
 		});
 
 		describe('success: true', function() {
+
 			beforeEach(function() {
 				success = true;
 				expect(widget.$$('.change-image-success')).to.equal(null);
@@ -475,6 +482,7 @@ describe('<d2l-course-tile>', function() {
 			});
 
 			describe('after another second', function() {
+
 				beforeEach(function() {
 					clock.tick(1000);
 				});
@@ -486,10 +494,13 @@ describe('<d2l-course-tile>', function() {
 				it('removes the "change-image-success" class', function() {
 					expect(widget.$$('.change-image-success')).to.equal(null);
 				});
+
 			});
+
 		});
 
 		describe('success: false', function() {
+
 			beforeEach(function() {
 				success = false;
 				widget._displaySetImageResult(success, newImage);
@@ -512,6 +523,7 @@ describe('<d2l-course-tile>', function() {
 			});
 
 			describe('after a second', function() {
+
 				beforeEach(function() {
 					clock.tick(1000);
 				});
@@ -523,11 +535,15 @@ describe('<d2l-course-tile>', function() {
 				it('removes the "change-image-failure" class', function() {
 					expect(widget.$$('.change-image-failure')).to.equal(null);
 				});
+
 			});
+
 		});
+
 	});
 
 	describe('setting course updates attribute', function() {
+
 		it('should set the notifications URL from the organization response', function(done) {
 			server.respondWith(
 				'GET',
@@ -577,9 +593,11 @@ describe('<d2l-course-tile>', function() {
 			expect(widget.$.courseUpdates.hasAttribute('hidden')).to.be.true;
 			expect(widget.$$('.update-text-box').innerText).to.equal('0');
 		});
+
 	});
 
 	describe('pin indicator button', function() {
+
 		beforeEach(function() {
 			widget = fixture('d2l-course-tile-fixture');
 		});

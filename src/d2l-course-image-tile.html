@@ -14,6 +14,14 @@
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
 
+<!--
+`d2l-course-image-tile`
+Polymer-based web component for the course image tile.
+
+This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-layout` LD flag is ON).
+
+-->
+
 <dom-module id="d2l-course-image-tile">
 	<template strip-whitespace>
 		<style>
@@ -394,7 +402,7 @@
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
 				D2L.PolymerBehaviors.Hypermedia.OrganizationHMBehavior,
-				window.D2L.MyCourses.UtilityBehavior,
+				D2L.MyCourses.UtilityBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
 			],
 			observers: [
@@ -535,6 +543,7 @@
 					&& organization.properties
 					&& organization.properties.code
 					&& organization.properties.code.length > 0
+					&& semesterName
 					&& semesterName.length > 0;
 			},
 			_computeShowUpdateCount: function(courseUpdatesConfig, updateCount) {
@@ -688,8 +697,7 @@
 				});
 			},
 			_onResize: function() {
-				this.customStyle['--course-image-height'] = this.offsetWidth * 0.43 + 'px';
-				this.updateStyles();
+				this.updateStyles({'--course-image-height': this.offsetWidth * 0.43 + 'px'});
 			},
 			_onSetCourseImage: function(e) {
 				if (this.getEntityIdentifier(e.detail.organization) !== this.getEntityIdentifier(this._organization)) {

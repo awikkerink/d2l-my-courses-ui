@@ -8,6 +8,12 @@
 <link rel="import" href="d2l-filter-menu-tab.html">
 <link rel="import" href="d2l-filter-menu-tab-roles.html">
 
+<!--
+`d2l-filter-menu`
+Polymer-based web component for the filter menu.
+
+-->
+
 <dom-module id="d2l-filter-menu">
 	<template>
 		<style>
@@ -203,7 +209,7 @@
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
-				window.D2L.MyCourses.UtilityBehavior
+				D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
 				'role-filters-changed': '_onRoleFiltersChanged',

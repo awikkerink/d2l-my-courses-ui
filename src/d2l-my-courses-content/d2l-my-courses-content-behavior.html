@@ -1,5 +1,6 @@
 <link rel="import" href="../../../polymer/polymer.html">
 <link rel="import" href="../../../d2l-hm-constants-behavior/d2l-hm-constants-behavior.html">
+<link rel="import" href="../d2l-all-courses.html">
 <link rel="import" href="../d2l-alert-behavior.html">
 <link rel="import" href="../d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="../d2l-interaction-detection-behavior.html">
@@ -15,9 +16,9 @@
 	* This exists as a temporary behavior, to be removed when the -content-animated component is removed,
 	* and the functionality can be merged back into d2l-my-courses-content.
 	*
-	* @polymerBehavior window.D2L.MyCourses.MyCoursesContentBehavior
+	* @polymerBehavior D2L.MyCourses.MyCoursesContentBehavior
 	*/
-	var myCoursesContentBehavior = {
+	D2L.MyCourses.MyCoursesContentBehaviorImpl = {
 		properties: {
 			// Alerts to display in widget, above course tiles
 			_alerts: {
@@ -602,13 +603,16 @@
 		}
 	};
 
-	window.D2L.MyCourses.MyCoursesContentBehavior = [
+	/*
+	* @polymerBehavior D2L.MyCourses.MyCoursesContentBehavior
+	*/
+	D2L.MyCourses.MyCoursesContentBehavior = [
 		D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
 		window.D2L.Hypermedia.HMConstantsBehavior,
-		window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
-		window.D2L.MyCourses.InteractionDetectionBehavior,
-		window.D2L.MyCourses.AlertBehavior,
-		window.D2L.MyCourses.UtilityBehavior,
-		myCoursesContentBehavior
+		D2L.MyCourses.CourseTileResponsiveGridBehavior,
+		D2L.MyCourses.InteractionDetectionBehavior,
+		D2L.MyCourses.AlertBehavior,
+		D2L.MyCourses.UtilityBehavior,
+		D2L.MyCourses.MyCoursesContentBehaviorImpl
 	];
 </script>

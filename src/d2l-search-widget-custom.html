@@ -12,6 +12,12 @@
 <link rel="import" href="d2l-utility-behavior.html">
 <link rel="import" href="localize-behavior.html">
 
+<!--
+`d2l-search-widget-custom`
+Polymer-based web component for the search widget.
+
+-->
+
 <dom-module id="d2l-search-widget-custom">
 	<template>
 		<style include="d2l-search-widget-styles">
@@ -37,15 +43,16 @@
 
 		<d2l-dropdown no-auto-open>
 			<div class="search-bar d2l-dropdown-opener" id="opener">
-				<input
-					is="iron-input"
-					bind-value="{{_searchInput}}"
-					role="combobox"
-					aria-autocomplete="list"
-					placeholder="{{localize('courseSearchInputPlaceholder')}}"
-					on-keydown="_onSearchInputKeyPressed"
-					on-focus="_onSearchInputFocused">
-				</input>
+				<iron-input bind-value="{{_searchInput}}">
+					<input
+						aria-autocomplete="list"
+						role="combobox"
+						placeholder="{{localize('courseSearchInputPlaceholder')}}"
+						value="{{_searchInput}}"
+						on-keydown="_onSearchInputKeyPressed"
+						on-focus="_onSearchInputFocused">
+					</input>
+				</iron-input>
 
 				<button
 					type="button"
@@ -148,7 +155,7 @@
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
-				window.D2L.MyCourses.UtilityBehavior,
+				D2L.MyCourses.UtilityBehavior,
 				D2L.PolymerBehaviors.SearchWidgetBehavior
 			],
 
@@ -161,7 +168,9 @@
 				document.body.addEventListener('focus', this._handleFocusBound, true);
 				document.body.addEventListener('click', this._handleClickBound, true);
 
-				this._listboxes = Polymer.dom(this.root).querySelectorAll('d2l-search-listbox').slice();
+				var nodes = Polymer.dom(this.root).querySelectorAll('d2l-search-listbox');
+
+				this._listboxes = Array.prototype.slice(nodes);
 
 				for (var i = 0; i < this._listboxes.length; i++) {
 					this._listboxes[i].owner = this.$$('input');

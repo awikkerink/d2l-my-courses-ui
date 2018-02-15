@@ -9,6 +9,14 @@
 <link rel="import" href="d2l-touch-menu-item.html">
 <link rel="import" href="d2l-utility-behavior.html">
 
+<!--
+`d2l-course-tile-grid`
+Polymer-based web component for the course tile grid.
+
+This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-layout` LD flag is off) and in `d2l-all-courses`.
+
+-->
+
 <dom-module id="d2l-course-tile-grid">
 	<template>
 		<style include="d2l-course-tile-grid-styles"></style>
@@ -80,11 +88,11 @@
 				updatedSortLogic: Boolean
 			},
 			behaviors: [
-				window.D2L.MyCourses.CourseTileSlidingGridBehavior,
-				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
-				window.D2L.MyCourses.InteractionDetectionBehavior,
+				D2L.MyCourses.CourseTileSlidingGridBehavior,
+				D2L.MyCourses.CourseTileResponsiveGridBehavior,
+				D2L.MyCourses.InteractionDetectionBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
-				window.D2L.MyCourses.UtilityBehavior
+				D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
 				'enrollment-pinned': '_onEnrollmentPinAction',

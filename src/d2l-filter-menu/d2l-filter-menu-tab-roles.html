@@ -5,6 +5,12 @@
 <link rel="import" href="../d2l-utility-behavior.html">
 <link rel="import" href="d2l-filter-list-item-role.html">
 
+<!--
+`d2l-filter-menu-tab-roles`
+Polymer-based web component for the filter menu tab roles.
+
+-->
+
 <dom-module id="d2l-filter-menu-tab-roles">
 	<template>
 		<style>
@@ -53,7 +59,7 @@
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
-				window.D2L.MyCourses.UtilityBehavior
+				D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
 				'd2l-menu-item-change': '_onMenuItemChange'

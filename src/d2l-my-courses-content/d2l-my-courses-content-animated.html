@@ -13,6 +13,15 @@
 <link rel="import" href="d2l-my-courses-behavior.html">
 <link rel="import" href="d2l-my-courses-content-behavior.html">
 
+<!--
+`d2l-my-courses-content-animated`
+Polymer-based web component for the my-courses content.
+
+This is only used if the `US90527-my-courses-updates` LD flag is OFF
+(meaning the `updated-sort-logic` attribute was not added to the `d2l-my-courses` component).
+
+-->
+
 <dom-module id="d2l-my-courses-content-animated">
 	<template strip-whitespace>
 		<style>
@@ -62,8 +71,7 @@
 				course-updates-config="[[courseUpdatesConfig]]"
 				updated-sort-logic="[[updatedSortLogic]]">
 			</d2l-course-tile-grid>
-			<a
-				is="d2l-link"
+			<d2l-link
 				id="viewAllCourses"
 				hidden$="[[!_hasEnrollments]]"
 				href="javascript:void(0);"
@@ -73,7 +81,7 @@
 				on-focus="_createAllCourses"
 				tabindex="0" >
 				<h3 class="d2l-body-standard">[[_viewAllCoursesText]]</h3>
-			</a>
+			</d2l-link>
 		</div>
 
 		<div id="allCoursesPlaceholder">
@@ -131,8 +139,8 @@
 			},
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
-				window.D2L.MyCourses.MyCoursesBehavior,
-				window.D2L.MyCourses.MyCoursesContentBehavior
+				D2L.MyCourses.MyCoursesBehavior,
+				D2L.MyCourses.MyCoursesContentBehavior
 			],
 			listeners: {
 				'tile-remove-complete': '_onTileRemoveComplete'

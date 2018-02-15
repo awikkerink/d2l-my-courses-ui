@@ -64,4 +64,5 @@ describe('<d2l-search-widget-custom>', function() {
 
 		expect(spy.callCount).to.equal(1);
 	});
+
 });
