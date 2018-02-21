@@ -447,7 +447,7 @@
 					// (Usually set to true before that, in _onCourseTileOrganization)
 					this._addOnlyPastCoursesAlert();
 					setTimeout(showContent, 1000);
-				})
+				}.bind(this))
 				.catch(showContent);
 		},
 		_fetchEnrollments: function(enrollmentsRootEntity) {
