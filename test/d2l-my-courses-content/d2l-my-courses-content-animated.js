@@ -431,7 +431,7 @@ describe('d2l-my-courses-content-animated', function() {
 					if (widget.shadowRoot) {
 						expect(widget.$$('#viewAllCourses')).to.equal(widget.shadowRoot.activeElement);
 					} else {
-						expect(widget.$$('#viewAllCourses')).to.equal(document.activeElement);
+						expect(widget.$$('#viewAllCourses').$$('a')).to.equal(document.activeElement);
 					}
 				});
 			});
@@ -619,7 +619,7 @@ describe('d2l-my-courses-content-animated', function() {
 			clock.tick(1001);
 			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 
-			widget.$$('d2l-all-courses').$$('#all-courses')._handleClose();
+			widget.fire('d2l-simple-overlay-closed');
 			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 		});
 	});
