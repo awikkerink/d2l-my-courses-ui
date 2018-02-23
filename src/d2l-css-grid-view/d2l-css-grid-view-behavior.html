@@ -48,6 +48,8 @@
 				courseTileGrid.classList.add('columns-' + numColumns);
 			}
 
+			this.updateStyles({'--course-image-tile-height': containerWidth / numColumns * 0.43 + 'px'});
+
 			var cssGridStyle = document.body.style['grid-template-columns'];
 			// Can be empty string, hence the strict comparison
 			if (cssGridStyle !== undefined) {
