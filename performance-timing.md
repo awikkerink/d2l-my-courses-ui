@@ -32,7 +32,7 @@ performance.getEntriesByType('measure')
 | `d2l.my-courses.root-enrollments` | Duration of the enrollments root API request. Often includes time to fetch token. | `d2l.my-courses.root-enrollments.request` | `d2l.my-courses.root-enrollments.response` |
 | `d2l.my-courses.search-enrollments` | Duration of the enrollments search API request. | `d2l.my-courses.search-enrollments.request` | `d2l.my-courses.search-enrollments.response` |
 | `d2l.my-courses.meaningful.visible` | Approximation of total time for my-courses to be usable for a sighted user (visible organizations, excludes course images). | `d2l.my-courses.attached` | `d2l.my-courses.visible-organizations-complete` |
-| `d2l.my-courses` | Approximation of total time for my-courses to complete loading for a sighted user (visible organizations and course images). | `d2l.my-courses.attached` | `d2l.my-courses.visible-images-complete` |
+| `d2l.my-courses.hero` | Approximation of total time for my-courses to complete loading for a sighted user (visible organizations and course images). Roughly corresponds to "hero element" timing. | `d2l.my-courses.attached` | `d2l.my-courses.visible-images-complete` |
 | `d2l.my-courses.meaningful.all` | Approximation of total time for my-courses to complete loading for a screenreader user (all organizations, excludes course images) | `d2l.my-courses.attached` | `d2l.my-courses.all-organizations-complete` |
 
 Course images are lazy-loaded only once they become visible in the viewport. Because of this, we do not track "last course image loaded" as it's possible that this would never occur, should the user not scroll down far enough for all images to enter the viewport and therefore load.
