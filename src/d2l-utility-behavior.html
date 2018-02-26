@@ -61,9 +61,19 @@
 				window.performance.mark(name);
 			}
 		},
-		performanceMeasure: function(name, startMark, endMark) {
+		performanceMeasure: function(name, startMark, endMark, fireEvent) {
 			if (window.performance && window.performance.measure) {
 				window.performance.measure(name, startMark, endMark);
+				var measure = window.performance.getEntriesByName(name, 'measure');
+				if (measure.length === 1 && fireEvent) {
+					document.dispatchEvent(new CustomEvent('D2LPerformanceMeasure', {
+						bubbles: true,
+						detail: {
+							name: name,
+							value: measure[0]
+						}
+					}));
+				}
 			}
 		},
 		responseToSirenEntity: function(response) {
