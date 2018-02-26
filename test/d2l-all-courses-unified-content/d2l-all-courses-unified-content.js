@@ -1,9 +1,12 @@
 describe('d2l-all-courses-unified-content', function() {
 	var widget, sandbox, clock;
 
-	beforeEach(function() {
+	beforeEach(function(done) {
 		sandbox = sinon.sandbox.create();
 		widget = fixture('d2l-all-courses-unified-content-fixture');
+		setTimeout(function() {
+			done();
+		});
 	});
 
 	afterEach(function() {
