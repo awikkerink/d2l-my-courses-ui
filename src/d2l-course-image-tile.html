@@ -707,8 +707,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				this._imageLoading = true;
 
 				var status = e.detail.status;
-				var newImageHref = this.getDefaultImageLink(e.detail.image);
-				var newSrcSet = this.getImageSrcset(e.detail.image, 'tile');
 
 				switch (status) {
 					case 'set':
@@ -716,8 +714,17 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 						// load the image while the loading spinner runs to that we have it when the spinner ends
 						this._nextImage = e.detail.image;
 						var imagePreloader = document.createElement('img');
-						imagePreloader.setAttribute('src', newImageHref);
-						imagePreloader.setAttribute('srcset', newSrcSet);
+
+						var newImageHref = this.getDefaultImageLink(e.detail.image);
+						if (newImageHref) {
+							imagePreloader.setAttribute('src', newImageHref);
+						}
+
+						var newSrcSet = this.getImageSrcset(e.detail.image, 'tile');
+						if (newSrcSet) {
+							imagePreloader.setAttribute('srcset', newSrcSet);
+						}
+
 						imagePreloader.setAttribute('sizes', this.$$('d2l-course-image').getTileSizes());
 						break;
 					case 'success':
