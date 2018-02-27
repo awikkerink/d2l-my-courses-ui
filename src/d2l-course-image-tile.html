@@ -27,7 +27,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 		<style>
 			:host {
 				display: block;
-				--course-image-height: 6rem;
 			}
 
 			d2l-image-tile {
@@ -416,9 +415,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				window.addEventListener('set-course-image', this._boundOnSetCourseImage);
 
 				Polymer.RenderStatus.afterNextRender(this, function() {
-					this._onResize();
-					window.addEventListener('resize', this._onResize.bind(this));
-
 					var imageTile = this.$$('d2l-image-tile');
 
 					var observerCallback = function(entries, observer) {
@@ -459,7 +455,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 			},
 			detached: function() {
 				window.removeEventListener('set-course-image', this._boundOnSetCourseImage);
-				window.removeEventListener('resize', this._onResize.bind(this));
 			},
 
 			refreshImage: function(organization) {
@@ -695,9 +690,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				this.fire('open-change-image-view', {
 					organization: this._organization
 				});
-			},
-			_onResize: function() {
-				this.updateStyles({'--course-image-height': this.offsetWidth * 0.43 + 'px'});
 			},
 			_onSetCourseImage: function(e) {
 				if (this.getEntityIdentifier(e.detail.organization) !== this.getEntityIdentifier(this._organization)) {
