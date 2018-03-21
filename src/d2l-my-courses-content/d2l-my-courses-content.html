@@ -7,6 +7,7 @@
 <link rel="import" href="../../../d2l-simple-overlay/d2l-simple-overlay.html">
 <link rel="import" href="../../../d2l-image-selector/d2l-basic-image-selector.html">
 <link rel="import" href="../d2l-css-grid-view/d2l-css-grid-view-styles.html">
+<link rel="import" href="../../../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="../d2l-all-courses.html">
 <link rel="import" href="../d2l-course-image-tile.html">
 <link rel="import" href="../d2l-course-tile-grid.html">
@@ -53,6 +54,10 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			/* If hide-past-courses, past courses are already hidden, so exclude them from the n+13 count */
 			.course-tile-grid[hide-past-courses] > div:nth-child(n+13) > d2l-course-image-tile:not([pinned]):not([past-course]) {
 				display: none;
+			}
+			.d2l-body-standard {
+				@apply --d2l-body-standard-text;
+				margin: 0;
 			}
 		</style>
 
