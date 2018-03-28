@@ -119,7 +119,7 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				flex-direction: column;
 				justify-content: center;
 				position: absolute;
-				top: calc(-1 * var(--course-image-height));
+				top: 0;
 				height: var(--course-image-height);
 				width: 100%;
 				border-top-left-radius: 6px;
@@ -138,6 +138,10 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 			}
 			.overlay-date {
 				font-size: 0.8rem;
+			}
+
+			.image-container {
+				height: var(--course-image-height);
 			}
 
 			.icon-container {
@@ -225,14 +229,28 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 			hover-effect="[[_hoverEffects]]"
 			dropdown-label="[[_courseSettingsLabel]]"
 			no-mobile-more-button>
-			<d2l-course-image
-				slot="d2l-image-tile-image"
-				aria-hidden="true"
-				class="image-layer-bottom"
-				image="[[_image]]"
-				sizes="[[tileSizes]]"
-				type="tile">
-			</d2l-course-image>
+			<div
+				class="image-container"
+				slot="d2l-image-tile-image">
+				<d2l-course-image
+					aria-hidden="true"
+					class="image-layer-bottom"
+					image="[[_image]]"
+					sizes="[[tileSizes]]"
+					type="tile">
+				</d2l-course-image>
+				<div hidden$="[[!_hasOverlay]]" class="overlay">
+					<div class="overlay-text">[[_overlayTitle]]</div>
+					<div class="overlay-date">[[_overlayDate]]</div>
+					<div>[[_overlayInactive]]</div>
+				</div>
+				<div hidden$="[[!_imageLoading]]" class="overlay">
+					<d2l-loading-spinner hidden$="[[!_imageLoadingProgress]]" size="85"></d2l-loading-spinner>
+					<div class="icon-container" hidden$="[[_imageLoadingProgress]]">
+						<d2l-icon></d2l-icon>
+					</div>
+				</div>
+			</div>
 			<d2l-dropdown-menu slot="d2l-image-tile-dropdown">
 				<d2l-menu>
 					<d2l-menu-item-link
@@ -267,17 +285,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				<d2l-icon icon="d2l-tier1:pin-filled"></d2l-icon>
 			</button>
 
-			<div hidden$="[[!_hasOverlay]]" class="overlay">
-				<div class="overlay-text">[[_overlayTitle]]</div>
-				<div class="overlay-date">[[_overlayDate]]</div>
-				<div>[[_overlayInactive]]</div>
-			</div>
-			<div hidden$="[[!_imageLoading]]" class="overlay">
-				<d2l-loading-spinner hidden$="[[!_imageLoadingProgress]]" size="85"></d2l-loading-spinner>
-				<div class="icon-container" hidden$="[[_imageLoadingProgress]]">
-					<d2l-icon></d2l-icon>
-				</div>
-			</div>
 			<div class="alert-colour-circle" hidden$="[[!startedInactive]]"></div>
 			<div class="flex">
 				<div class="course-text">
