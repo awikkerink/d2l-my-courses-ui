@@ -232,9 +232,6 @@ the user has in that organization - student, teacher, TA, etc.
 				D2L.MyCourses.UtilityBehavior,
 				D2L.PolymerBehaviors.Hypermedia.OrganizationHMBehavior
 			],
-			listeners: {
-				'animationend': '_onAnimationComplete'
-			},
 			observers: [
 				'_fetchEnrollmentData(_load, enrollment)'
 			],
@@ -243,6 +240,7 @@ the user has in that organization - student, teacher, TA, etc.
 					var tileContainerEl = this.$$('.tile-container');
 					document.body.addEventListener('focus', this._onFocus, true);
 					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
+					tileContainerEl.addEventListener('animationend', this._onAnimationComplete, true);
 
 					var observerCallback = function(entries, observer) {
 						if (this._load) {
@@ -284,6 +282,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._onFocus = this._onFocus.bind(this);
 				this._closeDropdown = this._closeDropdown.bind(this);
 				this._hoverCourseTile = this._hoverCourseTile.bind(this);
+				this._onAnimationComplete = this._onAnimationComplete.bind(this);
 				Polymer.IronA11yAnnouncer.requestAvailability();
 			},
 			focus: function() {
