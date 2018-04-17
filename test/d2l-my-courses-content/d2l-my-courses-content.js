@@ -965,7 +965,9 @@ describe('d2l-my-courses-content', () => {
 				getLinkByRel: sandbox.stub().returns({ href: 'href' })
 			};
 			var e = {
-				target: 'notthis',
+				composedPath() {
+					return ['notthis'];
+				},
 				detail: {
 					orgUnitId: 69,
 					enrollment: enrollmentMock,
@@ -987,7 +989,9 @@ describe('d2l-my-courses-content', () => {
 				hasClass: sandbox.stub().returns(true)
 			};
 			var e = {
-				target: 'notthis',
+				composedPath() {
+					return ['notthis'];
+				},
 				detail: {
 					orgUnitId: 69,
 					enrollment: enrollmentMock,
