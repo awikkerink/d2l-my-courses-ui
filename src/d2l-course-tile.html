@@ -278,6 +278,12 @@ the user has in that organization - student, teacher, TA, etc.
 					observer.observe(tileContainerEl);
 				});
 			},
+			detached: function() {
+				var tileContainerEl = this.$$('.tile-container');
+				tileContainerEl.removeEventListener('focus', this._hoverCourseTile, true);
+				tileContainerEl.removeEventListener('animationend', this._onAnimationComplete, true);
+				document.body.removeEventListener('focus', this._onFocus, true);
+			},
 			ready: function() {
 				this._onFocus = this._onFocus.bind(this);
 				this._closeDropdown = this._closeDropdown.bind(this);
