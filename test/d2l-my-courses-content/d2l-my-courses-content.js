@@ -359,7 +359,7 @@ describe('d2l-my-courses-content', () => {
 		});
 
 		describe('d2l-course-pinned-change', () => {
-			function createEvent(isPinned, orgUnitId, enrollment) {
+			/*function createEvent(isPinned, orgUnitId, enrollment) {
 				return new CustomEvent(
 					'd2l-course-pinned-change', {
 						detail: {
@@ -369,7 +369,7 @@ describe('d2l-my-courses-content', () => {
 						}
 					}
 				);
-			}
+			}*/
 
 			it('should refetch enrollments if the new pinned enrollment has not previously been fetched', () => {
 				var event = {
