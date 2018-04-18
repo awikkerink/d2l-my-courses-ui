@@ -372,10 +372,18 @@ describe('d2l-my-courses-content', () => {
 			}
 
 			it('should refetch enrollments if the new pinned enrollment has not previously been fetched', () => {
+				var event = {
+					detail: {
+						isPinned: true,
+						orgUnitId: 2,
+						enrollment: null
+					}
+				};
+				Polymer.dom(event).rootTarget = 'notthis';
 				component._orgUnitIdMap = {
 					1: enrollmentEntity
 				};
-				var event = createEvent(true, 2);
+
 				var refetchSpy = sandbox.spy(component, '_refetchEnrollments');
 
 				return component._onEnrollmentPinnedMessage(event).then(() => {
@@ -965,9 +973,6 @@ describe('d2l-my-courses-content', () => {
 				getLinkByRel: sandbox.stub().returns({ href: 'href' })
 			};
 			var e = {
-				composedPath() {
-					return ['notthis'];
-				},
 				detail: {
 					orgUnitId: 69,
 					enrollment: enrollmentMock,
@@ -989,9 +994,6 @@ describe('d2l-my-courses-content', () => {
 				hasClass: sandbox.stub().returns(true)
 			};
 			var e = {
-				composedPath() {
-					return ['notthis'];
-				},
 				detail: {
 					orgUnitId: 69,
 					enrollment: enrollmentMock,
