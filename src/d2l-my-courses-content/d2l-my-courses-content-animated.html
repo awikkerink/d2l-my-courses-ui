@@ -169,7 +169,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is OFF
 
 			// Override for MyCoursesContentBehavior._onEnrollmentPinnedMessage
 			_onEnrollmentPinnedMessage: function(e) {
-				if (e.target === this) return;
+				if (Polymer.dom(e).rootTarget === this) return;
 
 				var enrollment = this._orgUnitIdMap[e.detail.orgUnitId];
 				if (enrollment) {
