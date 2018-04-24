@@ -13,12 +13,12 @@
         {
           "browserName": "chrome",
           "platform": "OS X 10.12",
-          "version": "beta"
+          "version": ""
         },
         {
           "browserName": "chrome",
           "platform": "Windows 10",
-          "version": "beta"
+          "version": ""
         },
         {
           "browserName": "firefox",
