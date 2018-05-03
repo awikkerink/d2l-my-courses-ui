@@ -545,8 +545,11 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					}
 				}
 
-				this.$['all-courses-scroll-threshold'].clearTriggers();
 				this.lastEnrollmentsSearchResponse = enrollments;
+				requestAnimationFrame(function() {
+					window.dispatchEvent(new Event('resize')); // doing this so ie11 and older edge browser will get ms-grid style assigned
+					this.$['all-courses-scroll-threshold'].clearTriggers();
+				}.bind(this));
 			},
 			_showDropdownGradient: function(updatedSortLogic) {
 				return updatedSortLogic ? '' : 'dropdown-content-gradient';
