@@ -1,7 +1,5 @@
 language: node_js
 node_js: 9
-addons:
-  chrome: stable
 script:
 - npm run lint
 - polymer test --skip-plugin sauce
