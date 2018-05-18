@@ -28,6 +28,6 @@
     "eslint": "^4.17.0",
     "eslint-config-brightspace": "^0.4.0",
     "eslint-plugin-html": "^4.0.2",
-    "polymer-cli": "^1.6.0"
+    "polymer-cli": "~1.6.0"
   }
 }
