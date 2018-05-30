@@ -598,6 +598,8 @@ the user has in that organization - student, teacher, TA, etc.
 				var homepageEntity = organization.getSubEntityByRel(this.HypermediaRels.organizationHomepage);
 				if (homepageEntity) {
 					this._organizationHomepageUrl = homepageEntity.properties.path;
+				} else {
+					this._organizationHomepageUrl = null;
 				}
 				if (!this._organizationHomepageUrl) {
 					var tileContainer = this.$$('.tile-container');
