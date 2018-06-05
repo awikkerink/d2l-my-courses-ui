@@ -23,7 +23,9 @@
 	D2L.MyCourses.MyCoursesContentBehaviorImpl = {
 		properties: {
 			enrollmentsSearchAction: Object,
+			tabSearchActions: Array,
 			userSettingsUrl: String,
+
 			// Alerts to display in widget, above course tiles
 			_alerts: {
 				type: Array,
@@ -478,7 +480,7 @@
 
 			var allCourses = this.$$('d2l-all-courses');
 
-			allCourses.searchUrl = this._enrollmentsSearchUrl;
+			allCourses.tabSearchActions = this.tabSearchActions;
 			allCourses.locale = this.locale;
 			allCourses.showCourseCode = this.showCourseCode;
 			allCourses.showSemester = this.showSemester;
