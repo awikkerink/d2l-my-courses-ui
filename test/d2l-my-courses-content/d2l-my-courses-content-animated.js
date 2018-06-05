@@ -232,6 +232,10 @@ describe('d2l-my-courses-content-animated', function() {
 		expect(widget).to.exist;
 	});
 
+	it('should override the default cssGridView=true', function() {
+		expect(widget.cssGridView).to.be.false;
+	});
+
 	describe('Enrollments requests and responses', function() {
 		it('should send a search request for enrollments with the correct query params', function() {
 			var spy = sandbox.spy(widget, '_fetchEnrollments');

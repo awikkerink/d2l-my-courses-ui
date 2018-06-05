@@ -113,6 +113,12 @@ This is only used if the `US90527-my-courses-updates` LD flag is OFF
 			is: 'd2l-my-courses-content-animated',
 
 			properties: {
+				// Override for CssGridBehavior.cssGridView
+				cssGridView: {
+					type: Boolean,
+					value: false
+				},
+
 				_allEnrollments: {
 					type: Array,
 					value: function() { return []; }
