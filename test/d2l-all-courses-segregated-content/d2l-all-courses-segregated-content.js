@@ -81,41 +81,6 @@ describe('d2l-all-courses-segregated-content', function() {
 		sandbox.restore();
 	});
 
-	describe('setting course image', function() {
-		var setCourseImageFailureAlert = { alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' };
-
-		it('should remove and course image failure alerts before adding and new ones', function() {
-			var removeAlertSpy = sandbox.spy(widget, '_removeAlert');
-			widget.setCourseImage();
-			expect(removeAlertSpy.called);
-		});
-
-		it('should add an alert after setting the course image results in failure (after a timeout)', function() {
-			clock = sinon.useFakeTimers();
-			var setCourseImageEvent = { detail: { status: 'failure'} };
-			widget.setCourseImage(setCourseImageEvent);
-			clock.tick(1001);
-			expect(widget._alerts).to.include(setCourseImageFailureAlert);
-		});
-
-		it('should not add a setCourseImageFailure warning alert when a request to set the image succeeds', function() {
-			var setCourseImageEvent = { detail: { status: 'success'} };
-			widget.setCourseImage(setCourseImageEvent);
-			expect(widget._alerts).not.to.include(setCourseImageFailureAlert);
-		});
-
-		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
-			clock = sinon.useFakeTimers();
-			var setCourseImageEvent = { detail: { status: 'failure'} };
-			widget.setCourseImage(setCourseImageEvent);
-			clock.tick(1001);
-			expect(widget._alerts).to.include(setCourseImageFailureAlert);
-			setCourseImageEvent = { detail: { status: 'set'} };
-			widget.setCourseImage(setCourseImageEvent);
-			expect(widget._alerts).not.to.include(setCourseImageFailureAlert);
-		});
-	});
-
 	describe('changing enrollment entities', () => {
 		it('should update the enrollments alert (_updateEnrollmentAlerts) when unpinned enrollments are updated', () => {
 			var updateEnrollmentAlertsSpy = sandbox.spy(widget, '_updateEnrollmentAlerts');

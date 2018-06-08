@@ -16,22 +16,6 @@ describe('d2l-all-courses-unified-content', function() {
 		sandbox.restore();
 	});
 
-	describe('setting course image', function() {
-		it('should remove and course image failure alerts before adding and new ones', function() {
-			var removeAlertSpy = sandbox.spy(widget, '_removeAlert');
-			widget.setCourseImage();
-			expect(removeAlertSpy.called);
-		});
-
-		it('should add an alert after setting the course image results in failure (after a timeout)', function() {
-			clock = sinon.useFakeTimers();
-			var setCourseImageEvent = { detail: { status: 'failure'} };
-			widget.setCourseImage(setCourseImageEvent);
-			clock.tick(1001);
-			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
-		});
-	});
-
 	describe('changing enrollment entities', function() {
 		[
 			{ isSearched: true, totalFilterCount: 0, enrollmentsChanged: 0, noCoursesInSearch: true, noCoursesInSelection: false },

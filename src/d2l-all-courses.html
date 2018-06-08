@@ -1,5 +1,6 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../../d2l-alert/d2l-alert.html">
 <link rel="import" href="../../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../../d2l-dropdown/d2l-dropdown-content.html">
 <link rel="import" href="../../d2l-dropdown/d2l-dropdown-menu.html">
@@ -10,6 +11,7 @@
 <link rel="import" href="../../d2l-menu/d2l-menu-item-radio.html">
 <link rel="import" href="../../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
 <link rel="import" href="../../d2l-simple-overlay/d2l-simple-overlay.html">
+<link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-all-courses-styles.html">
 <link rel="import" href="d2l-course-management-behavior.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
@@ -101,6 +103,12 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 						<d2l-link href$="[[advancedSearchUrl]]">{{localize('advancedSearch')}}</d2l-link>
 					</div>
 				</div>
+
+				<template is="dom-repeat" items="[[_alerts]]">
+					<d2l-alert type="[[item.alertType]]">
+						[[item.alertMessage]]
+					</d2l-alert>
+				</template>
 
 				<div>
 					<template is="dom-if" if="[[updatedSortLogic]]">
@@ -261,6 +269,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				window.D2L.Hypermedia.HMConstantsBehavior,
 				D2L.PolymerBehaviors.Hypermedia.OrganizationHMBehavior,
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
+				D2L.MyCourses.AlertBehavior,
 				D2L.MyCourses.CourseManagementBehavior,
 				D2L.MyCourses.UtilityBehavior
 			],
@@ -329,9 +338,17 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this.load();
 			},
 			setCourseImage: function(details) {
-				if (this.updatedSortLogic) {
-					this.$$('d2l-all-courses-unified-content').setCourseImage(details);
-				} else {
+				this._removeAlert('setCourseImageFailure');
+
+				if (details && details.detail) {
+					if (details.detail.status === 'failure') {
+						setTimeout(function() {
+							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
+					}
+				}
+
+				if (!this.updatedSortLogic) {
 					this.$$('d2l-all-courses-segregated-content').setCourseImage(details);
 				}
 			},
@@ -438,11 +455,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				window.dispatchEvent(new Event('resize'));
 			},
 			_onSimpleOverlayOpening: function() {
-				if (this.updatedSortLogic) {
-					this.$$('d2l-all-courses-unified-content').removeSetCourseImageFailure();
-				} else {
-					this.$$('d2l-all-courses-segregated-content').removeSetCourseImageFailure();
-				}
+				this._removeAlert('setCourseImageFailure');
 				this._clearSearchWidget();
 				this.$.filterMenu.clearFilters();
 				this._filterText = this.localize('filtering.filter');
