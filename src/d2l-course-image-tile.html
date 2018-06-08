@@ -479,9 +479,9 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				this._imageLoadingProgress = true;
 
 				var organizationHref = organization.getLinkByRel('self').href;
-				organizationHref += '?embedDepth=1';
 
-				return this._fetchOrganization(organizationHref)
+				return this.fetchSirenEntity(organizationHref)
+					.then(this._handleOrganizationResponse.bind(this))
 					.then(this._displaySetImageResult.bind(this, true, true))
 					.catch(this._displaySetImageResult.bind(this, false));
 			},
@@ -597,28 +597,15 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				this.pinned = enrollment.hasClass(this.HypermediaClasses.enrollments.pinned);
 
 				var organizationHref = enrollment.getLinkByRel(this.HypermediaRels.organization).href;
-				organizationHref += '?embedDepth=1';
 
-				return this._fetchOrganization(organizationHref)
+				return this.fetchSirenEntity(organizationHref)
+					.then(this._handleOrganizationResponse.bind(this))
 					.then(function() {
 						return Promise.all([
 							this._fetchSemester(),
 							this._fetchNotifications()
 						]);
 					}.bind(this));
-			},
-			_fetchOrganization: function(url) {
-				return window.d2lfetch
-					.fetch(new Request(url, {
-						headers: {
-							'accept': 'application/vnd.siren+json',
-							// Needs no-cache so that images refresh if the users here using the back button
-							'cache-control': 'no-cache',
-							'pragma': 'no-cache'
-						}
-					}))
-					.then(this.responseToSirenEntity.bind(this))
-					.then(this._handleOrganizationResponse.bind(this));
 			},
 			_fetchNotifications: function() {
 				if (!this._notificationsUrl || !this.courseUpdatesConfig) {
@@ -683,7 +670,15 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 					this._notificationsUrl = organization.getLinkByRel(this.HypermediaRels.Notifications.organizationNotifications).href;
 				}
 				if (organization.hasSubEntityByClass(this.HypermediaClasses.courseImage.courseImage)) {
-					this._image = organization.getSubEntityByClass(this.HypermediaClasses.courseImage.courseImage);
+					var imageEntity = organization.getSubEntityByClass(this.HypermediaClasses.courseImage.courseImage);
+					if (imageEntity.href) {
+						this.fetchSirenEntity(imageEntity.href)
+							.then(function(hydratedImageEntity) {
+								this._image = hydratedImageEntity;
+							}.bind(this));
+					} else {
+						this._image = imageEntity;
+					}
 				}
 				if (organization.hasSubEntityByRel(this.HypermediaRels.organizationHomepage)) {
 					var homepageEntity = organization.getSubEntityByRel(this.HypermediaRels.organizationHomepage);
