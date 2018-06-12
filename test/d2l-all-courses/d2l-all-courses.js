@@ -214,43 +214,9 @@ describe('d2l-all-courses', function() {
 	});
 
 	describe('opening the overlay', function() {
-		it('should set _searchUrl from the public property', function() {
-			widget.searchUrl = '/foo';
-
-			widget.open();
-
-			expect(widget._searchUrl).to.match(/\/foo/);
-		});
-
-		it('should not request auto-pinned courses', function() {
-			widget.searchUrl = '/foo?autoPinCourses=true';
-
-			widget.open();
-
-			expect(widget._searchUrl).to.match(/\/foo\?autoPinCourses=false/);
-		});
-
 		it('should initially hide content', function() {
-			widget.searchUrl = '';
 			widget.open();
-
 			expect(widget._showContent).to.be.false;
-		});
-
-		it('should show content once search results have loaded', function(done) {
-			window.d2lfetch.fetch = sinon.stub().returns(Promise.resolve({
-				ok: true,
-				json: function() {}
-			}));
-			var spy = sinon.spy(widget, '_onSearchResultsChanged');
-			widget.searchUrl = '/foo';
-			widget.open();
-
-			setTimeout(function() {
-				expect(spy).to.have.been.called;
-				expect(widget._showContent).to.be.true;
-				done();
-			});
 		});
 	});
 
@@ -292,7 +258,6 @@ describe('d2l-all-courses', function() {
 				value: 'OrgUnitCode'
 			};
 
-			widget.searchUrl = '';
 			widget.load();
 			widget.$$('d2l-dropdown-menu').fire('d2l-menu-item-change', event);
 			expect(widget._searchUrl).to.contain('-PinDate,OrgUnitCode,OrgUnitId');
@@ -301,6 +266,54 @@ describe('d2l-all-courses', function() {
 			expect(spy.called).to.be.true;
 		});
 
+	});
+
+	describe.only('Tabbed view', function() {
+		beforeEach(function() {
+			widget.updatedSortLogic = true;
+			widget.tabSearchActions = [{
+				name: '12345',
+				title: 'Search Foo Action',
+				selected: false,
+				enrollmentsSearchAction: {
+					name: 'search-foo',
+					href: '/example/foo',
+					fields: [{
+						name: 'autoPinCourses',
+						value: true
+					}, {
+						name: 'embedDepth',
+						value: 0
+					}, {
+						name: 'sort',
+						value: 'foobar'
+					}]
+				}
+			}];
+			Polymer.dom.flush();
+		});
+
+		it('should hide tab contents when loading a tab\'s contents', function() {
+			widget._showTabContent = true;
+
+			widget._onTabSelected({
+				target: { id: 'all-courses-tab-12345' },
+				stopPropagation: function() {}
+			});
+
+			expect(widget._showTabContent).to.be.false;
+		});
+
+		it('should set the _searchUrl based on the selected tab\'s action', function() {
+			widget._sortParameter = 'SortOrder';
+
+			widget._onTabSelected({
+				target: { id: 'all-courses-tab-12345' },
+				stopPropagation: function() {}
+			});
+
+			expect(widget._searchUrl).to.equal('/example/foo?autoPinCourses=false&embedDepth=1&sort=SortOrder');
+		});
 	});
 
 });

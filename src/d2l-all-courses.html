@@ -400,49 +400,49 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				return this.$.filterMenu.open();
 			},
 			_onSortOrderChanged: function(e) {
-				var langterm;
+				var sortParameter, langterm;
 				var promotePins = false;
 
 				switch (e.detail.value) {
 					case 'OrgUnitName':
 						langterm = 'sorting.sortCourseName';
-						this._sortParameter = this.updatedSortLogic ? 'OrgUnitName,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
+						sortParameter = this.updatedSortLogic ? 'OrgUnitName,OrgUnitId' : '-PinDate,OrgUnitName,OrgUnitId';
 						break;
 					case 'OrgUnitCode':
 						langterm = 'sorting.sortCourseCode';
-						this._sortParameter = this.updatedSortLogic ? 'OrgUnitCode,OrgUnitId' : '-PinDate,OrgUnitCode,OrgUnitId';
+						sortParameter = this.updatedSortLogic ? 'OrgUnitCode,OrgUnitId' : '-PinDate,OrgUnitCode,OrgUnitId';
 						break;
 					case 'PinDate':
 						langterm = 'sorting.sortDatePinned';
-						this._sortParameter = '-PinDate,OrgUnitId';
+						sortParameter = '-PinDate,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
 					case 'LastAccessed':
 						langterm = 'sorting.sortLastAccessed';
-						this._sortParameter = this.updatedSortLogic ? 'LastAccessed' : 'LastAccessed';
+						sortParameter = this.updatedSortLogic ? 'LastAccessed' : 'LastAccessed';
 						break;
 					case 'EnrollmentDate':
 						langterm = 'sorting.sortEnrollmentDate';
-						this._sortParameter = '-LastModifiedDate,OrgUnitId';
+						sortParameter = '-LastModifiedDate,OrgUnitId';
 						break;
 					case 'Default':
 						langterm = 'sorting.sortDefault';
-						this._sortParameter = 'Current';
+						sortParameter = 'Current';
 						promotePins = true;
 						break;
 					default:
 						langterm = this.updatedSortLogic ? 'sorting.sortDefault' : 'sorting.sortCourseName';
-						this._sortParameter =  this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId';
+						sortParameter =  this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId';
 						promotePins = this.updatedSortLogic;
 						break;
 				}
 
-
 				this._searchUrl = this.createActionUrl(this._enrollmentsSearchAction, {
-					sort: this._sortParameter,
+					sort: sortParameter,
 					promotePins: promotePins
 				}) + '&bustCache=' + Math.random();
 
+				this._sortParameter = sortParameter;
 				this.$.sortText.textContent = this.localize(langterm || '');
 				this.$.sortDropdown.toggleOpen();
 			},
@@ -499,7 +499,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this._searchUrl = this.createActionUrl(tabAction.enrollmentsSearchAction, {
 					autoPinCourses: false,
 					embedDepth: 1,
-					sort: this._sortParameter || this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId'
+					sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
 				});
 
 				e.stopPropagation();
@@ -526,8 +526,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					if (!sortParameter) {
 						return;
 					}
-
-					this._sortParameter = sortParameter;
 
 					var sortMap = {
 						'OrgUnitName,OrgUnitId': {
@@ -566,10 +564,11 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 						}
 					};
 
-					var sort = sortMap[this._sortParameter];
+					var sort = sortMap[sortParameter];
 					if (sort) {
 						this.$.sortText.textContent = this.localize(sort.langterm || '');
 						this._selectSortOption(sort.name);
+						this._sortParameter = sortParameter;
 					} else {
 						var langterm = this.updatedSortLogic ? 'sorting.sortDefault' : 'sorting.sortCourseName';
 						this.$.sortText.textContent = this.localize(langterm);
