@@ -70,8 +70,9 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 								<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350" render-content>
 									<d2l-filter-menu
 										id="filterMenu"
-										my-enrollments-entity="[[myEnrollmentsEntity]]",
-										filter-standard-semester-name="[[filterStandardSemesterName]]",
+										tab-search-type="[[tabSearchType]]"
+										my-enrollments-entity="[[myEnrollmentsEntity]]"
+										filter-standard-semester-name="[[filterStandardSemesterName]]"
 										filter-standard-department-name="[[filterStandardDepartmentName]]">
 									</d2l-filter-menu>
 								</d2l-dropdown-content>
@@ -192,6 +193,8 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				showSemester: Boolean,
 				// Siren Actions corresponding to each tab that is displayed
 				tabSearchActions: Array,
+				// Type of tabs being displayed - that should be excluded from filter menu
+				tabSearchType: String,
 				// Feature flag (switch) for using the updated sort logic and related fetaures
 				updatedSortLogic: {
 					type: Boolean,

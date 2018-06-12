@@ -41,7 +41,8 @@
 			_tabSearchActions: {
 				type: Array,
 				value: []
-			}
+			},
+			_tabSearchType: String
 		},
 		attached: function() {
 			this._fetchTabSearchActions();
@@ -83,6 +84,8 @@
 						tabSearchActions = tabSearchActions.concat(promotedSearchesArray);
 					}
 					this._tabSearchActions = tabSearchActions;
+					// TODO: Populate with actual value from response
+					this._tabSearchType = 'departments';
 				}.bind(this));
 		}
 	};

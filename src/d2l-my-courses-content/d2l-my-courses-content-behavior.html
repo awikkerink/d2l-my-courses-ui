@@ -24,6 +24,7 @@
 		properties: {
 			enrollmentsSearchAction: Object,
 			tabSearchActions: Array,
+			tabSearchType: String,
 			userSettingsUrl: String,
 
 			// Alerts to display in widget, above course tiles
@@ -481,6 +482,7 @@
 			var allCourses = this.$$('d2l-all-courses');
 
 			allCourses.tabSearchActions = this.tabSearchActions;
+			allCourses.tabSearchType = this.tabSearchType;
 			allCourses.locale = this.locale;
 			allCourses.showCourseCode = this.showCourseCode;
 			allCourses.showSemester = this.showSemester;
