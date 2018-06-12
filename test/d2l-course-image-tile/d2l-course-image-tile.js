@@ -150,9 +150,7 @@ describe('d2l-course-image-tile', () => {
 
 		fetchStub = sandbox.stub(window.d2lfetch, 'fetch');
 		SetupFetchStub(/\/organizations\/1$/, organizationEntity);
-		SetupFetchStub(/\/organizations\/1\?embedDepth=1$/, organizationEntity);
 		SetupFetchStub(/\/organizations\/2$/, semesterOrganizationEntity);
-		SetupFetchStub(/\/organizations\/2\?embedDepth=1$/, semesterOrganizationEntity);
 		SetupFetchStub(/\/organizations\/1\/image/, {});
 		SetupFetchStub(/\/organizations\/1\/my-notifications$/, { properties: {} });
 
