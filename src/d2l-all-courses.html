@@ -115,24 +115,25 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				<template is="dom-if" if="[[updatedSortLogic]]">
 					<d2l-tabs>
 						<template items="[[tabSearchActions]]" is="dom-repeat">
-							<d2l-tab-panel id="all-courses-tab-[[item.name]]" text="[[item.title]]" selected=[[item.selected]]></d2l-tab-panel>
+							<d2l-tab-panel id="all-courses-tab-[[item.name]]" text="[[item.title]]" selected=[[item.selected]]>
+								<div hidden$="[[!_showTabContent]]">
+									<d2l-all-courses-unified-content
+										show-course-code="[[showCourseCode]]"
+										show-semester="[[showSemester]]"
+										course-updates-config="[[courseUpdatesConfig]]"
+										updated-sort-logic="[[updatedSortLogic]]"
+										total-filter-count="[[_totalFilterCount]]"
+										filter-counts="[[_filterCounts]]"
+										is-searched="[[_isSearched]]"
+										filtered-enrollments="[[_filteredEnrollments]]">
+									</d2l-all-courses-unified-content>
+								</div>
+								<d2l-loading-spinner
+									hidden$="[[_showTabContent]]"
+									size="100">
+								</d2l-loading-spinner>
+							</d2l-tab-panel>
 						</template>
-						<div hidden$="[[!_showTabContent]]">
-							<d2l-all-courses-unified-content
-								show-course-code="[[showCourseCode]]"
-								show-semester="[[showSemester]]"
-								course-updates-config="[[courseUpdatesConfig]]"
-								updated-sort-logic="[[updatedSortLogic]]"
-								total-filter-count="[[_totalFilterCount]]"
-								filter-counts="[[_filterCounts]]"
-								is-searched="[[_isSearched]]"
-								filtered-enrollments="[[_filteredEnrollments]]"
-							></d2l-all-courses-unified-content>
-						</div>
-						<d2l-loading-spinner
-							hidden$="[[_showTabContent]]"
-							size="100">
-						</d2l-loading-spinner>
 					</d2l-tabs>
 				</template>
 				<template is="dom-if" if="[[!updatedSortLogic]]">
@@ -145,8 +146,8 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 						filter-counts="[[_filterCounts]]"
 						is-searched="[[_isSearched]]"
 						filtered-pinned-enrollments="[[_filteredPinnedEnrollments]]"
-						filtered-unpinned-enrollments="[[_filteredUnpinnedEnrollments]]"
-					></d2l-all-courses-segregated-content>
+						filtered-unpinned-enrollments="[[_filteredUnpinnedEnrollments]]">
+					</d2l-all-courses-segregated-content>
 				</template>
 				<d2l-loading-spinner
 					id="lazyLoadSpinner"
@@ -193,7 +194,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				showSemester: Boolean,
 				// Siren Actions corresponding to each tab that is displayed
 				tabSearchActions: Array,
-				// Type of tabs being displayed - that should be excluded from filter menu
+				// Type of tabs being displayed (BySemester, ByDepartment, ByRoleAlias)
 				tabSearchType: String,
 				// Feature flag (switch) for using the updated sort logic and related fetaures
 				updatedSortLogic: {
@@ -338,8 +339,10 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 			},
 			open: function() {
 				// Initially hide the content, until we have some data to show
-				// (set back to true in _onSearchResultsChanged)
-				this._showContent = false;
+				// (set back to true in _onSearchResultsChanged). The exception
+				// to this is when the overlay is closed then reopened - we want
+				// to immediately show the already-loaded content.
+				this._showContent = !!this._searchUrl;
 
 				this.$$('#all-courses').open();
 				this.load();
@@ -458,21 +461,8 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this.myEnrollmentsEntity = e.detail;
 				this.fire('recalculate-columns');
 
-				if (!this.updatedSortLogic) {
-					this._showContent = true;
-
-					// Forces recalculation of columns in d2l-all-courses-content-unified
-					window.dispatchEvent(new Event('resize'));
-					return;
-				}
-
+				this._showContent = true;
 				this._showTabContent = true;
-
-				// On initial load, search-results-changed will fire immediately
-				// when the search component is rendered. We want to wait until
-				// the second time is fired, after completing the default tab
-				// search, before showing any content.
-				this._showContent = !!this.tabSearchActions;
 
 				setTimeout(function() {
 					// Triggers the course tiles to resize after switching tab
@@ -501,8 +491,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					embedDepth: 1,
 					sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
 				});
-
-				e.stopPropagation();
 			},
 
 			/*

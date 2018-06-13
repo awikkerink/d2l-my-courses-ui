@@ -76,16 +76,19 @@
 						this._enrollmentsSearchAction = searchAction;	// For d2l-my-courses-content-animated
 						tabSearchActions = [{name: searchAction.name, title: this.localize('allTab'), selected: false, enrollmentsSearchAction: searchAction}];
 					}
-					if (promotedSearchesEntity && promotedSearchesEntity.actions) {
-						var promotedSearchesArray = promotedSearchesEntity.actions.map(function(action) {
-							var selected = action.name === mostRecentSearchName;
-							return { name: action.name, title: action.title, selected: selected, enrollmentsSearchAction: action };
-						});
-						tabSearchActions = tabSearchActions.concat(promotedSearchesArray);
+					if (promotedSearchesEntity) {
+						if (promotedSearchesEntity.actions) {
+							var promotedSearchesArray = promotedSearchesEntity.actions.map(function(action) {
+								var selected = action.name === mostRecentSearchName;
+								return { name: action.name, title: action.title, selected: selected, enrollmentsSearchAction: action };
+							});
+							tabSearchActions = tabSearchActions.concat(promotedSearchesArray);
+						}
+						if (promotedSearchesEntity.properties) {
+							this._tabSearchType = promotedSearchesEntity.properties.UserEnrollmentsSearchType;
+						}
 					}
 					this._tabSearchActions = tabSearchActions;
-					// TODO: Populate with actual value from response
-					this._tabSearchType = 'departments';
 				}.bind(this));
 		}
 	};

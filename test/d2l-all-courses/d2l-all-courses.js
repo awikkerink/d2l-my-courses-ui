@@ -268,7 +268,7 @@ describe('d2l-all-courses', function() {
 
 	});
 
-	describe.only('Tabbed view', function() {
+	describe('Tabbed view', function() {
 		beforeEach(function() {
 			widget.updatedSortLogic = true;
 			widget.tabSearchActions = [{

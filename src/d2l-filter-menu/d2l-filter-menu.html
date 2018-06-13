@@ -229,10 +229,10 @@ Polymer-based web component for the filter menu.
 
 			open: function() {
 				// If My Courses is grouped by semesters/departments, don't show either of these tabs
-				this._semestersTabHidden = this.tabSearchType === 'semesters' || this.tabSearchType === 'departments';
+				this._semestersTabHidden = this.tabSearchType === 'BySemester' || this.tabSearchType === 'ByDepartment';
 				this._departmentsTabHidden = this._semestersTabHidden;
 				// If My Courses is grouped by role alias, don't show the Role tab
-				this._rolesTabHidden = this.tabSearchType === 'roles';
+				this._rolesTabHidden = this.tabSearchType === 'ByRoleAlias';
 
 				var defaultTab = this._semestersTabHidden ? 'roles' : 'semesters';
 
