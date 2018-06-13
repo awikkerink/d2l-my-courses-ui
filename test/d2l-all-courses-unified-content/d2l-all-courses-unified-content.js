@@ -1,19 +1,39 @@
 describe('d2l-all-courses-unified-content', function() {
-	var widget, sandbox, clock;
+	var widget, sandbox;
 
 	beforeEach(function(done) {
 		sandbox = sinon.sandbox.create();
 		widget = fixture('d2l-all-courses-unified-content-fixture');
+
 		setTimeout(function() {
 			done();
 		});
 	});
 
 	afterEach(function() {
-		if (clock) {
-			clock.restore();
-		}
 		sandbox.restore();
+	});
+
+	describe('initial load', function() {
+		it('should not render contents initially', function() {
+			expect(widget.$$('div.course-tile-grid')).to.be.null;
+		});
+
+		it('should render the contents on a d2l-tab-panel-selected event', function(done) {
+			widget = fixture('event-test-fixture').querySelector('d2l-all-courses-unified-content');
+			expect(widget.$$('div.course-tile-grid')).to.be.null;
+			expect(widget._renderContents).to.be.false;
+
+			widget._onTabSelected({
+				target: { id: 'foo' }
+			});
+
+			expect(widget._renderContents).to.be.true;
+			setTimeout(function() {
+				expect(widget.$$('div.course-tile-grid')).to.not.be.null;
+				done();
+			});
+		});
 	});
 
 	describe('changing enrollment entities', function() {

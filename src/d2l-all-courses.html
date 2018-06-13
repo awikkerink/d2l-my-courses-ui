@@ -11,6 +11,7 @@
 <link rel="import" href="../../d2l-menu/d2l-menu-item-radio.html">
 <link rel="import" href="../../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
 <link rel="import" href="../../d2l-simple-overlay/d2l-simple-overlay.html">
+<link rel="import" href="../../d2l-tabs/d2l-tabs.html">
 <link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-all-courses-styles.html">
 <link rel="import" href="d2l-course-management-behavior.html">
@@ -69,8 +70,9 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 								<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350" render-content>
 									<d2l-filter-menu
 										id="filterMenu"
-										my-enrollments-entity="[[myEnrollmentsEntity]]",
-										filter-standard-semester-name="[[filterStandardSemesterName]]",
+										tab-search-type="[[tabSearchType]]"
+										my-enrollments-entity="[[myEnrollmentsEntity]]"
+										filter-standard-semester-name="[[filterStandardSemesterName]]"
 										filter-standard-department-name="[[filterStandardDepartmentName]]">
 									</d2l-filter-menu>
 								</d2l-dropdown-content>
@@ -110,33 +112,43 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					</d2l-alert>
 				</template>
 
-				<div>
-					<template is="dom-if" if="[[updatedSortLogic]]">
-						<d2l-all-courses-unified-content
-							show-course-code="[[showCourseCode]]"
-							show-semester="[[showSemester]]"
-							course-updates-config="[[courseUpdatesConfig]]"
-							updated-sort-logic="[[updatedSortLogic]]"
-							total-filter-count="[[_totalFilterCount]]"
-							filter-counts="[[_filterCounts]]"
-							is-searched="[[_isSearched]]"
-							filtered-enrollments="[[_filteredEnrollments]]"
-						></d2l-all-courses-unified-content>
-					</template>
-					<template is="dom-if" if="[[!updatedSortLogic]]">
-						<d2l-all-courses-segregated-content
-							show-course-code="[[showCourseCode]]"
-							show-semester="[[showSemester]]"
-							course-updates-config="[[courseUpdatesConfig]]"
-							updated-sort-logic="[[updatedSortLogic]]"
-							total-filter-count="[[_totalFilterCount]]"
-							filter-counts="[[_filterCounts]]"
-							is-searched="[[_isSearched]]"
-							filtered-pinned-enrollments="[[_filteredPinnedEnrollments]]"
-							filtered-unpinned-enrollments="[[_filteredUnpinnedEnrollments]]"
-						></d2l-all-courses-segregated-content>
-					</template>
-				</div>
+				<template is="dom-if" if="[[updatedSortLogic]]">
+					<d2l-tabs>
+						<template items="[[tabSearchActions]]" is="dom-repeat">
+							<d2l-tab-panel id="all-courses-tab-[[item.name]]" text="[[item.title]]" selected=[[item.selected]]>
+								<div hidden$="[[!_showTabContent]]">
+									<d2l-all-courses-unified-content
+										show-course-code="[[showCourseCode]]"
+										show-semester="[[showSemester]]"
+										course-updates-config="[[courseUpdatesConfig]]"
+										updated-sort-logic="[[updatedSortLogic]]"
+										total-filter-count="[[_totalFilterCount]]"
+										filter-counts="[[_filterCounts]]"
+										is-searched="[[_isSearched]]"
+										filtered-enrollments="[[_filteredEnrollments]]">
+									</d2l-all-courses-unified-content>
+								</div>
+								<d2l-loading-spinner
+									hidden$="[[_showTabContent]]"
+									size="100">
+								</d2l-loading-spinner>
+							</d2l-tab-panel>
+						</template>
+					</d2l-tabs>
+				</template>
+				<template is="dom-if" if="[[!updatedSortLogic]]">
+					<d2l-all-courses-segregated-content
+						show-course-code="[[showCourseCode]]"
+						show-semester="[[showSemester]]"
+						course-updates-config="[[courseUpdatesConfig]]"
+						updated-sort-logic="[[updatedSortLogic]]"
+						total-filter-count="[[_totalFilterCount]]"
+						filter-counts="[[_filterCounts]]"
+						is-searched="[[_isSearched]]"
+						filtered-pinned-enrollments="[[_filteredPinnedEnrollments]]"
+						filtered-unpinned-enrollments="[[_filteredUnpinnedEnrollments]]">
+					</d2l-all-courses-segregated-content>
+				</template>
 				<d2l-loading-spinner
 					id="lazyLoadSpinner"
 					hidden$="[[!_hasMoreEnrollments]]"
@@ -178,9 +190,12 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					value: function() { return {}; },
 					observer: '_myEnrollmentsEntityChanged'
 				},
-				searchUrl: String,
 				showCourseCode: Boolean,
 				showSemester: Boolean,
+				// Siren Actions corresponding to each tab that is displayed
+				tabSearchActions: Array,
+				// Type of tabs being displayed (BySemester, ByDepartment, ByRoleAlias)
+				tabSearchType: String,
 				// Feature flag (switch) for using the updated sort logic and related fetaures
 				updatedSortLogic: {
 					type: Boolean,
@@ -216,7 +231,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				// True when there are more enrollments to fetch (i.e. current page of enrollments has a `next` link)
 				_hasMoreEnrollments: {
 					type: Boolean,
-					computed: '_computeHasMoreEnrollments(lastEnrollmentsSearchResponse)'
+					computed: '_computeHasMoreEnrollments(lastEnrollmentsSearchResponse, _showTabContent)'
 				},
 				// Object containing the IDs of previously loaded pinned enrollments, to avoid duplicates
 				_pinnedCoursesMap: {
@@ -241,6 +256,10 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					computed: '_computeShowAdvancedSearchLink(advancedSearchUrl)'
 				},
 				_showContent: {
+					type: Boolean,
+					value: false
+				},
+				_showTabContent: {
 					type: Boolean,
 					value: false
 				},
@@ -274,7 +293,8 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
-				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening'
+				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening',
+				'd2l-tab-panel-selected': '_onTabSelected'
 			},
 			observers: [
 				'_enrollmentsChanged(_filteredPinnedEnrollments.length, _filteredUnpinnedEnrollments.length)'
@@ -316,23 +336,13 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 						this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 					}, this);
 				}
-
-				var url;
-				// We never want to autopin results in the overlay
-				url = this.searchUrl.replace('autoPinCourses=true', 'autoPinCourses=false');
-				// Busts d2l-fetch cache, since enrollments may have been pinned/unpinned
-				// since last time this URL was fetched
-				url += '&bustCache=' + Math.random();
-				this._searchUrl = url;
-
-				requestAnimationFrame(function() {
-					this.fire('recalculate-columns');
-				}.bind(this));
 			},
 			open: function() {
 				// Initially hide the content, until we have some data to show
-				// (set back to true in _onSearchResultsChanged)
-				this._showContent = false;
+				// (set back to true in _onSearchResultsChanged). The exception
+				// to this is when the overlay is closed then reopened - we want
+				// to immediately show the already-loaded content.
+				this._showContent = !!this._searchUrl;
 
 				this.$$('#all-courses').open();
 				this.load();
@@ -435,6 +445,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					promotePins: promotePins
 				}) + '&bustCache=' + Math.random();
 
+				this._sortParameter = sortParameter;
 				this.$.sortText.textContent = this.localize(langterm || '');
 				this.$.sortDropdown.toggleOpen();
 			},
@@ -449,10 +460,14 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this._updateFilteredEnrollments(e.detail, false);
 				this.myEnrollmentsEntity = e.detail;
 				this.fire('recalculate-columns');
-				this._showContent = true;
 
-				// Forces recalculation of columns in d2l-all-courses-content-unified
-				window.dispatchEvent(new Event('resize'));
+				this._showContent = true;
+				this._showTabContent = true;
+
+				setTimeout(function() {
+					// Triggers the course tiles to resize after switching tab
+					window.dispatchEvent(new Event('resize'));
+				}, 10);
 			},
 			_onSimpleOverlayOpening: function() {
 				this._removeAlert('setCourseImageFailure');
@@ -460,6 +475,22 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this.$.filterMenu.clearFilters();
 				this._filterText = this.localize('filtering.filter');
 				this._resetSortDropdown();
+			},
+			_onTabSelected: function(e) {
+				var actionName = e.target.id.replace('all-courses-tab-', '');
+				var tabAction = this.tabSearchActions.find(function(action) {
+					return action.name === actionName;
+				});
+				if (!tabAction) {
+					return;
+				}
+
+				this._showTabContent = false;
+				this._searchUrl = this.createActionUrl(tabAction.enrollmentsSearchAction, {
+					autoPinCourses: false,
+					embedDepth: 1,
+					sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
+				});
 			},
 
 			/*
@@ -525,6 +556,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					if (sort) {
 						this.$.sortText.textContent = this.localize(sort.langterm || '');
 						this._selectSortOption(sort.name);
+						this._sortParameter = sortParameter;
 					} else {
 						var langterm = this.updatedSortLogic ? 'sorting.sortDefault' : 'sorting.sortCourseName';
 						this.$.sortText.textContent = this.localize(langterm);
@@ -549,7 +581,11 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this.$['search-widget'].clear();
 				this._clearFilteredCourses();
 			},
-			_computeHasMoreEnrollments: function(lastResponse) {
+			_computeHasMoreEnrollments: function(lastResponse, showTabContent) {
+				if (!showTabContent) {
+					return false;
+				}
+
 				lastResponse = this.parseEntity(lastResponse);
 				return lastResponse.hasLinkByRel('next');
 			},
