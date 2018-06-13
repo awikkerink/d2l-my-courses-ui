@@ -346,14 +346,24 @@
 					.then(function() {
 						window.dispatchEvent(new Event('resize'));
 					});
-			}
-			else {
+			} else {
 				setTimeout(function() {
 					// Force redraw of course tiles.
 					window.dispatchEvent(new Event('resize'));
 				}, 10);
 			}
 			this._setLastSearchName(this.enrollmentsSearchAction.name);
+
+			// Whenever the selected tab changes, update tabSearchActions so
+			// All Courses will have the same tab selected when it opens
+			this.tabSearchActions = this.tabSearchActions.map(function(action) {
+				return {
+					name: action.name,
+					title: action.title,
+					selected: action.name === this.enrollmentsSearchAction.name,
+					enrollmentsSearchAction: action.enrollmentsSearchAction
+				};
+			}.bind(this));
 		},
 		_checkIfStartedInactiveCourses: function(e) {
 			var type = e && e.detail && e.detail.type;
