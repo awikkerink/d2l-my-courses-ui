@@ -22,13 +22,13 @@ describe('d2l-all-courses-unified-content', function() {
 		it('should render the contents on a d2l-tab-panel-selected event', function(done) {
 			widget = fixture('event-test-fixture').querySelector('d2l-all-courses-unified-content');
 			expect(widget.$$('div.course-tile-grid')).to.be.null;
-			expect(widget._renderContents).to.be.false;
+			expect(widget.renderContents).to.be.false;
 
 			widget._onTabSelected({
 				target: { id: 'foo' }
 			});
 
-			expect(widget._renderContents).to.be.true;
+			expect(widget.renderContents).to.be.true;
 			setTimeout(function() {
 				expect(widget.$$('div.course-tile-grid')).to.not.be.null;
 				done();

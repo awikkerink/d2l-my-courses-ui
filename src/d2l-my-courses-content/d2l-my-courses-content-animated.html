@@ -157,8 +157,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is OFF
 			},
 			observers: [
 				// Override for MyCoursesContentBehavior observer
-				'_enrollmentsChanged(_pinnedEnrollments.length, _allEnrollments.length)',
-				'_enrollmentSearchActionChanged(enrollmentsSearchAction)',
+				'_enrollmentsChanged(_pinnedEnrollments.length, _allEnrollments.length)'
 			],
 
 			/*
@@ -264,9 +263,6 @@ This is only used if the `US90527-my-courses-updates` LD flag is OFF
 				} else {
 					this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
 				}
-			},
-			_enrollmentSearchActionChanged: function() {
-				this._fetchRoot();
 			},
 
 			/*

@@ -35,7 +35,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			[[localize('noCoursesInRole')]]
 		</span>
 
-		<template is="dom-if" if="[[_renderContents]]">
+		<template is="dom-if" if="[[renderContents]]">
 			<div class="course-tile-grid">
 				<template is="dom-repeat" items="[[filteredEnrollments]]">
 					<div>
@@ -63,6 +63,10 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				filterCounts: Object,
 				isSearched: Boolean,
 				filteredEnrollments: Array,
+				renderContents: {
+					type: Boolean,
+					value: false
+				},
 
 				_animate: {
 					type: Boolean,
@@ -73,10 +77,6 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				_noCoursesInDepartment: Boolean,
 				_noCoursesInSemester: Boolean,
 				_noCoursesInRole: Boolean,
-				_renderContents: {
-					type: Boolean,
-					value: false
-				},
 				_tileSizes: Object,
 				_itemCount: {
 					type: Number,
@@ -142,7 +142,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 					// for a large number of tabs right away, the page lags.
 					// Instead, only render a tab when it's selected for the
 					// first time.
-					this._renderContents = true;
+					this.renderContents = true;
 				}
 			}
 		});

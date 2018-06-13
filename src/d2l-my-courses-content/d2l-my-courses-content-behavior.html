@@ -26,6 +26,10 @@
 			tabSearchActions: Array,
 			tabSearchType: String,
 			userSettingsUrl: String,
+			useSavedSearches: {
+				type: Boolean,
+				value: false
+			},
 
 			// Alerts to display in widget, above course tiles
 			_alerts: {
@@ -116,6 +120,7 @@
 		},
 		observers: [
 			'_enrollmentsChanged(_enrollments)',
+			'_enrollmentSearchActionChanged(enrollmentsSearchAction)',
 		],
 
 		/*
@@ -166,6 +171,12 @@
 			this._clearAlerts();
 			if (!this._hasEnrollments) {
 				this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
+			}
+		},
+		_enrollmentSearchActionChanged: function() {
+			if (!this.useSavedSearches) {
+				// If we're using saved searches, we fetch when the tab is selected
+				this._fetchRoot();
 			}
 		},
 
@@ -481,8 +492,10 @@
 
 			var allCourses = this.$$('d2l-all-courses');
 
+			allCourses.enrollmentsSearchAction = this.enrollmentsSearchAction;
 			allCourses.tabSearchActions = this.tabSearchActions;
 			allCourses.tabSearchType = this.tabSearchType;
+			allCourses.useSavedSearches = this.useSavedSearches;
 			allCourses.locale = this.locale;
 			allCourses.showCourseCode = this.showCourseCode;
 			allCourses.showSemester = this.showSemester;
