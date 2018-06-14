@@ -113,28 +113,43 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				</template>
 
 				<template is="dom-if" if="[[updatedSortLogic]]">
-					<d2l-tabs>
-						<template items="[[tabSearchActions]]" is="dom-repeat">
-							<d2l-tab-panel id="all-courses-tab-[[item.name]]" text="[[item.title]]" selected=[[item.selected]]>
-								<div hidden$="[[!_showTabContent]]">
-									<d2l-all-courses-unified-content
-										show-course-code="[[showCourseCode]]"
-										show-semester="[[showSemester]]"
-										course-updates-config="[[courseUpdatesConfig]]"
-										updated-sort-logic="[[updatedSortLogic]]"
-										total-filter-count="[[_totalFilterCount]]"
-										filter-counts="[[_filterCounts]]"
-										is-searched="[[_isSearched]]"
-										filtered-enrollments="[[_filteredEnrollments]]">
-									</d2l-all-courses-unified-content>
-								</div>
-								<d2l-loading-spinner
-									hidden$="[[_showTabContent]]"
-									size="100">
-								</d2l-loading-spinner>
-							</d2l-tab-panel>
-						</template>
-					</d2l-tabs>
+					<template is="dom-if" if="[[useSavedSearches]]">
+						<d2l-tabs>
+							<template items="[[tabSearchActions]]" is="dom-repeat">
+								<d2l-tab-panel id="all-courses-tab-[[item.name]]" text="[[item.title]]" selected=[[item.selected]]>
+									<div hidden$="[[!_showTabContent]]">
+										<d2l-all-courses-unified-content
+											show-course-code="[[showCourseCode]]"
+											show-semester="[[showSemester]]"
+											course-updates-config="[[courseUpdatesConfig]]"
+											updated-sort-logic="[[updatedSortLogic]]"
+											total-filter-count="[[_totalFilterCount]]"
+											filter-counts="[[_filterCounts]]"
+											is-searched="[[_isSearched]]"
+											filtered-enrollments="[[_filteredEnrollments]]">
+										</d2l-all-courses-unified-content>
+									</div>
+									<d2l-loading-spinner
+										hidden$="[[_showTabContent]]"
+										size="100">
+									</d2l-loading-spinner>
+								</d2l-tab-panel>
+							</template>
+						</d2l-tabs>
+					</template>
+					<template is="dom-if" if="[[!useSavedSearches]]">
+						<d2l-all-courses-unified-content
+							show-course-code="[[showCourseCode]]"
+							show-semester="[[showSemester]]"
+							course-updates-config="[[courseUpdatesConfig]]"
+							updated-sort-logic="[[updatedSortLogic]]"
+							total-filter-count="[[_totalFilterCount]]"
+							filter-counts="[[_filterCounts]]"
+							is-searched="[[_isSearched]]"
+							filtered-enrollments="[[_filteredEnrollments]]"
+							render-contents="true">
+						</d2l-all-courses-unified-content>
+					</template>
 				</template>
 				<template is="dom-if" if="[[!updatedSortLogic]]">
 					<d2l-all-courses-segregated-content
@@ -201,6 +216,10 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					type: Boolean,
 					value: false,
 					observer: '_updatedSortLogicChanged'
+				},
+				useSavedSearches: {
+					type: Boolean,
+					value: false
 				},
 
 				/*
@@ -335,6 +354,15 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					this._filteredUnpinnedEnrollments.forEach(function(enrollment) {
 						this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 					}, this);
+				}
+
+				if (!this.useSavedSearches) {
+					this._showTabContent = true;
+					this._searchUrl = this.createActionUrl(this.enrollmentsSearchAction, {
+						autoPinCourses: false,
+						embedDepth: 1,
+						sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
+					});
 				}
 			},
 			open: function() {

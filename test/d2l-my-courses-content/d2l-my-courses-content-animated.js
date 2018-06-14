@@ -623,6 +623,13 @@ describe('d2l-my-courses-content-animated', function() {
 	});
 
 	describe('User interaction', function() {
+		beforeEach(function() {
+			widget.fetchSirenEntity.withArgs(sinon.match('/enrollments/users/169?search=')).returns(Promise.resolve(
+				window.D2L.Hypermedia.Siren.Parse(noEnrollmentsResponse)
+			));
+			widget.enrollmentsSearchAction = enrollmentsSearchEntity.actions[0];
+		});
+
 		it('should rescale the all courses view when it is opened', function() {
 			clock = sinon.useFakeTimers();
 			widget._enrollmentsSearchUrl = '';
