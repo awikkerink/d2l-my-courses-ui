@@ -125,8 +125,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 											updated-sort-logic="[[updatedSortLogic]]"
 											total-filter-count="[[_totalFilterCount]]"
 											filter-counts="[[_filterCounts]]"
-											is-searched="[[_isSearched]]"
-											filtered-enrollments="[[_filteredEnrollments]]">
+											is-searched="[[_isSearched]]">
 										</d2l-all-courses-unified-content>
 									</div>
 									<d2l-loading-spinner
@@ -146,7 +145,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 							total-filter-count="[[_totalFilterCount]]"
 							filter-counts="[[_filterCounts]]"
 							is-searched="[[_isSearched]]"
-							filtered-enrollments="[[_filteredEnrollments]]"
 							render-contents="true">
 						</d2l-all-courses-unified-content>
 					</template>
@@ -239,10 +237,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					value: function() { return []; }
 				},
 				_filteredUnpinnedEnrollments: {
-					type: Array,
-					value: function() { return []; }
-				},
-				_filteredEnrollments: {
 					type: Array,
 					value: function() { return []; }
 				},
@@ -495,6 +489,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this._resetSortDropdown();
 			},
 			_onTabSelected: function(e) {
+				this._selectedTabId = e.target.id;
 				var actionName = e.target.id.replace('all-courses-tab-', '');
 				var tabAction = this.tabSearchActions.find(function(action) {
 					return action.name === actionName;
@@ -637,10 +632,13 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);
 
 				if (this.updatedSortLogic) {
+					var unifiedContent = this.useSavedSearches
+						? this.$$('#' + this._selectedTabId + ' d2l-all-courses-unified-content')
+						: this.$$('d2l-all-courses-unified-content');
 					if (append) {
-						this._filteredEnrollments = this._filteredEnrollments.concat(enrollmentEntities);
+						unifiedContent.filteredEnrollments = unifiedContent.filteredEnrollments.concat(enrollmentEntities);
 					} else {
-						this._filteredEnrollments = enrollmentEntities;
+						unifiedContent.filteredEnrollments = enrollmentEntities;
 					}
 				} else {
 					var newPinnedEnrollments = [];
