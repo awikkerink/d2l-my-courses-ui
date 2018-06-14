@@ -275,6 +275,52 @@ describe('d2l-my-courses-content', () => {
 
 	describe('Events', () => {
 
+		describe('d2l-tab-panel-selected', () => {
+			beforeEach(() => {
+				var parentComponent = fixture('tab-event-fixture');
+				component = parentComponent.querySelector('d2l-my-courses-content');
+				component.enrollmentsSearchAction = searchAction;
+				component._hasEnrollments = true;
+				component.tabSearchActions = [];
+			});
+
+			[true, false].forEach(hasEnrollments => {
+				it('should ' + (hasEnrollments ? '' : 'not ') + 'fetch enrollments', () => {
+					component._hasEnrollments = hasEnrollments;
+
+					var stub = sandbox.stub(component, '_fetchRoot').returns(Promise.resolve());
+
+					component._onTabSelected({
+						target: { id: 'foo' }
+					});
+
+					expect(stub.called).to.equal(!hasEnrollments);
+				});
+			});
+
+			it('should update the tabSearchActions to select the currently-active tab', () => {
+				component.tabSearchActions = [{
+					name: searchAction.name,
+					title: '',
+					selected: false,
+					enrollmentsSearchAction: searchAction
+				}, {
+					name: 'foo',
+					title: '',
+					selected: true,
+					enrollmentsSearchAction: searchAction
+				}];
+
+				component._onTabSelected({
+					target: { id: 'foo' }
+				});
+
+				component.tabSearchActions.forEach(function(action) {
+					expect(action.selected).to.equal(action.name !== 'foo');
+				});
+			});
+		});
+
 		describe('open-change-image-view', () => {
 			var event;
 
