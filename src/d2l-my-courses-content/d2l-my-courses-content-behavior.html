@@ -175,7 +175,8 @@
 		},
 		_enrollmentSearchActionChanged: function() {
 			if (!this.useSavedSearches) {
-				// If we're using saved searches, we fetch when the tab is selected
+				// We only need to manually fetch if we're not using tabs;
+				// otherwise, the fetch is initiated when a tab is selected.
 				this._fetchRoot();
 			}
 		},
