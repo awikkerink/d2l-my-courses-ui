@@ -263,11 +263,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					type: Object,
 					value: function() { return {}; }
 				},
-				// Object containing the IDs of previously loaded enrollments, to avoid duplicates
-				_coursesMap: {
-					type: Object,
-					value: function() { return {}; }
-				},
 				// URL passed to search widget, called for searching
 				_searchUrl: String,
 				_showAdvancedSearchLink: {
@@ -344,11 +339,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 			load: function() {
 				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
 				this.$['all-courses-scroll-threshold'].clearTriggers();
-				if (this.updatedSortLogic) {
-					this._filteredEnrollments.forEach(function(enrollment) {
-						this._coursesMap[this.getEntityIdentifier(enrollment)] = true;
-					}, this);
-				} else {
+				if (!this.updatedSortLogic) {
 					this._filteredPinnedEnrollments.forEach(function(enrollment) {
 						this._pinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
 					}, this);
@@ -480,9 +471,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 			},
 			_onSearchResultsChanged: function(e) {
 				this._isSearched = this.$['search-widget']._showClearIcon;
-				if (this.updatedSortLogic) {
-					this._coursesMap = {};
-				} else {
+				if (!this.updatedSortLogic) {
 					this._pinnedCoursesMap = {};
 					this._unpinnedCoursesMap = {};
 				}
@@ -608,9 +597,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 			*/
 
 			_clearFilteredCourses: function() {
-				if (this.updatedSortLogic) {
-					this._coursesMap = {};
-				} else {
+				if (!this.updatedSortLogic) {
 					this._pinnedCoursesMap = {};
 					this._unpinnedCoursesMap = {};
 				}
@@ -650,10 +637,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);
 
 				if (this.updatedSortLogic) {
-					enrollmentEntities.forEach(function(enrollment) {
-						var enrollmentId = this.getEntityIdentifier(enrollment);
-						this._coursesMap[enrollmentId] = true;
-					}, this);
 					if (append) {
 						this._filteredEnrollments = this._filteredEnrollments.concat(enrollmentEntities);
 					} else {
