@@ -57,12 +57,12 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 			:host:focus .course-text {
 				text-decoration: underline;
 			}
-			:host:hover a[aria-disabled],
-			:host:focus a[aria-disabled] {
-				cursor: default;
+			:host:hover d2l-image-tile[disabled],
+			:host:focus d2l-image-tile[disabled] {
+				cursor: not-allowed;
 			}
-			:host:hover a[aria-disabled] .course-text,
-			:host:focus a[aria-disabled] .course-text {
+			:host:hover d2l-image-tile[disabled] .course-text,
+			:host:focus d2l-image-tile[disabled] .course-text {
 				text-decoration: none;
 			}
 
@@ -224,15 +224,14 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 
 		<d2l-image-tile
 			href="[[_organizationHomepageUrl]]"
-			aria-disabled$="[[!_canAccessCourse]]"
 			hover-effect="[[_hoverEffects]]"
 			dropdown-label="[[_courseSettingsLabel]]"
 			no-mobile-more-button>
 			<div
 				class="image-container"
-				slot="d2l-image-tile-image">
+				slot="d2l-image-tile-image"
+				aria-hidden="true">
 				<d2l-course-image
-					aria-hidden="true"
 					class="image-layer-bottom"
 					image="[[_image]]"
 					sizes="[[tileSizes]]"
@@ -342,10 +341,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 					value: function() { return {}; }
 				},
 
-				_canAccessCourse: {
-					type: Boolean,
-					value: false
-				},
 				_canAccessCourseInfo: {
 					type: Boolean,
 					computed: '_computeCanAccessCourseInfo(_organization)'
@@ -688,7 +683,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				} else {
 					// If the user doesn't have access, don't animate image/show menu/underline on hover
 					this._hoverEffects = '';
-					this._canAccessCourse = false;
 					this.$$('d2l-image-tile').setAttribute('disabled', '');
 					this._organizationHomepageUrl = null;
 				}
