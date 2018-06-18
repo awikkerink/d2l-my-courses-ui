@@ -271,7 +271,6 @@ describe('d2l-all-courses', function() {
 	describe('Tabbed view', function() {
 		beforeEach(function() {
 			widget.updatedSortLogic = true;
-			widget.userSettingsUrl = '/example/user-settings';
 			widget.tabSearchActions = [{
 				name: '12345',
 				title: 'Search Foo Action',
@@ -314,18 +313,6 @@ describe('d2l-all-courses', function() {
 			});
 
 			expect(widget._searchUrl).to.equal('/example/foo?autoPinCourses=false&embedDepth=1&sort=SortOrder');
-		});
-
-		it('should save the user\'s preferred search when a tab is clicked', function() {
-			var spy = sandbox.spy(window.d2lfetch, 'fetch');
-
-			widget._onTabSelected({
-				target: { id: 'all-courses-tab-12345' },
-				stopPropagation: function() {}
-			});
-
-			expect(spy).to.have.been.calledWith(sinon.match.has('url', sinon.match(/\/example\/user-settings$/)));
-			expect(spy).to.have.been.calledWith(sinon.match.has('method', 'PUT'));
 		});
 	});
 

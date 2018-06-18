@@ -13,15 +13,15 @@
 <link rel="import" href="../../d2l-simple-overlay/d2l-simple-overlay.html">
 <link rel="import" href="../../d2l-tabs/d2l-tabs.html">
 <link rel="import" href="d2l-alert-behavior.html">
-<link rel="import" href="d2l-all-courses-segregated-content.html">
 <link rel="import" href="d2l-all-courses-styles.html">
-<link rel="import" href="d2l-all-courses-unified-content.html">
 <link rel="import" href="d2l-course-management-behavior.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="d2l-filter-menu/d2l-filter-menu.html">
 <link rel="import" href="d2l-search-widget-custom.html">
 <link rel="import" href="d2l-utility-behavior.html">
 <link rel="import" href="localize-behavior.html">
+<link rel="import" href="d2l-all-courses-segregated-content.html">
+<link rel="import" href="d2l-all-courses-unified-content.html">
 
 <!--
 `d2l-all-courses`
@@ -219,7 +219,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					type: Boolean,
 					value: false
 				},
-				userSettingsUrl: String,
 
 				/*
 				* Private Polymer properties
@@ -504,15 +503,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					embedDepth: 1,
 					sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
 				});
-
-				var formData = new FormData();
-				formData.append('mostRecentEnrollmentsSearchType', '0');
-				formData.append('mostRecentEnrollmentsSearchName', tabAction.enrollmentsSearchAction.name);
-				return window.d2lfetch
-					.fetch(new Request(this.userSettingsUrl, {
-						method: 'PUT',
-						body: formData
-					}));
 			},
 
 			/*
