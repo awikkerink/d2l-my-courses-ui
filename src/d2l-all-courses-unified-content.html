@@ -35,21 +35,19 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			[[localize('noCoursesInRole')]]
 		</span>
 
-		<template is="dom-if" if="[[renderContents]]">
-			<div class="course-tile-grid">
-				<template is="dom-repeat" items="[[filteredEnrollments]]">
-					<div>
-						<d2l-course-image-tile
-							enrollment="[[item]]"
-							tile-sizes="[[_tileSizes]]"
-							show-course-code="[[showCourseCode]]"
-							show-semester="[[showSemester]]"
-							course-updates-config="[[courseUpdatesConfig]]">
-						</d2l-course-image-tile>
-					</div>
-				</template>
-			</div>
-		</template>
+		<div class="course-tile-grid">
+			<template is="dom-repeat" items="[[filteredEnrollments]]">
+				<div>
+					<d2l-course-image-tile
+						enrollment="[[item]]"
+						tile-sizes="[[_tileSizes]]"
+						show-course-code="[[showCourseCode]]"
+						show-semester="[[showSemester]]"
+						course-updates-config="[[courseUpdatesConfig]]">
+					</d2l-course-image-tile>
+				</div>
+			</template>
+		</div>
 	</template>
 	<script>
 		Polymer({
@@ -63,15 +61,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				filterCounts: Object,
 				isSearched: Boolean,
 				filteredEnrollments: Array,
-				renderContents: {
-					type: Boolean,
-					value: false
-				},
 
-				_animate: {
-					type: Boolean,
-					value: false
-				},
 				_noCoursesInSearch: Boolean,
 				_noCoursesInSelection: Boolean,
 				_noCoursesInDepartment: Boolean,
@@ -92,13 +82,9 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			],
 
 			attached: function() {
-				document.body.addEventListener('d2l-tab-panel-selected', this._onTabSelected.bind(this));
 				Polymer.RenderStatus.afterNextRender(this, function() {
 					this._onResize();
 				});
-			},
-			detached: function() {
-				document.body.removeEventListener('d2l-tab-panel-selected', this._onTabSelected.bind(this));
 			},
 
 			getCourseTileItemCount: function() {
@@ -129,20 +115,6 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 					if (!this.isSearched && this.totalFilterCount === 0) {
 						this._itemCount = enrollmentLength;
 					}
-				}
-			},
-			_onTabSelected: function(e) {
-				// Component is within a `div` inside the `d2l-tab-panel`, so we
-				// need the parent's parent's ID.
-				var tabPanelId = this.parentElement
-					&& this.parentElement.parentElement
-					&& this.parentElement.parentElement.id;
-				if (e.target.id === tabPanelId) {
-					// If we try to render the `d2l-all-courses-unified-content`
-					// for a large number of tabs right away, the page lags.
-					// Instead, only render a tab when it's selected for the
-					// first time.
-					this.renderContents = true;
 				}
 			}
 		});
