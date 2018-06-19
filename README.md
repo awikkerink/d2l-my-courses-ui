@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Brightspace/d2l-my-courses-ui.svg?branch=master)](https://travis-ci.org/Brightspace/d2l-my-courses-ui)
+[![Build Status](https://travis-ci.com/Brightspace/d2l-my-courses-ui.svg?branch=master)](https://travis-ci.com/Brightspace/d2l-my-courses-ui)
 
 # d2l-my-courses-ui
 
