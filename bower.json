@@ -45,7 +45,7 @@
     "d2l-search-widget": "git://github.com/Brightspace/d2l-search-widget-ui.git#^3.0.2",
     "d2l-simple-overlay": "git://github.com/Brightspace/simple-overlay#^2.0.0",
     "d2l-tabs": "^0.2.2",
-    "d2l-tile": "^3.0.8",
+    "d2l-tile": "^3.0.9",
     "d2l-typography": "^6.1.2",
     "d2l-organization-hm-behavior": "git://github.com/Brightspace/organization-hm-behavior.git#^2.0.1",
     "iron-a11y-announcer": "^2.0.0",
