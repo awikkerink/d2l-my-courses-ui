@@ -528,10 +528,10 @@
 			var newEnrollments = [];
 
 			var searchAction = enrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
-			if ( searchAction
+			if (searchAction
 				&& searchAction.hasFieldByName('sort')
 				&& searchAction.getFieldByName('sort').value.toLowerCase() === 'current'
-				&& !( searchAction.hasFieldByName('parentOrganizations')
+				&& !(searchAction.hasFieldByName('parentOrganizations')
 					&& searchAction.getFieldByName('parentOrganizations').value
 					&& this.tabSearchType
 					&& this.tabSearchType.toLowerCase() === 'bysemester'
