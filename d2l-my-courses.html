@@ -34,7 +34,7 @@ If it is off and the attribute is not added, the `d2l-my-courses-content-animate
 		</template>
 		<template is="dom-if" if="[[updatedSortLogic]]">
 			<template is="dom-if" if="[[useSavedSearches]]">
-				<d2l-tabs>
+				<d2l-tabs max-to-show="5">
 					<template items="[[_tabSearchActions]]" is="dom-repeat">
 						<!-- item.name is an OrgUnitId, and querySelector does not work with components with ids that start with a number -->
 						<d2l-tab-panel id="panel-[[item.name]]" text="[[item.title]]" selected=[[item.selected]]>
