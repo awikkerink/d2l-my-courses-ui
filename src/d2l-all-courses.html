@@ -504,12 +504,19 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				}
 
 				this._showTabContent = false;
-				this._searchUrl = this.createActionUrl(tabAction.enrollmentsSearchAction, {
+				var params = {
 					search: search,
 					autoPinCourses: false,
 					embedDepth: 1,
 					sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
-				});
+				};
+				if ((this._filterCounts.departments > 0 || this._filterCounts.semesters > 0) && this._enrollmentsSearchAction && this._enrollmentsSearchAction.getFieldByName('parentOrganizations')) {
+					params.parentOrganizations =  this._enrollmentsSearchAction.getFieldByName('parentOrganizations').value;
+				}
+				if (this._filterCounts.roles > 0 && this._enrollmentsSearchAction && this._enrollmentsSearchAction.getFieldByName('roles')) {
+					params.roles =  this._enrollmentsSearchAction.getFieldByName('roles').value;
+				}
+				this._searchUrl = this.createActionUrl(tabAction.enrollmentsSearchAction, params);
 			},
 
 			/*
