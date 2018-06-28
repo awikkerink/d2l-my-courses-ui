@@ -301,8 +301,6 @@
 			var url = enrollment.getLinkByRel('self').href;
 			url += (url.indexOf('?') === -1 ? '?' : '&') + 'bustCache=' + Math.random();
 
-			var isPinned = lastPinnedIndex === 1 ? e.detail.isPinned : true;
-
 			return this.fetchSirenEntity(url)
 				.then(function(updatedEnrollment) {
 					var orgUnitId = this._getOrgUnitIdFromHref(this.getEntityIdentifier(updatedEnrollment));
