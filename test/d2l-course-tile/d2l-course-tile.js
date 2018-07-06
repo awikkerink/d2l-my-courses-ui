@@ -602,9 +602,8 @@ describe('<d2l-course-tile>', function() {
 			widget = fixture('d2l-course-tile-fixture');
 		});
 
-		it('should show the pin indicator button when a course is pinned and feature flag is on', function() {
+		it('should show the pin indicator button when a course is pinned', function() {
 			widget.pinned = true;
-			widget.updatedSortLogic = true;
 			Polymer.dom.flush();
 
 			expect(widget.pinned).to.be.true;
@@ -614,7 +613,6 @@ describe('<d2l-course-tile>', function() {
 
 		it('should not show the pin indicator button when a course is not pinned', function() {
 			widget.pinned = false;
-			widget.updatedSortLogic = true;
 			Polymer.dom.flush();
 
 			expect(widget.pinned).to.be.false;
@@ -622,21 +620,10 @@ describe('<d2l-course-tile>', function() {
 			expect(window.getComputedStyle(pinIndicatorButton).visibility).to.equal('hidden');
 		});
 
-		it('should not show the pin indicator button when a course is pinned but the feature flag is off', function() {
-			widget.pinned = true;
-			widget.updatedSortLogic = false;
-			Polymer.dom.flush();
-
-			expect(widget.pinned).to.be.true;
-			var pinIndicatorButton = widget.$$('#pin-indicator-button');
-			expect(window.getComputedStyle(pinIndicatorButton).display).to.equal('none');
-		});
-
 		it('should unpin the course when pressed', function() {
 			widget = fixture('d2l-course-tile-fixture');
 			widget._pinClickHandler = sinon.stub();
 			widget.pinned = true;
-			widget.updatedSortLogic = true;
 			Polymer.dom.flush();
 
 			var pinIndicatorButton = widget.$$('#pin-indicator-button');
