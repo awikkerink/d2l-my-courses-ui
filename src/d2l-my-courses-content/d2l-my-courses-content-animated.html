@@ -72,8 +72,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is OFF
 				locale="[[locale]]"
 				show-course-code="[[showCourseCode]]"
 				show-semester="[[showSemester]]"
-				course-updates-config="[[courseUpdatesConfig]]"
-				updated-sort-logic="[[updatedSortLogic]]">
+				course-updates-config="[[courseUpdatesConfig]]">
 			</d2l-course-tile-grid>
 			<d2l-link
 				id="viewAllCourses"
@@ -352,18 +351,8 @@ This is only used if the `US90527-my-courses-updates` LD flag is OFF
 				}
 			},
 			// Override for MyCoursesContentBehavior._getViewAllCoursesText
-			_getViewAllCoursesText: function(hasMoreEnrollments, allEnrollments) {
-				var viewAllCourses = this.localize('viewAllCourses');
-				if (!this.updatedSortLogic) return viewAllCourses;
-
-				// With individual fetching of courses as they get pinned, we can end
-				// up with "21+", "22+", etc., so round down to nearest 5 for >20 courses
-				var count = allEnrollments.length < 20
-					? allEnrollments.length
-					: String(allEnrollments.length - (allEnrollments.length % 5));
-				if (hasMoreEnrollments) count += '+';
-
-				return allEnrollments.length > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
+			_getViewAllCoursesText: function() {
+				return this.localize('viewAllCourses');
 			}
 		});
 	</script>

@@ -405,38 +405,6 @@ describe('d2l-my-courses-content-animated', function() {
 			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
-		it.skip('should show the number of enrollments when there are no new pages of enrollments with the View All Courses link', function() {
-			widget.updatedSortLogic = true;
-			widget._pinnedEnrollments = new Array(6);
-			widget._allEnrollments = new Array(9);
-			widget._hasMoreEnrollments = false;
-			expect(widget._viewAllCoursesText).to.equal('View All Courses (9)');
-		});
-
-		it.skip('should show 50+ with the View All Courses link when there are more than 50 courses', function() {
-			widget.updatedSortLogic = true;
-			widget._pinnedEnrollments = new Array(4);
-			widget._allEnrollments = new Array(50);
-			widget._hasMoreEnrollments = true;
-			expect(widget._viewAllCoursesText).to.equal('View All Courses (50+)');
-		});
-
-		it('should not show the count in the View All Courses link when the updated sortfeature flag is off', function() {
-			widget.updatedSortLogic = false;
-			widget._pinnedEnrollments = new Array(4);
-			widget._allEnrollments = new Array(50);
-			widget._hasMoreEnrollments = true;
-			expect(widget._viewAllCoursesText).to.equal('View All Courses');
-		});
-
-		it.skip('should round the number of courses in the View All Courses link when there are many courses', () => {
-			widget.updatedSortLogic = true;
-			widget._pinnedEnrollments = new Array(4);
-			widget._allEnrollments = new Array(23);
-			widget._hasMoreEnrollments = true;
-			expect(widget._viewAllCoursesText).to.equal('View All Courses (20+)');
-		});
-
 		describe('course image upload', function() {
 			var openChangeImageViewEvent = new CustomEvent(
 				'open-change-image-view', {
@@ -633,7 +601,6 @@ describe('d2l-my-courses-content-animated', function() {
 		it('should rescale the all courses view when it is opened', function() {
 			clock = sinon.useFakeTimers();
 			widget._enrollmentsSearchUrl = '';
-			widget.updatedSortLogic = false;
 
 			widget.$$('#viewAllCourses').click();
 			Polymer.dom.flush();

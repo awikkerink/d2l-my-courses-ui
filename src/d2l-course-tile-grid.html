@@ -34,7 +34,6 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 					show-course-code="[[showCourseCode]]"
 					show-semester="[[showSemester]]"
 					course-updates-config="[[courseUpdatesConfig]]"
-					updated-sort-logic="[[updatedSortLogic]]"
 					animate="[[animate]]">
 				</d2l-course-tile>
 			</template>
@@ -83,9 +82,7 @@ This is used in `d2l-my-courses-content` (when the `us90524-my-courses-css-grid-
 				// Set to true if course code should be shown in course tiles
 				showCourseCode: Boolean,
 				// Set to true if semester should be shown in course tiles
-				showSemester: Boolean,
-				// Feature flag (switch) for using the updated sort logic and related fetaures
-				updatedSortLogic: Boolean
+				showSemester: Boolean
 			},
 			behaviors: [
 				D2L.MyCourses.CourseTileSlidingGridBehavior,

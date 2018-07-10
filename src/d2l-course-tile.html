@@ -202,12 +202,6 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: false
 				},
-				// Feature flag (switch) for using the updated sort logic and related fetaures
-				updatedSortLogic: {
-					type: Boolean,
-					value: false,
-					observer: '_updatedSortLogicChanged'
-				},
 				// Indicates whether the course has the info urls
 				hasCourseInfoUrl: {
 					type: Boolean,
@@ -678,9 +672,7 @@ the user has in that organization - student, teacher, TA, etc.
 					dateObj,
 					{'format': 'medium'}
 				);
-				var courseEndedTerm = this.updatedSortLogic
-					? (type === 'courseEnded') ? 'overlay.courseClosedOn' : 'overlay.courseOpeningOn'
-					: (type === 'courseEnded') ? 'overlay.courseEndedOn' : 'overlay.courseStartingOn';
+				var courseEndedTerm = (type === 'courseEnded') ? 'overlay.courseEndedOn' : 'overlay.courseStartingOn';
 				this._courseNotificationLabel = this.localize(
 					courseEndedTerm,
 					'dateTime',
@@ -688,9 +680,7 @@ the user has in that organization - student, teacher, TA, etc.
 				);
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
 				this.$$('#courseNotificationLabel').setAttribute('aria-hidden', 'false');
-				var courseNotificationTitleTerm = this.updatedSortLogic
-					? courseNotificationTitleTerm = (type === 'courseEnded') ? 'overlay.courseClosed' : 'overlay.courseOpens'
-					: courseNotificationTitleTerm = (type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting';
+				var courseNotificationTitleTerm = (type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting';
 				this._notificationTitle = this.localize(courseNotificationTitleTerm);
 
 				this._notificationInactive = (type === 'courseStarting' && inactive) ? this.localize('brackets', 'content', this.localize('overlay.inactive')) : null;
@@ -788,13 +778,6 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_computeHideSeparator: function(semesterName) {
 				return semesterName.length;
-			},
-			_updatedSortLogicChanged: function(updatedSortLogic) {
-				if (updatedSortLogic) {
-					this.setAttribute('updated-sort-logic', '');
-				} else {
-					this.removeAttribute('updated-sort-logic');
-				}
 			}
 		});
 	</script>
