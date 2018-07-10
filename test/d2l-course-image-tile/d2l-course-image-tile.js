@@ -88,6 +88,7 @@ describe('d2l-course-image-tile', () => {
 					href: '/organizations/1/image'
 				}, {
 					rel: ['alternate'],
+					class: ['tile'],
 					href: ''
 				}]
 			}, {
@@ -137,6 +138,7 @@ describe('d2l-course-image-tile', () => {
 					href: '/organizations/2/image'
 				}, {
 					rel: ['alternate'],
+					class: ['tile'],
 					href: ''
 				}]
 			}, {
