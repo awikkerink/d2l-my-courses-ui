@@ -143,7 +143,7 @@ describe('d2l-my-courses-content', () => {
 	it('should properly implement d2l-my-courses-behavior', () => {
 		expect(component.courseImageUploadCompleted).to.be.a('function');
 		expect(component.getLastOrgUnitId).to.be.a('function');
-		expect(component.updatedSortLogic).to.equal(false);
+		expect(component.updatedSortLogic).to.equal(true);
 		expect(component.cssGridView).to.equal(true);
 	});
 
@@ -922,7 +922,6 @@ describe('d2l-my-courses-content', () => {
 			}
 
 			beforeEach(() => {
-				component.updatedSortLogic = true;
 				component._hasEnrollments = true;
 			});
 
