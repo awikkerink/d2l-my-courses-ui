@@ -122,6 +122,13 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 	<script>
 		Polymer({
 			is: 'd2l-my-courses-content',
+			properties: {
+				// Override for MyCoursesBehavior.updatedSortLogic
+				updatedSortLogic: {
+					type: Boolean,
+					value: true
+				}
+			},
 			behaviors: [
 				D2L.PolymerBehaviors.MyCourses.LocalizeBehavior,
 				D2L.MyCourses.MyCoursesBehavior,
