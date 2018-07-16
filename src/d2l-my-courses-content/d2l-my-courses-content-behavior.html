@@ -356,7 +356,7 @@
 		},
 		_onTabSelected: function(e) {
 			// Only handle if tab selected corresponds to this panel
-			if (e.target.id !== this.parentElement.id) {
+			if (!this.parentElement || e.target.id !== this.parentElement.id) {
 				return;
 			}
 			if (!this._hasEnrollments) {
