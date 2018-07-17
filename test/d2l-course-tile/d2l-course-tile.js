@@ -448,7 +448,15 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	describe('_displaySetImageResult', function() {
-		var newImage = { getLinksByClass: sinon.stub().returns([]) },
+		var newImage = {
+				getLinksByClass: sinon.stub().returns([{
+					rel: ['alternate'],
+					class: ['tile'],
+					href: '',
+					type: 'image/jpeg',
+					hasClass: function() { return false; }
+				}])
+			},
 			clock,
 			success;
 
