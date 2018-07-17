@@ -27,7 +27,6 @@
     "wct.conf.json"
   ],
   "dependencies": {
-    "1.x-hybrid-components": "BrightspaceHypermediaComponents/1.x-hybrid-components#^0.0.2",
     "d2l-alert": "^3.1.0",
     "d2l-colors": "^3.1.2",
     "d2l-course-image": "Brightspace/course-image#^2.1.4",
@@ -49,6 +48,7 @@
     "d2l-tile": "^3.0.9",
     "d2l-typography": "^6.1.2",
     "d2l-organization-hm-behavior": "git://github.com/Brightspace/organization-hm-behavior.git#^2.0.1",
+    "d2l-enrollments": "BrightspaceHypermediaComponents/enrollments#0.0.1",
     "iron-a11y-announcer": "^2.0.0",
     "iron-a11y-keys": "^2.0.0",
     "iron-input": "^2.0.1",

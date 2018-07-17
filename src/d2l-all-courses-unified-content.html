@@ -1,5 +1,5 @@
 <link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../1.x-hybrid-components/d2l-course-image-tile.html">
+<link rel="import" href="../../d2l-enrollments/d2l-enrollment-card.html">
 <link rel="import" href="d2l-css-grid-view/d2l-css-grid-view-behavior.html">
 <link rel="import" href="d2l-css-grid-view/d2l-css-grid-view-styles.html">
 <link rel="import" href="d2l-all-courses-styles.html">
@@ -38,13 +38,13 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 		<div class="course-tile-grid">
 			<template is="dom-repeat" items="[[filteredEnrollments]]">
 				<div>
-					<d2l-course-image-tile
+					<d2l-enrollment-card
 						enrollment="[[item]]"
 						tile-sizes="[[_tileSizes]]"
 						show-course-code="[[showCourseCode]]"
 						show-semester="[[showSemester]]"
 						course-updates-config="[[courseUpdatesConfig]]">
-					</d2l-course-image-tile>
+					</d2l-enrollment-card>
 				</div>
 			</template>
 		</div>
