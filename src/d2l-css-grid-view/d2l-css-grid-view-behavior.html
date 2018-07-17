@@ -60,12 +60,12 @@
 			var courseTileDivs = Polymer.dom(this.root).querySelectorAll('.course-tile-grid > div');
 			ie11retryCount = ie11retryCount || 0;
 			if (
-				ie11retryCount < 15
+				ie11retryCount < 20
 				&& courseTileDivs.length === 0
 			) {
 				// If course tiles haven't yet rendered, try again for up to one second
 				// (only happens sometimes, only in IE)
-				setTimeout(this._onResize.bind(this, ++ie11retryCount), 100);
+				setTimeout(this._onResize.bind(this, ++ie11retryCount), 250);
 				return;
 			}
 
