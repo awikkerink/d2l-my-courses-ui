@@ -52,6 +52,10 @@
 			_tabSearchType: String
 		},
 		attached: function() {
+			if (!this.enrollmentsUrl) {
+				return;
+			}
+
 			if (!this.useSavedSearches) {
 				this.fetchSirenEntity(this.enrollmentsUrl)
 					.then(function(enrollmentsRootEntity) {
