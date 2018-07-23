@@ -141,7 +141,7 @@
 				this.$['basic-image-selector-overlay'].close();
 
 				if (this.cssGridView) {
-					var courseTiles = this.$$('.course-tile-grid').querySelectorAll('d2l-course-image-tile');
+					var courseTiles = this.$$('.course-tile-grid').querySelectorAll('d2l-enrollment-card');
 					for (var i = 0; i < courseTiles.length; i++) {
 						courseTiles[i].refreshImage(this._setImageOrg);
 					}
@@ -194,8 +194,8 @@
 				return false;
 			}
 
-			var currentOrFutureEnrollment = this.$$('.course-tile-grid d2l-course-image-tile:not([past-course])');
-			var pinnedEnrollment = this.$$('.course-tile-grid d2l-course-image-tile[pinned]');
+			var currentOrFutureEnrollment = this.$$('.course-tile-grid d2l-enrollment-card:not([past-course])');
+			var pinnedEnrollment = this.$$('.course-tile-grid d2l-enrollment-card[pinned]');
 			var shouldHidePastCourses = this.$$('.course-tile-grid').hasAttribute('hide-past-courses');
 
 			return this._hasEnrollments
@@ -387,7 +387,7 @@
 			var type = e && e.detail && e.detail.type;
 			var hasStartedInactiveCourses = false;
 			if (this.cssGridView) {
-				hasStartedInactiveCourses = !!this.$$('.course-tile-grid d2l-course-image-tile[started-inactive]');
+				hasStartedInactiveCourses = !!this.$$('.course-tile-grid d2l-enrollment-card[started-inactive]');
 			} else {
 				hasStartedInactiveCourses = this.$$('d2l-course-tile-grid').checkForStartedInactive(type);
 			}
