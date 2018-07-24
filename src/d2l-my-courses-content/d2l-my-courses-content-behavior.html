@@ -30,6 +30,12 @@
 				type: Boolean,
 				value: false
 			},
+			presentationUrl: {
+				type: String,
+				value: null,
+				reflectToAttribute: true,
+				observer: '_resetPresentationUrlCache'
+			},
 
 			// Alerts to display in widget, above course tiles
 			_alerts: {
@@ -420,6 +426,17 @@
 			}
 			!this.cssGridView && this.$$('d2l-course-tile-grid').setCourseImage(e);
 		},
+		_resetPresentationUrlCache: function(newValue) {
+			if (newValue) {
+				window.d2lfetch
+					.fetch(new Request(newValue, {
+						headers: {
+							Accept: 'application/vnd.siren+json',
+							'Cache-Control': 'no-cache'
+						}
+					}));
+			}
+		},
 
 		/*
 		* Utility/helper functions
@@ -533,6 +550,7 @@
 			allCourses.courseUpdatesConfig = this.courseUpdatesConfig;
 			allCourses.updatedSortLogic = this.updatedSortLogic;
 			allCourses.cssGridView = this.cssGridView;
+			allCourses.presentationUrl = this.presentationUrl;
 
 			allCourses.open();
 
@@ -609,7 +627,12 @@
 					method: 'PUT',
 					body: formData
 				}));
-		}
+		},
+		_getEntityIdentifier: function(entity) {
+			// An entity's self href should be unique, so use it as an identifier
+			var selfLink = entity.getLinkByRel('self');
+			return selfLink.href;
+		},
 	};
 
 	/*

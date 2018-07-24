@@ -40,6 +40,7 @@ If it is off and the attribute is not added, the `d2l-my-courses-content-animate
 							<d2l-my-courses-content
 								advanced-search-url="[[advancedSearchUrl]]"
 								enrollments-url="[[enrollmentsUrl]]"
+								presentation-url="[[presentationUrl]]"
 								enrollments-search-action="[[item.enrollmentsSearchAction]]"
 								image-catalog-location="[[imageCatalogLocation]]"
 								show-course-code="[[showCourseCode]]"
@@ -59,6 +60,7 @@ If it is off and the attribute is not added, the `d2l-my-courses-content-animate
 			</template>
 			<template is="dom-if" if="[[!useSavedSearches]]">
 				<d2l-my-courses-content
+					presentation-url="[[presentationUrl]]"
 					advanced-search-url="[[advancedSearchUrl]]"
 					enrollments-url="[[enrollmentsUrl]]"
 					enrollments-search-action="[[_enrollmentsSearchAction]]"

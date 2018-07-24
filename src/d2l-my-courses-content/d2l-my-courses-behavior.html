@@ -33,6 +33,11 @@
 			promotedSearches: String,
 			// URL to fetch a user's settings (e.g. default tab to select)
 			userSettingsUrl: String,
+			// URL to fetch widget settings
+			presentationUrl: {
+				type: String,
+				value: null
+			},
 			// Feature flag for using promoted searches tabbed view
 			useSavedSearches: {
 				type: Boolean,
@@ -55,13 +60,6 @@
 			if (!this.enrollmentsUrl) {
 				return;
 			}
-
-			this.fetchSirenEntity(this.enrollmentsUrl)
-				.then(function(enrollmentsRootEntity) {
-					if (enrollmentsRootEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
-						this._enrollmentsSearchAction = enrollmentsRootEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
-					}
-				}.bind(this));
 
 			this._fetchTabSearchActions();
 		},
@@ -104,6 +102,10 @@
 
 				if (!promotedSearchesEntity.actions) {
 					return;
+				}
+
+				if (userSettingsEntity && userSettingsEntity.hasLinkByRel('https://api.brightspace.com/rels/widget-settings')) {
+					this.presentationUrl = userSettingsEntity.getLinkByRel('https://api.brightspace.com/rels/widget-settings').href;
 				}
 
 				this._tabSearchActions = this._tabSearchActions.concat(promotedSearchesEntity.actions.map(function(action) {

@@ -39,11 +39,8 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			<template is="dom-repeat" items="[[filteredEnrollments]]">
 				<div>
 					<d2l-enrollment-card
-						enrollment="[[item]]"
-						tile-sizes="[[_tileSizes]]"
-						show-course-code="[[showCourseCode]]"
-						show-semester="[[showSemester]]"
-						course-updates-config="[[courseUpdatesConfig]]">
+						href="[[_getEntityIdentifier(item)]]",
+						presentation-href=[[presentationUrl]]>
 					</d2l-enrollment-card>
 				</div>
 			</template>
@@ -60,6 +57,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				filterCounts: Object,
 				isSearched: Boolean,
 				filteredEnrollments: Array,
+				presentationUrl: String,
 
 				_noCoursesInSearch: Boolean,
 				_noCoursesInSelection: Boolean,
@@ -115,6 +113,11 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 						this._itemCount = enrollmentLength;
 					}
 				}
+			},
+			_getEntityIdentifier: function(entity) {
+				// An entity's self href should be unique, so use it as an identifier
+				var selfLink = entity.getLinkByRel('self');
+				return selfLink.href;
 			}
 		});
 	</script>
