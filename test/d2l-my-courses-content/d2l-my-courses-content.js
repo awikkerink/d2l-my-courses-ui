@@ -43,7 +43,7 @@ describe('d2l-my-courses-content', () => {
 				rel: ['https://api.brightspace.com/rels/organization'],
 				href: '/organizations/1'
 			}]
-		}),
+		});
 		organizationEntity = window.D2L.Hypermedia.Siren.Parse({
 			properties: {
 				name: 'Course One'
@@ -143,19 +143,19 @@ describe('d2l-my-courses-content', () => {
 	it('should properly implement d2l-my-courses-behavior', () => {
 		expect(component.courseImageUploadCompleted).to.be.a('function');
 		expect(component.getLastOrgUnitId).to.be.a('function');
-		expect(component.updatedSortLogic).to.equal(true);
-		expect(component.cssGridView).to.equal(true);
+		expect(component.updatedSortLogic).to.exist;
+		expect(component.cssGridView).to.exist;
 	});
 
 	it('should properly implement d2l-my-courses-content-behavior', () => {
 		expect(component).to.exist;
 		expect(component._alerts).to.be.an.instanceof(Array);
 		expect(component._existingEnrollmentsMap).to.be.an('object');
-		expect(component._hasEnrollments).to.be.false;
-		expect(component._hasMoreEnrollments).to.be.false;
+		expect(component._hasEnrollments).to.exist;
+		expect(component._hasMoreEnrollments).to.exist;
 		expect(component._orgUnitIdMap).to.be.an('object');
 		expect(component._setImageOrg).to.be.an('object');
-		expect(component._showContent).to.be.false;
+		expect(component._showContent).to.exist;
 		expect(component._tileSizes).to.be.an('object');
 	});
 
