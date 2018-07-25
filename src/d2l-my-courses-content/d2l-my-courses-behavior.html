@@ -61,7 +61,6 @@
 					if (enrollmentsRootEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
 						this._enrollmentsSearchAction = enrollmentsRootEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 					}
-
 				}.bind(this));
 
 			this._fetchTabSearchActions();
@@ -84,34 +83,43 @@
 			return Promise.all([
 				this.fetchSirenEntity(this.promotedSearches),
 				this.fetchSirenEntity(this.userSettingsUrl)
-			])
-				.then(function(values) {
-					var promotedSearchesEntity = values[0];
-					var userSettingsEntity = values[1];
-					var tabSearchActions =  this._enrollmentsSearchAction ? [{
-						name: this._enrollmentsSearchAction.name,
-						title: this.localize('allTab'),
-						selected: false,
-						enrollmentsSearchAction: this._enrollmentsSearchAction
-					}] : [];
-					var mostRecentSearchName = userSettingsEntity
-						&& userSettingsEntity.properties
-						&& userSettingsEntity.properties.MostRecentEnrollmentsSearchName;
+			]).then(function(values) {
+				var promotedSearchesEntity = values[0];
+				var userSettingsEntity = values[1];
 
-					if (promotedSearchesEntity) {
-						if (promotedSearchesEntity.actions) {
-							var promotedSearchesArray = promotedSearchesEntity.actions.map(function(action) {
-								var selected = action.name === mostRecentSearchName;
-								return { name: action.name, title: action.title, selected: selected, enrollmentsSearchAction: action };
-							});
-							tabSearchActions = tabSearchActions.concat(promotedSearchesArray);
-						}
-						if (promotedSearchesEntity.properties) {
-							this._tabSearchType = promotedSearchesEntity.properties.UserEnrollmentsSearchType;
-						}
-					}
-					this._tabSearchActions = tabSearchActions;
-				}.bind(this));
+				this._tabSearchActions =  this._enrollmentsSearchAction ? [{
+					name: this._enrollmentsSearchAction.name,
+					title: this.localize('allTab'),
+					selected: false,
+					enrollmentsSearchAction: this._enrollmentsSearchAction
+				}] : [];
+
+				if (!promotedSearchesEntity) {
+					return;
+				}
+
+				if (promotedSearchesEntity.properties) {
+					this._tabSearchType = promotedSearchesEntity.properties.UserEnrollmentsSearchType;
+				}
+
+				if (!promotedSearchesEntity.actions) {
+					return;
+				}
+
+				this._tabSearchActions = this._tabSearchActions.concat(promotedSearchesEntity.actions.map(function(action) {
+					return {
+						name: action.name,
+						title: action.title,
+						selected: action.name === (
+							userSettingsEntity
+							&& userSettingsEntity.properties
+							&& userSettingsEntity.properties.MostRecentEnrollmentsSearchName
+						),
+						enrollmentsSearchAction: action
+					};
+				}));
+
+			}.bind(this));
 		}
 	};
 
