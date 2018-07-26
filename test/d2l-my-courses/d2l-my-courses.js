@@ -72,7 +72,17 @@ describe('d2l-my-courses', () => {
 		expect(component.updatedSortLogic).to.equal(false);
 	});
 
-	it('should properly fetch tabs data', () => {
+	it('should properly fetch saved search data', () => {
+		return component._fetchTabSearchActions()
+			.then(function() {
+				expect(component.fetchSirenEntity).to.be.called;
+				expect(component._tabSearchActions.length).to.equal(1);
+				expect(component._tabSearchActions[0].selected).to.be.true;
+			});
+	});
+
+	it('should properly fetch default search data when set', () => {
+		component._enrollmentsSearchAction = searchAction;
 		return component._fetchTabSearchActions()
 			.then(function() {
 				expect(component.fetchSirenEntity).to.be.called;
