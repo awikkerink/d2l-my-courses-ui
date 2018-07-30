@@ -23,13 +23,12 @@
 	D2L.MyCourses.MyCoursesContentBehaviorImpl = {
 		properties: {
 			enrollmentsSearchAction: Object,
-			tabSearchActions: Array,
+			tabSearchActions: {
+				type: Array,
+				value: function() { return []; }
+			},
 			tabSearchType: String,
 			userSettingsUrl: String,
-			useSavedSearches: {
-				type: Boolean,
-				value: false
-			},
 
 			// Alerts to display in widget, above course tiles
 			_alerts: {
@@ -182,7 +181,7 @@
 			}
 		},
 		_enrollmentSearchActionChanged: function() {
-			if (!this.useSavedSearches) {
+			if (!this.tabSearchActions.length) {
 				// We only need to manually fetch if we're not using tabs;
 				// otherwise, the fetch is initiated when a tab is selected.
 				this._fetchRoot();
@@ -523,7 +522,6 @@
 			allCourses.enrollmentsSearchAction = this.enrollmentsSearchAction;
 			allCourses.tabSearchActions = this.tabSearchActions;
 			allCourses.tabSearchType = this.tabSearchType;
-			allCourses.useSavedSearches = this.useSavedSearches;
 			allCourses.locale = this.locale;
 			allCourses.showCourseCode = this.showCourseCode;
 			allCourses.showSemester = this.showSemester;
