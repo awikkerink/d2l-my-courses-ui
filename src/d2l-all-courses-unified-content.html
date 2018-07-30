@@ -39,7 +39,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			<template is="dom-repeat" items="[[filteredEnrollments]]">
 				<div>
 					<d2l-enrollment-card
-						href="[[_getEntityIdentifier(item)]]",
+						href="[[item]]",
 						presentation-href=[[presentationUrl]]>
 					</d2l-enrollment-card>
 				</div>
@@ -50,9 +50,6 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 		Polymer({
 			is: 'd2l-all-courses-unified-content',
 			properties: {
-				showCourseCode: Boolean,
-				showSemester: Boolean,
-				courseUpdatesConfig: Object,
 				totalFilterCount: Number,
 				filterCounts: Object,
 				isSearched: Boolean,
@@ -113,11 +110,6 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 						this._itemCount = enrollmentLength;
 					}
 				}
-			},
-			_getEntityIdentifier: function(entity) {
-				// An entity's self href should be unique, so use it as an identifier
-				var selfLink = entity.getLinkByRel('self');
-				return selfLink.href;
 			}
 		});
 	</script>

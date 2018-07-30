@@ -39,16 +39,13 @@ If it is off and the attribute is not added, the `d2l-my-courses-content-animate
 						<d2l-tab-panel id="panel-[[item.name]]" text="[[item.title]]" selected=[[item.selected]]>
 							<d2l-my-courses-content
 								advanced-search-url="[[advancedSearchUrl]]"
+								course-image-upload-cb="[[courseImageUploadCb]]"
 								enrollments-url="[[enrollmentsUrl]]"
-								presentation-url="[[presentationUrl]]"
 								enrollments-search-action="[[item.enrollmentsSearchAction]]"
 								image-catalog-location="[[imageCatalogLocation]]"
-								show-course-code="[[showCourseCode]]"
-								show-semester="[[showSemester]]"
+								presentation-url="[[presentationUrl]]"
 								standard-department-name="[[standardDepartmentName]]"
 								standard-semester-name="[[standardSemesterName]]"
-								course-updates-config="[[courseUpdatesConfig]]"
-								course-image-upload-cb="[[courseImageUploadCb]]"
 								use-saved-searches="[[useSavedSearches]]"
 								user-settings-url="[[userSettingsUrl]]"
 								tab-search-actions="[[_tabSearchActions]]"
@@ -60,18 +57,16 @@ If it is off and the attribute is not added, the `d2l-my-courses-content-animate
 			</template>
 			<template is="dom-if" if="[[!useSavedSearches]]">
 				<d2l-my-courses-content
-					presentation-url="[[presentationUrl]]"
 					advanced-search-url="[[advancedSearchUrl]]"
+					course-image-upload-cb="[[courseImageUploadCb]]"
 					enrollments-url="[[enrollmentsUrl]]"
 					enrollments-search-action="[[_enrollmentsSearchAction]]"
 					image-catalog-location="[[imageCatalogLocation]]"
-					show-course-code="[[showCourseCode]]"
-					show-semester="[[showSemester]]"
+					presentation-url="[[presentationUrl]]"
 					standard-department-name="[[standardDepartmentName]]"
 					standard-semester-name="[[standardSemesterName]]"
-					course-updates-config="[[courseUpdatesConfig]]"
-					course-image-upload-cb="[[courseImageUploadCb]]"
-					use-saved-searches="[[useSavedSearches]]">
+					use-saved-searches="[[useSavedSearches]]"
+					user-settings-url="[[userSettingsUrl]]">
 				</d2l-my-courses-content>
 			</template>
 		</template>
