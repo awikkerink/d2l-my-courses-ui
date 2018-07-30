@@ -327,11 +327,11 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 				if (!this.updatedSortLogic) {
-					this._filteredPinnedEnrollments.forEach(function(enrollment) {
-						this._pinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
+					this._filteredPinnedEnrollments.forEach(function(enrollmentId) {
+						this._pinnedCoursesMap[enrollmentId] = true;
 					}, this);
-					this._filteredUnpinnedEnrollments.forEach(function(enrollment) {
-						this._unpinnedCoursesMap[this.getEntityIdentifier(enrollment)] = true;
+					this._filteredUnpinnedEnrollments.forEach(function(enrollmentId) {
+						this._unpinnedCoursesMap[enrollmentId] = true;
 					}, this);
 				}
 
@@ -347,7 +347,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 
 				this._searchUrl = this.createActionUrl(this.enrollmentsSearchAction, {
 					autoPinCourses: false,
-					embedDepth: 1,
+					embedDepth: this.updatedSortLogic ? 0 : 1,
 					sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
 				});
 			},
@@ -508,7 +508,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				var params = {
 					search: search,
 					autoPinCourses: false,
-					embedDepth: 0,
 					sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
 				};
 				if ((this._filterCounts.departments > 0 || this._filterCounts.semesters > 0) && this._enrollmentsSearchAction && this._enrollmentsSearchAction.getFieldByName('parentOrganizations')) {
@@ -637,31 +636,31 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);
 
 				if (this.updatedSortLogic) {
-					enrollmentEntities = enrollmentEntities.map(function(value) {
+					var enrollmentHrefs = enrollmentEntities.map(function(value) {
 						return value.href;
 					});
 					var unifiedContent = this.useSavedSearches
 						? this.$$('#' + this._selectedTabId + ' d2l-all-courses-unified-content')
 						: this.$$('d2l-all-courses-unified-content');
 					if (append) {
-						unifiedContent.filteredEnrollments = unifiedContent.filteredEnrollments.concat(enrollmentEntities);
+						unifiedContent.filteredEnrollments = unifiedContent.filteredEnrollments.concat(enrollmentHrefs);
 					} else {
-						unifiedContent.filteredEnrollments = enrollmentEntities;
+						unifiedContent.filteredEnrollments = enrollmentHrefs;
 					}
 				} else {
 					var newPinnedEnrollments = [];
 					var newUnpinnedEnrollments = [];
 					enrollmentEntities.forEach(function(enrollment) {
-						var enrollmentId = enrollment.href;
+						var enrollmentId = this.getEntityIdentifier(enrollment);
 
 						if (enrollment.hasClass(this.HypermediaClasses.enrollments.pinned)) {
 							if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
-								newPinnedEnrollments.push(enrollmentId);
+								newPinnedEnrollments.push(enrollment);
 								this._pinnedCoursesMap[enrollmentId] = true;
 							}
 						} else {
 							if (!this._unpinnedCoursesMap.hasOwnProperty(enrollmentId)) {
-								newUnpinnedEnrollments.push(enrollmentId);
+								newUnpinnedEnrollments.push(enrollment);
 								this._unpinnedCoursesMap[enrollmentId] = true;
 							}
 						}

@@ -32,7 +32,6 @@
 			},
 			presentationUrl: {
 				type: String,
-				value: null,
 				reflectToAttribute: true,
 				observer: '_resetPresentationUrlCache'
 			},
@@ -115,7 +114,8 @@
 			'course-tile-organization': '_onCourseTileOrganization',
 			'course-image-loaded': '_onCourseImageLoaded',
 			'initially-visible-course-tile': '_onInitiallyVisibleCourseTile',
-			'started-inactive': '_onStartedInactiveAlert'
+			'started-inactive': '_onStartedInactiveAlert',
+			'd2l-enrollment-card-fetched': '_onEnrollmentCardAdded'
 		},
 		attached: function() {
 			this.performanceMark('d2l.my-courses.attached');
@@ -125,7 +125,6 @@
 			document.body.addEventListener('set-course-image', this._onSetCourseImage.bind(this));
 			document.body.addEventListener('d2l-tab-panel-selected', this._onTabSelected.bind(this));
 			this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
-			this.addEventListener('d2l-enrollment-card-fetched', this._onEnrollmentCardAdded.bind(this));
 
 			Polymer.RenderStatus.afterNextRender(this, function() {
 				if (!this.cssGridView) {
@@ -137,7 +136,6 @@
 			document.body.removeEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 			document.body.removeEventListener('set-course-image', this._onSetCourseImage.bind(this));
 			document.body.removeEventListener('d2l-tab-panel-selected', this._onTabSelected.bind(this));
-			this.removeEventListener('course-tile-organization', this._onEnrollmentCardAdded.bind(this));
 		},
 		observers: [
 			'_enrollmentsChanged(_enrollments)',
@@ -429,7 +427,6 @@
 		_createFetchEnrollmentsUrl: function(bustCache) {
 			var query = {
 				pageSize: 20,
-				embedDepth: 0,
 				sort: 'current',
 				autoPinCourses: false,
 				promotePins: true
@@ -598,12 +595,7 @@
 					method: 'PUT',
 					body: formData
 				}));
-		},
-		_getEntityIdentifier: function(entity) {
-			// An entity's self href should be unique, so use it as an identifier
-			var selfLink = entity.getLinkByRel('self');
-			return selfLink.href;
-		},
+		}
 	};
 
 	/*

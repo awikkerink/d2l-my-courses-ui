@@ -1,6 +1,5 @@
-var utility = D2L.MyCourses.CourseTileSlidingGridBehaviorUtility;
-
 describe('d2l-course-tile-sliding-grid-behavior-utility', () => {
+	var utility = D2L.MyCourses.CourseTileSlidingGridBehaviorUtility;
 
 	describe('calculatePositionChange', function() {
 		[
