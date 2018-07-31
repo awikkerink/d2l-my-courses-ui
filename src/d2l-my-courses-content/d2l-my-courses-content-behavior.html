@@ -218,11 +218,16 @@
 		* Listeners
 		*/
 		_onEnrollmentCardAdded: function(e) {
-			if (Polymer.dom(e).rootTarget === this) return;
+			if (Polymer.dom(e).rootTarget === this
+				|| !e.detail.organizationUrl
+				|| !e.detail.enrollmentUrl
+			) {
+				return;
+			}
 
-			var orgUnitId = this._getOrgUnitIdFromHref(e.detail.href);
+			var orgUnitId = this._getOrgUnitIdFromHref(e.detail.organizationUrl);
 
-			this._orgUnitIdMap[orgUnitId] = e.detail.enrollment;
+			this._orgUnitIdMap[orgUnitId] = e.detail.enrollmentUrl;
 		},
 		_onChangeImageLowerThreshold: function() {
 			this.$$('d2l-basic-image-selector').loadMore(this.$['image-selector-threshold']);
