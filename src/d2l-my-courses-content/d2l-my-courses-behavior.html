@@ -51,7 +51,7 @@
 			_tabSearchType: String
 		},
 		_computeShowGroupByTabs: function(groups) {
-			return groups.length > 0;
+			return groups.length > 2 || (groups.length > 0 && !this._enrollmentsSearchAction);
 		},
 		attached: function() {
 			if (!this.enrollmentsUrl) {

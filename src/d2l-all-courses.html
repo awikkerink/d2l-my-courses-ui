@@ -624,7 +624,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				return !!link;
 			},
 			_computeShowGroupByTabs: function(groups) {
-				return groups.length > 0;
+				return groups.length > 2 || (groups.length > 0 && !this._enrollmentsSearchAction);
 			},
 			_resetSortDropdown: function() {
 				this._selectSortOption(this.defaultSortValue);
