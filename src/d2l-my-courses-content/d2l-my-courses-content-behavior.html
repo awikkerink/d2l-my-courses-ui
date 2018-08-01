@@ -29,6 +29,11 @@
 			},
 			tabSearchType: String,
 			userSettingsUrl: String,
+			// URL to fetch widget settings
+			presentationUrl: {
+				type: String,
+				observer: '_onPresentationUrlChange'
+			},
 
 			// Alerts to display in widget, above course tiles
 			_alerts: {
@@ -74,6 +79,10 @@
 				type: Object,
 				value: function() { return {}; }
 			},
+			_lastPinnedIndex: {
+				type: Number,
+				value: 0
+			},
 			// The organization which the user is selecting the image of
 			_setImageOrg: {
 				type: Object,
@@ -104,7 +113,8 @@
 			'course-tile-organization': '_onCourseTileOrganization',
 			'course-image-loaded': '_onCourseImageLoaded',
 			'initially-visible-course-tile': '_onInitiallyVisibleCourseTile',
-			'started-inactive': '_onStartedInactiveAlert'
+			'started-inactive': '_onStartedInactiveAlert',
+			'd2l-enrollment-card-fetched': '_onD2lEnrollmentCardFetched'
 		},
 		attached: function() {
 			this.performanceMark('d2l.my-courses.attached');
@@ -206,7 +216,18 @@
 		/*
 		* Listeners
 		*/
+		_onD2lEnrollmentCardFetched: function(e) {
+			if (Polymer.dom(e).rootTarget === this
+				|| !e.detail.organizationUrl
+				|| !e.detail.enrollmentUrl
+			) {
+				return;
+			}
 
+			var orgUnitId = this._getOrgUnitIdFromHref(e.detail.organizationUrl);
+
+			this._orgUnitIdMap[orgUnitId] = e.detail.enrollmentUrl;
+		},
 		_onChangeImageLowerThreshold: function() {
 			this.$$('d2l-basic-image-selector').loadMore(this.$['image-selector-threshold']);
 		},
@@ -285,67 +306,39 @@
 		_onEnrollmentPinnedMessage: function(e) {
 			if (Polymer.dom(e).rootTarget === this) return;
 
+			var isPinned = e.detail.isPinned;
 			var orgUnitId;
 			if (e.detail.orgUnitId) {
 				orgUnitId = e.detail.orgUnitId;
+			} else if (e.detail.organization) {
+				orgUnitId = this._getOrgUnitIdFromHref(this.getEntityIdentifier(this.parseEntity(e.detail.organization)));
 			} else if (e.detail.enrollment && e.detail.enrollment.hasLinkByRel(this.HypermediaRels.organization)) {
 				orgUnitId = this._getOrgUnitIdFromHref(e.detail.enrollment.getLinkByRel(this.HypermediaRels.organization).href);
 			}
 
 			// Only want to move pinned/unpinned enrollment if it exists in the panel
-			var enrollment = orgUnitId && this._orgUnitIdMap[orgUnitId];
-			if (!enrollment) {
+			var changedEnrollmentId = orgUnitId && this._orgUnitIdMap[orgUnitId];
+			if (!changedEnrollmentId) {
 				return this._refetchEnrollments();
 			}
-			var changedEnrollmentId = this.getEntityIdentifier(enrollment);
-			var removalIndex = -1;
-			var lastPinnedIndex = 0;
-			for (var i = 0; i < this._enrollments.length; i++) {
-				if (this._enrollments[lastPinnedIndex].hasClass('pinned')) {
-					lastPinnedIndex = i;
-				}
 
-				var enrollmentId = this.getEntityIdentifier(this._enrollments[i]);
-				if (enrollmentId === changedEnrollmentId) {
-					removalIndex = i;
-				}
+			var lastPinnedIndex = isPinned ? this._lastPinnedIndex++ : --this._lastPinnedIndex;
+			var removalIndex = this._enrollments.indexOf(changedEnrollmentId);
+
+			if (removalIndex === -1) {
+				// Course was not already in list, insert it as last pinned item
+				this.splice('_enrollments', lastPinnedIndex, 0, changedEnrollmentId);
+
+			} else if (removalIndex === lastPinnedIndex) {
+				// Course is already in the correct position, just update it
+				// (avoids removal animation + insertion animation in exact same position)
+			} else {
+				// Remove the enrollment from its current location
+				this.splice('_enrollments', removalIndex, 1);
+
+				// Re-add the (updated) enrollment at the end of the pinned list
+				this.splice('_enrollments', lastPinnedIndex, 0, changedEnrollmentId);
 			}
-
-			// Find the last pinned enrollment
-			while (
-				lastPinnedIndex < this._enrollments.length
-				&& this._enrollments[lastPinnedIndex].hasClass('pinned')
-			) {
-				lastPinnedIndex++;
-			}
-
-			var url = enrollment.getLinkByRel('self').href;
-			url += (url.indexOf('?') === -1 ? '?' : '&') + 'bustCache=' + Math.random();
-
-			return this.fetchSirenEntity(url)
-				.then(function(updatedEnrollment) {
-					var orgUnitId = this._getOrgUnitIdFromHref(this.getEntityIdentifier(updatedEnrollment));
-					this._orgUnitIdMap[orgUnitId] = updatedEnrollment;
-
-					if (removalIndex === -1) {
-						// Course was not already in list, insert it as last pinned item
-						this.splice('_enrollments', lastPinnedIndex, 0, updatedEnrollment);
-					} else if (removalIndex === lastPinnedIndex) {
-						// Course is already in the correct position, just update it
-						// (avoids removal animation + insertion animation in exact same position)
-						this.splice('_enrollments', removalIndex, 1, updatedEnrollment);
-					} else {
-						// Remove the enrollment from its current location
-						this.splice('_enrollments', removalIndex, 1);
-
-						if (removalIndex < lastPinnedIndex) {
-							// Need to account for us removing the enrollment
-							lastPinnedIndex--;
-						}
-						// Re-add the (updated) enrollment at the end of the pinned list
-						this.splice('_enrollments', lastPinnedIndex, 0, updatedEnrollment);
-					}
-				}.bind(this));
 		},
 		_onStartedInactiveAlert: function(e) {
 			this._removeAlert('startedInactiveCourses');
@@ -419,6 +412,17 @@
 			}
 			!this.cssGridView && this.$$('d2l-course-tile-grid').setCourseImage(e);
 		},
+		_onPresentationUrlChange: function(newValue) {
+			if (newValue) {
+				window.d2lfetch
+					.fetch(new Request(newValue, {
+						headers: {
+							Accept: 'application/vnd.siren+json',
+							'Cache-Control': 'no-cache'
+						}
+					}));
+			}
+		},
 
 		/*
 		* Utility/helper functions
@@ -427,7 +431,6 @@
 		_createFetchEnrollmentsUrl: function(bustCache) {
 			var query = {
 				pageSize: 20,
-				embedDepth: 1,
 				sort: 'current',
 				autoPinCourses: false,
 				promotePins: true
@@ -523,14 +526,12 @@
 			allCourses.tabSearchActions = this.tabSearchActions;
 			allCourses.tabSearchType = this.tabSearchType;
 			allCourses.locale = this.locale;
-			allCourses.showCourseCode = this.showCourseCode;
-			allCourses.showSemester = this.showSemester;
 			allCourses.advancedSearchUrl = this.advancedSearchUrl;
 			allCourses.filterStandardSemesterName = this.standardSemesterName;
 			allCourses.filterStandardDepartmentName = this.standardDepartmentName;
-			allCourses.courseUpdatesConfig = this.courseUpdatesConfig;
 			allCourses.updatedSortLogic = this.updatedSortLogic;
 			allCourses.cssGridView = this.cssGridView;
+			allCourses.presentationUrl = this.presentationUrl;
 
 			allCourses.open();
 
@@ -558,16 +559,11 @@
 			}
 
 			enrollmentEntities.forEach(function(enrollment) {
-				var enrollmentId = this.getEntityIdentifier(enrollment);
+				var enrollmentId = enrollment.href;
 				if (!this._existingEnrollmentsMap.hasOwnProperty(enrollmentId)) {
-					newEnrollments.push(enrollment);
+					newEnrollments.push(enrollmentId);
 					this._existingEnrollmentsMap[enrollmentId] = true;
-				}
-
-				var orgHref = (enrollment.getLinkByRel(this.HypermediaRels.organization) || {}).href;
-				var orgUnitId = this._getOrgUnitIdFromHref(orgHref);
-				if (!this._orgUnitIdMap.hasOwnProperty(orgUnitId)) {
-					this._orgUnitIdMap[orgUnitId] = enrollment;
+					if (enrollment.hasClass('pinned')) this._lastPinnedIndex++;
 				}
 			}, this);
 
@@ -578,11 +574,6 @@
 				// but this user has no enrollments, so we won't hit that case.
 				this._showContent = true;
 			}
-
-			var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this._enrollments.length);
-			this._tileSizes = (colNum === 2) ?
-				{ mobile: { maxwidth: 767, size: 50 }, tablet: { maxwidth: 1243, size: 33 }, desktop: { size: 20 } } :
-				{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
 
 			this.fire('recalculate-columns');
 

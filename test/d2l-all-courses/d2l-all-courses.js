@@ -316,7 +316,7 @@ describe('d2l-all-courses', function() {
 				stopPropagation: function() {}
 			});
 
-			expect(widget._searchUrl).to.equal('/example/foo?autoPinCourses=false&embedDepth=1&sort=SortOrder&search=');
+			expect(widget._searchUrl).to.equal('/example/foo?autoPinCourses=false&embedDepth=0&sort=SortOrder&search=');
 		});
 	});
 

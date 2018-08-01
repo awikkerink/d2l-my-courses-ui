@@ -78,6 +78,7 @@ describe('d2l-my-courses-content', () => {
 			entities: [{
 				rel: ['https://api.brightspace.com/rels/user-enrollment'],
 				class: ['enrollment', 'pinned'],
+				href: '/enrollments/users/169/organizations/1',
 				links: [{
 					rel: ['self'],
 					href: '/enrollments/users/169/organizations/1'
@@ -99,6 +100,7 @@ describe('d2l-my-courses-content', () => {
 			entities: [{
 				rel: ['https://api.brightspace.com/rels/user-enrollment'],
 				class: ['enrollment', 'pinned'],
+				href: '/enrollments/users/169/organizations/2',
 				links: [{
 					rel: ['self'],
 					href: '/enrollments/users/169/organizations/2'
@@ -768,7 +770,7 @@ describe('d2l-my-courses-content', () => {
 			return component._fetchRoot().then(() => {
 				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('autoPinCourses=false')));
 				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('pageSize=20')));
-				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('embedDepth=1')));
+				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('embedDepth=0')));
 				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('sort=current')));
 				expect(fetchStub).to.have.been.calledWith(sinon.match.has('url', sinon.match('promotePins=true')));
 			});
@@ -837,7 +839,7 @@ describe('d2l-my-courses-content', () => {
 					alertType: 'call-to-action',
 					alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.'
 				});
-				component._enrollments = [enrollmentEntity];
+				component._enrollments = ['/enrollments/users/169/organizations/1'];
 				expect(component._alerts).to.be.empty;
 			});
 		});
