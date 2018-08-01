@@ -38,6 +38,11 @@
 			}
 
 			var containerWidth = this.offsetWidth;
+
+			for (var parent = this.parentNode; containerWidth <= 0 && parent; parent = parent.parentNode) {
+				containerWidth = parent.offsetWidth;
+			}
+
 			var numColumns = Math.min(Math.floor(containerWidth / 350), 4) + 1;
 			var columnClass = 'columns-' + numColumns;
 			if (courseTileGrid.classList.toString().indexOf(columnClass) === -1) {
