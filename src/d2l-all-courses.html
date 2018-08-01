@@ -113,7 +113,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				</template>
 
 				<template is="dom-if" if="[[updatedSortLogic]]">
-					<template is="dom-if" if="[[useSavedSearches]]">
+					<template is="dom-if" if="[[_showGroupByTabs]]">
 						<d2l-tabs max-to-show="5">
 							<template items="[[tabSearchActions]]" is="dom-repeat">
 								<d2l-tab-panel id="all-courses-tab-[[item.name]]" text="[[item.title]]" selected=[[item.selected]]>
@@ -133,7 +133,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 							</template>
 						</d2l-tabs>
 					</template>
-					<template is="dom-if" if="[[!useSavedSearches]]">
+					<template is="dom-if" if="[[!_showGroupByTabs]]">
 						<d2l-all-courses-unified-content
 							presentation-url="[[presentationUrl]]"
 							total-filter-count="[[_totalFilterCount]]"
@@ -200,7 +200,10 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				showCourseCode: Boolean,
 				showSemester: Boolean,
 				// Siren Actions corresponding to each tab that is displayed
-				tabSearchActions: Array,
+				tabSearchActions: {
+					type: Array,
+					value: function() { return []; }
+				},
 				// Type of tabs being displayed (BySemester, ByDepartment, ByRoleAlias)
 				tabSearchType: String,
 				// Feature flag (switch) for using the updated sort logic and related fetaures
@@ -208,10 +211,6 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					type: Boolean,
 					value: false,
 					observer: '_updatedSortLogicChanged'
-				},
-				useSavedSearches: {
-					type: Boolean,
-					value: false
 				},
 
 				/*
@@ -260,6 +259,10 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				_showContent: {
 					type: Boolean,
 					value: false
+				},
+				_showGroupByTabs: {
+					type: Boolean,
+					computed: '_computeShowGroupByTabs(tabSearchActions)'
 				},
 				_showTabContent: {
 					type: Boolean,
@@ -335,7 +338,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					}, this);
 				}
 
-				if (this.useSavedSearches) {
+				if (this._showGroupByTabs) {
 					return;
 				}
 
@@ -616,6 +619,9 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 			_computeShowAdvancedSearchLink: function(link) {
 				return !!link;
 			},
+			_computeShowGroupByTabs: function(groups) {
+				return groups.length > 2 || (groups.length > 0 && !this._enrollmentsSearchAction);
+			},
 			_resetSortDropdown: function() {
 				this._selectSortOption(this.defaultSortValue);
 
@@ -639,7 +645,8 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					var enrollmentHrefs = enrollmentEntities.map(function(value) {
 						return value.href;
 					});
-					var unifiedContent = this.useSavedSearches
+					var unifiedContent = this._showGroupByTabs
+
 						? this.$$('#' + this._selectedTabId + ' d2l-all-courses-unified-content')
 						: this.$$('d2l-all-courses-unified-content');
 					if (append) {

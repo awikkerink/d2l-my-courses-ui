@@ -35,11 +35,6 @@
 			userSettingsUrl: String,
 			// URL to fetch widget settings
 			presentationUrl: String,
-			// Feature flag for using promoted searches tabbed view
-			useSavedSearches: {
-				type: Boolean,
-				value: false
-			},
 			// Feature flag (switch) for using the updated sort logic and related fetaures
 			updatedSortLogic: {
 				type: Boolean,
@@ -47,11 +42,18 @@
 			},
 
 			_enrollmentsSearchAction: Object,
+			_showGroupByTabs: {
+				type: Boolean,
+				computed: '_computeShowGroupByTabs(_tabSearchActions)'
+			},
 			_tabSearchActions: {
 				type: Array,
 				value: []
 			},
 			_tabSearchType: String
+		},
+		_computeShowGroupByTabs: function(groups) {
+			return groups.length > 2 || (groups.length > 0 && !this._enrollmentsSearchAction);
 		},
 		attached: function() {
 			if (!this.enrollmentsUrl || !this.userSettingsUrl) {
@@ -72,9 +74,8 @@
 					if (userSettingsEntity && userSettingsEntity.hasLinkByRel(this.HypermediaRels.widgetSettings)) {
 						this.presentationUrl = userSettingsEntity.getLinkByRel(this.HypermediaRels.widgetSettings).href;
 					}
-				}.bind(this));
-
-			this._fetchTabSearchActions();
+				}.bind(this))
+				.then(this._fetchTabSearchActions.bind(this));
 		},
 		courseImageUploadCompleted: function(success) {
 			return this.updatedSortLogic
@@ -98,12 +99,7 @@
 				var promotedSearchesEntity = values[0];
 				var userSettingsEntity = values[1];
 
-				this._tabSearchActions =  this._enrollmentsSearchAction ? [{
-					name: this._enrollmentsSearchAction.name,
-					title: this.localize('allTab'),
-					selected: false,
-					enrollmentsSearchAction: this._enrollmentsSearchAction
-				}] : [];
+				this._tabSearchActions = [];
 
 				if (!promotedSearchesEntity) {
 					return;
@@ -117,7 +113,7 @@
 					return;
 				}
 
-				this._tabSearchActions = this._tabSearchActions.concat(promotedSearchesEntity.actions.map(function(action) {
+				this._tabSearchActions = promotedSearchesEntity.actions.map(function(action) {
 					return {
 						name: action.name,
 						title: action.title,
@@ -128,7 +124,18 @@
 						),
 						enrollmentsSearchAction: action
 					};
-				}));
+				});
+
+				if (!this._enrollmentsSearchAction) {
+					return;
+				}
+
+				this._tabSearchActions = [{
+					name: this._enrollmentsSearchAction.name,
+					title: this.localize('allTab'),
+					selected: false,
+					enrollmentsSearchAction: this._enrollmentsSearchAction
+				}].concat(this._tabSearchActions);
 
 			}.bind(this));
 		}
