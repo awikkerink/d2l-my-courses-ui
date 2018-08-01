@@ -29,10 +29,10 @@
 			},
 			tabSearchType: String,
 			userSettingsUrl: String,
+			// URL to fetch widget settings
 			presentationUrl: {
 				type: String,
-				reflectToAttribute: true,
-				observer: '_resetPresentationUrlCache'
+				observer: '_onPresentationUrlChange'
 			},
 
 			// Alerts to display in widget, above course tiles
@@ -114,7 +114,7 @@
 			'course-image-loaded': '_onCourseImageLoaded',
 			'initially-visible-course-tile': '_onInitiallyVisibleCourseTile',
 			'started-inactive': '_onStartedInactiveAlert',
-			'd2l-enrollment-card-fetched': '_onEnrollmentCardAdded'
+			'd2l-enrollment-card-fetched': '_onD2lEnrollmentCardFetched'
 		},
 		attached: function() {
 			this.performanceMark('d2l.my-courses.attached');
@@ -216,7 +216,7 @@
 		/*
 		* Listeners
 		*/
-		_onEnrollmentCardAdded: function(e) {
+		_onD2lEnrollmentCardFetched: function(e) {
 			if (Polymer.dom(e).rootTarget === this
 				|| !e.detail.organizationUrl
 				|| !e.detail.enrollmentUrl
@@ -412,7 +412,7 @@
 			}
 			!this.cssGridView && this.$$('d2l-course-tile-grid').setCourseImage(e);
 		},
-		_resetPresentationUrlCache: function(newValue) {
+		_onPresentationUrlChange: function(newValue) {
 			if (newValue) {
 				window.d2lfetch
 					.fetch(new Request(newValue, {
