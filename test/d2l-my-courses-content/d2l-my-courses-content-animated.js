@@ -199,11 +199,11 @@ describe('d2l-my-courses-content-animated', function() {
 				href: searchHref
 			}]
 		},
-		enrollmentsSearchEntity = window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse);
-
-	var clock;
+		enrollmentsSearchEntity,
+		clock;
 
 	beforeEach(function(done) {
+		enrollmentsSearchEntity = window.D2L.Hypermedia.Siren.Parse(enrollmentsSearchResponse);
 		sandbox = sinon.sandbox.create();
 
 		widget = fixture('d2l-my-courses-content-animated-fixture');
