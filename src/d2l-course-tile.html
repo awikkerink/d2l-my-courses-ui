@@ -98,7 +98,7 @@ the user has in that organization - student, teacher, TA, etc.
 						<div>
 							<span class="course-code-text uppercase">
 								[[_organization.properties.code]]
-								<d2l-icon hidden$="[[!_hideSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
+								<d2l-icon hidden$="[[!_showSeparator]]" class="separator-icon" icon="d2l-tier1:bullet"></d2l-icon>
 							</span>
 							<span class="course-semester-text">[[_semesterName]]</span>
 						</div>
@@ -248,10 +248,10 @@ the user has in that organization - student, teacher, TA, etc.
 					value: false
 				},
 				_semesterName: String,
-				_hideSeparator: {
+				_showSeparator: {
 					type: Boolean,
-					value: true,
-					computed: '_computeHideSeparator(_semesterName)'
+					value: false,
+					computed: '_computeShowSeparator(_semesterName)'
 				},
 				// Set by the IntersectionObserver when tile is first visible in viewport
 				_load: Boolean
@@ -776,7 +776,7 @@ the user has in that organization - student, teacher, TA, etc.
 					this._setCourseTileHovered(false);
 				}
 			},
-			_computeHideSeparator: function(semesterName) {
+			_computeShowSeparator: function(semesterName) {
 				return semesterName.length;
 			}
 		});
