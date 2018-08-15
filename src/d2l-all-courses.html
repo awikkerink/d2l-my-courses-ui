@@ -122,7 +122,8 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 											presentation-url="[[presentationUrl]]"
 											total-filter-count="[[_totalFilterCount]]"
 											filter-counts="[[_filterCounts]]"
-											is-searched="[[_isSearched]]">
+											is-searched="[[_isSearched]]"
+											use-enrollment-cards="[[useEnrollmentCards]]">
 										</d2l-all-courses-unified-content>
 									</div>
 									<d2l-loading-spinner
@@ -211,6 +212,11 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 					type: Boolean,
 					value: false,
 					observer: '_updatedSortLogicChanged'
+				},
+				// Feature flag for using d2l-enrollment-card in place of d2l-course-image-tile
+				useEnrollmentCards: {
+					type: Boolean,
+					value: false
 				},
 
 				/*
@@ -330,11 +336,18 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 				if (!this.updatedSortLogic) {
-					this._filteredPinnedEnrollments.forEach(function(enrollmentId) {
-						this._pinnedCoursesMap[enrollmentId] = true;
+					this._filteredPinnedEnrollments.forEach(function(item) {
+						var identifier = this.useEnrollmentCards
+							? item
+							: item.getLinkByRel('self').href;
+						this._pinnedCoursesMap[identifier] = true;
 					}, this);
-					this._filteredUnpinnedEnrollments.forEach(function(enrollmentId) {
-						this._unpinnedCoursesMap[enrollmentId] = true;
+
+					this._filteredUnpinnedEnrollments.forEach(function(item) {
+						var identifier = this.useEnrollmentCards
+							? item
+							: item.getLinkByRel('self').href;
+						this._unpinnedCoursesMap[identifier] = true;
 					}, this);
 				}
 
@@ -350,7 +363,7 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 
 				this._searchUrl = this.createActionUrl(this.enrollmentsSearchAction, {
 					autoPinCourses: false,
-					embedDepth: this.updatedSortLogic ? 0 : 1,
+					embedDepth: (this.updatedSortLogic && this.useEnrollmentCards) ? 0 : 1,
 					sort: this._sortParameter || (this.updatedSortLogic ? 'Current' : '-PinDate,OrgUnitName,OrgUnitId')
 				});
 			},
@@ -642,17 +655,16 @@ If it is off and the attribute is not added, the `d2l-all-courses-segregated-con
 				var enrollmentEntities = enrollments.getSubEntitiesByClass(this.HypermediaClasses.enrollments.enrollment);
 
 				if (this.updatedSortLogic) {
-					var enrollmentHrefs = enrollmentEntities.map(function(value) {
-						return value.href;
+					var gridEntities = enrollmentEntities.map(function(value) {
+						return this.useEnrollmentCards ? value.href : window.D2L.Hypermedia.Siren.Parse(value);
 					});
 					var unifiedContent = this._showGroupByTabs
-
 						? this.$$('#' + this._selectedTabId + ' d2l-all-courses-unified-content')
 						: this.$$('d2l-all-courses-unified-content');
 					if (append) {
-						unifiedContent.filteredEnrollments = unifiedContent.filteredEnrollments.concat(enrollmentHrefs);
+						unifiedContent.filteredEnrollments = unifiedContent.filteredEnrollments.concat(gridEntities);
 					} else {
-						unifiedContent.filteredEnrollments = enrollmentHrefs;
+						unifiedContent.filteredEnrollments = gridEntities;
 					}
 				} else {
 					var newPinnedEnrollments = [];

@@ -1,5 +1,6 @@
 <link rel="import" href="../../../polymer/polymer.html">
 <link rel="import" href="../../../iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../../../1.x-hybrid-components/d2l-course-image-tile.html">
 <link rel="import" href="../../../d2l-alert/d2l-alert.html">
 <link rel="import" href="../../../d2l-enrollments/d2l-enrollment-card.html">
 <link rel="import" href="../../../d2l-fetch/d2l-fetch.html">
@@ -45,10 +46,13 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				margin-bottom: 20px;
 				clear: both;
 			}
-			.course-tile-grid:not([hide-past-courses]) > div:nth-child(n+13) > d2l-enrollment-card:not([pinned]),
+			.course-tile-grid:not([hide-past-courses]) > div:nth-of-type(n+13) > d2l-enrollment-card:not([pinned]),
+			.course-tile-grid:not([hide-past-courses]) > div:nth-of-type(n+13) > d2l-course-image-tile:not([pinned]),
 			.course-tile-grid[hide-past-courses] > div > d2l-enrollment-card[past-course]:not([pinned]),
+			.course-tile-grid[hide-past-courses] > div > d2l-course-image-tile[past-course]:not([pinned]),
 			/* If hide-past-courses, past courses are already hidden, so exclude them from the n+13 count */
-			.course-tile-grid[hide-past-courses] > div:nth-child(n+13) > d2l-enrollment-card:not([pinned]):not([past-course]) {
+			.course-tile-grid[hide-past-courses] > div:nth-of-type(n+13) > d2l-enrollment-card:not([pinned]):not([past-course]),
+			.course-tile-grid[hide-past-courses] > div:nth-of-type(n+13) > d2l-course-image-tile:not([pinned]):not([past-course]) {
 				display: none;
 			}
 			.d2l-body-standard {
@@ -75,13 +79,28 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				</d2l-alert>
 			</template>
 			<div class="course-tile-grid">
-				<template is="dom-repeat" items="[[_enrollments]]">
-					<div>
-						<d2l-enrollment-card
-							href="[[item]]"
-							presentation-href="[[presentationUrl]]">
-						</d2l-enrollment-card>
-					</div>
+				<template is="dom-if" if="[[useEnrollmentCards]]">
+					<template is="dom-repeat" items="[[_enrollments]]">
+						<div>
+							<d2l-enrollment-card
+								href="[[item]]"
+								presentation-href="[[presentationUrl]]">
+							</d2l-enrollment-card>
+						</div>
+					</template>
+				</template>
+				<template is="dom-if" if="[[!useEnrollmentCards]]">
+					<template is="dom-repeat" items="[[_enrollments]]">
+						<div>
+							<d2l-course-image-tile
+								enrollment="[[item]]"
+								tile-sizes="[[_tileSizes]]"
+								show-course-code="[[showCourseCode]]"
+								show-semester="[[showSemester]]"
+								course-updates-config="[[courseUpdatesConfig]]">
+							</d2l-course-image-tile>
+						</div>
+					</template>
 				</template>
 			</div>
 			<d2l-link
