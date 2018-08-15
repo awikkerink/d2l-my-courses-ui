@@ -92,6 +92,10 @@ Polymer-based web component for the filter menu tabs.
 			},
 
 			load: function() {
+				if (!this.searchAction) {
+					return;
+				}
+
 				if (this._allFilters.length > 0) {
 					// We've already loaded, don't load again
 					this.$$('d2l-search-widget').clear();

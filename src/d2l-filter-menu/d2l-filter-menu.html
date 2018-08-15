@@ -80,7 +80,7 @@ Polymer-based web component for the filter menu.
 
 		<div id="contentView">
 			<div class="dropdown-content-tabs" role="tablist">
-				<div class="dropdown-content-tab" role="tab" aria-controls="semestersTab" hidden$="[[_semestersAndDepartmentsTabsHidden]]">
+				<div class="dropdown-content-tab" role="tab" aria-controls="semestersTab" hidden$="[[_semestersTabHidden]]">
 					<div class="dropdown-content-tab-highlight" hidden$="[[!_semestersTabSelected]]"></div>
 					<button
 						id="semestersTabButton"
@@ -89,7 +89,7 @@ Polymer-based web component for the filter menu.
 						data-tab-name="semesters"
 						aria-pressed="true">[[_semestersTabText]]</button>
 				</div>
-				<div class="dropdown-content-tab" role="tab" aria-controls="departmentsTab" hidden$="[[_semestersAndDepartmentsTabsHidden]]">
+				<div class="dropdown-content-tab" role="tab" aria-controls="departmentsTab" hidden$="[[_departmentsTabHidden]]">
 					<div class="dropdown-content-tab-highlight" hidden$="[[!_departmentsTabSelected]]"></div>
 					<button
 						id="departmentsTabButton"
@@ -120,7 +120,7 @@ Polymer-based web component for the filter menu.
 				search-action="[[_searchSemestersAction]]"
 				search-placeholder-text="[[_semestersSearchPlaceholderText]]"
 				selected-filters="{{_semesterFilters}}"
-				hidden$="[[_semestersAndDepartmentsTabsHidden]]">
+				hidden$="[[_semestersTabHidden]]">
 			</d2l-filter-menu-tab>
 
 			<d2l-filter-menu-tab
@@ -132,7 +132,7 @@ Polymer-based web component for the filter menu.
 				search-action="[[_searchDepartmentsAction]]"
 				search-placeholder-text="[[_departmentsSearchPlaceholderText]]"
 				selected-filters="{{_departmentFilters}}"
-				hidden$="[[_semestersAndDepartmentsTabsHidden]]">
+				hidden$="[[_departmentsTabHidden]]">
 			</d2l-filter-menu-tab>
 
 			<d2l-filter-menu-tab-roles
@@ -213,7 +213,14 @@ Polymer-based web component for the filter menu.
 					computed: '_computeSearchPlaceholderText(filterStandardDepartmentName)'
 				},
 				_rolesTabHidden: Boolean,
-				_semestersAndDepartmentsTabsHidden: Boolean
+				_semestersTabHidden: {
+					type: Boolean,
+					value: false
+				},
+				_departmentsTabHidden: {
+					type: Boolean,
+					value: false
+				}
 			},
 			behaviors: [
 				window.D2L.Hypermedia.HMConstantsBehavior,
@@ -230,7 +237,9 @@ Polymer-based web component for the filter menu.
 
 			open: function() {
 
-				var defaultTab = this._semestersAndDepartmentsTabsHidden ? 'roles' : 'semesters';
+				var defaultTab = !this._semestersTabHidden
+					? 'semesters'
+					: !this._departmentsTabHidden ? 'departments' : 'roles';
 
 				this._selectTab({ target: { dataset: { tabName: defaultTab }}});
 
@@ -261,7 +270,7 @@ Polymer-based web component for the filter menu.
 				}
 
 				var params = {};
-				if (!this._semestersAndDepartmentsTabsHidden) {
+				if (!this._semestersTabHidden || !this._departmentsTabHidden) {
 					// Only clear semesters/departments when My Courses is grouped by role
 					params.parentOrganizations = '';
 				}
@@ -317,11 +326,13 @@ Polymer-based web component for the filter menu.
 			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
 				myEnrollmentsEntity = this.parseEntity(myEnrollmentsEntity);
 
-				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMySemesters)) {
+				this._semestersTabHidden = !myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMySemesters);
+				if (!this._semestersTabHidden) {
 					this._searchSemestersAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMySemesters);
 				}
 
-				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyDepartments)) {
+				this._departmentsTabHidden = !myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyDepartments);
+				if (!this._departmentsTabHidden) {
 					this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyDepartments);
 				}
 
@@ -348,7 +359,9 @@ Polymer-based web component for the filter menu.
 			},
 			_tabSearchTypeChanged: function() {
 				// If My Courses is grouped by semesters/departments, don't show either of these tabs
-				this._semestersAndDepartmentsTabsHidden = this.tabSearchType === 'BySemester' || this.tabSearchType === 'ByDepartment';
+				var semesterOrDepartmentGrouping = this.tabSearchType === 'BySemester' || this.tabSearchType === 'ByDepartment';
+				this._semestersTabHidden = semesterOrDepartmentGrouping && !this._searchSemestersAction;
+				this._departmentsTabHidden = semesterOrDepartmentGrouping && !this._searchDepartmentsAction;
 				// If My Courses is grouped by role alias, don't show the Role tab
 				this._rolesTabHidden = this.tabSearchType === 'ByRoleAlias';
 			},
