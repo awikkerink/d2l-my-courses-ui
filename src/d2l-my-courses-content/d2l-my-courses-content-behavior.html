@@ -338,7 +338,6 @@
 			if (removalIndex === -1) {
 				// Course was not already in list, insert it as last pinned item
 				this.splice('_enrollments', lastPinnedIndex, 0, changedEnrollmentId);
-
 			} else if (removalIndex === lastPinnedIndex) {
 				// Course is already in the correct position, just update it
 				// (avoids removal animation + insertion animation in exact same position)
@@ -585,6 +584,12 @@
 						: newEnrollments.push(window.D2L.Hypermedia.Siren.Parse(enrollment));
 					this._existingEnrollmentsMap[enrollmentId] = true;
 					if (enrollment.hasClass('pinned')) this._lastPinnedIndex++;
+				}
+
+				if (!this.useEnrollmentCards && enrollment.hasLinkByRel(this.HypermediaRels.organization)) {
+					var href = enrollment.getLinkByRel(this.HypermediaRels.organization).href;
+					var orgUnitId = this._getOrgUnitIdFromHref(href);
+					this._orgUnitIdMap[orgUnitId] = this._orgUnitIdMap[orgUnitId] || enrollment;
 				}
 			}, this);
 
