@@ -425,8 +425,10 @@
 		},
 		_onPresentationUrlChange: function(newValue) {
 			if (newValue) {
+				var url = this.convertUrlToRelative(newValue);
+
 				window.d2lfetch
-					.fetch(new Request(newValue, {
+					.fetch(new Request(url, {
 						headers: {
 							Accept: 'application/vnd.siren+json',
 							'Cache-Control': 'no-cache'
@@ -619,8 +621,11 @@
 			var formData = new FormData();
 			formData.append('mostRecentEnrollmentsSearchType', '0');
 			formData.append('mostRecentEnrollmentsSearchName', id);
+
+			var url = this.convertUrlToRelative(this.userSettingsUrl);
+
 			return window.d2lfetch
-				.fetch(new Request(this.userSettingsUrl, {
+				.fetch(new Request(url, {
 					method: 'PUT',
 					body: formData
 				}));
