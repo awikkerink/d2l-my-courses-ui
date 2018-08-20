@@ -49,30 +49,10 @@
 		parseEntity: function(entity) {
 			return window.D2L.Hypermedia.Siren.Parse(entity);
 		},
-		convertUrlToRelative: function(url) {
-			if (!url) {
-				return url;
-			}
-
-			var isRelative = url.indexOf('/') === 0;
-			var isCanonical = url.indexOf('.api.') > -1;
-			var isSameOrigin = url.indexOf(window.location.host) > -1;
-			if (isRelative || isCanonical || isSameOrigin) {
-				return url;
-			}
-
-			var anchor = document.createElement('a');
-			anchor.href = url;
-			url = anchor.pathname + anchor.search;
-			return url;
-		},
 		fetchSirenEntity: function(url) {
 			if (!url) {
 				return;
 			}
-
-			url = this.convertUrlToRelative(url);
-
 			return window.d2lfetch
 				.fetch(new Request(url, {
 					headers: { Accept: 'application/vnd.siren+json' }
