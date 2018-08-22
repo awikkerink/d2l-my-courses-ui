@@ -212,7 +212,10 @@ Polymer-based web component for the filter menu.
 					type: String,
 					computed: '_computeSearchPlaceholderText(filterStandardDepartmentName)'
 				},
-				_rolesTabHidden: Boolean,
+				_rolesTabHidden: {
+					type: Boolean,
+					value: false
+				},
 				_semestersTabHidden: {
 					type: Boolean,
 					value: false
@@ -326,19 +329,19 @@ Polymer-based web component for the filter menu.
 			_myEnrollmentsEntityChanged: function(myEnrollmentsEntity) {
 				myEnrollmentsEntity = this.parseEntity(myEnrollmentsEntity);
 
-				this._semestersTabHidden = !myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMySemesters);
-				if (!this._semestersTabHidden) {
+				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMySemesters)) {
 					this._searchSemestersAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMySemesters);
 				}
 
-				this._departmentsTabHidden = !myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyDepartments);
-				if (!this._departmentsTabHidden) {
+				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyDepartments)) {
 					this._searchDepartmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyDepartments);
 				}
 
 				if (myEnrollmentsEntity.hasActionByName(this.HypermediaActions.enrollments.searchMyEnrollments)) {
 					this._searchMyEnrollmentsAction = myEnrollmentsEntity.getActionByName(this.HypermediaActions.enrollments.searchMyEnrollments);
 				}
+
+				this._hideInvalidSearchTabs();
 			},
 			_selectTab: function(e) {
 				var tabName = e.target.dataset.tabName;
@@ -358,10 +361,13 @@ Polymer-based web component for the filter menu.
 				this.$.rolesTabButton.setAttribute('aria-pressed', this._rolesTabSelected);
 			},
 			_tabSearchTypeChanged: function() {
+				this._hideInvalidSearchTabs();
+			},
+			_hideInvalidSearchTabs: function() {
 				// If My Courses is grouped by semesters/departments, don't show either of these tabs
 				var semesterOrDepartmentGrouping = this.tabSearchType === 'BySemester' || this.tabSearchType === 'ByDepartment';
-				this._semestersTabHidden = semesterOrDepartmentGrouping && !this._searchSemestersAction;
-				this._departmentsTabHidden = semesterOrDepartmentGrouping && !this._searchDepartmentsAction;
+				this._semestersTabHidden = semesterOrDepartmentGrouping || !this._searchSemestersAction;
+				this._departmentsTabHidden = semesterOrDepartmentGrouping || !this._searchDepartmentsAction;
 				// If My Courses is grouped by role alias, don't show the Role tab
 				this._rolesTabHidden = this.tabSearchType === 'ByRoleAlias';
 			},
