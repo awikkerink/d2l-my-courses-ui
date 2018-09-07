@@ -49,9 +49,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			.course-tile-grid:not([hide-past-courses]) > div:nth-of-type(n+13) > d2l-enrollment-card:not([pinned]),
 			.course-tile-grid:not([hide-past-courses]) > div:nth-of-type(n+13) > d2l-course-image-tile:not([pinned]),
 			.course-tile-grid[hide-past-courses] > div > d2l-enrollment-card[past-course]:not([pinned]),
-			.course-tile-grid > div > d2l-enrollment-card[completed]:not([pinned]),
 			.course-tile-grid[hide-past-courses] > div > d2l-course-image-tile[past-course]:not([pinned]),
-			/* If hide-past-courses, past courses are already hidden, so exclude them from the n+13 count */
 			.course-tile-grid[hide-past-courses] > div:nth-of-type(n+13) > d2l-enrollment-card:not([pinned]):not([past-course]):not([completed]),
 			.course-tile-grid[hide-past-courses] > div:nth-of-type(n+13) > d2l-course-image-tile:not([pinned]):not([past-course]):not([completed]) {
 				display: none;

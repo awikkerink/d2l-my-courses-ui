@@ -114,7 +114,8 @@
 			'course-image-loaded': '_onCourseImageLoaded',
 			'initially-visible-course-tile': '_onInitiallyVisibleCourseTile',
 			'started-inactive': '_onStartedInactiveAlert',
-			'd2l-enrollment-card-fetched': '_onD2lEnrollmentCardFetched'
+			'd2l-enrollment-card-fetched': '_onD2lEnrollmentCardFetched',
+			'd2l-enrollment-card-status': '_onD2lEnrollmentCardStatus'
 		},
 		attached: function() {
 			this.performanceMark('d2l.my-courses.attached');
@@ -237,6 +238,26 @@
 			var orgUnitId = this._getOrgUnitIdFromHref(e.detail.organizationUrl);
 
 			this._orgUnitIdMap[orgUnitId] = e.detail.enrollmentUrl;
+		},
+		_onD2lEnrollmentCardStatus: function(e) {
+			if (!e.detail
+				|| !e.detail.status
+				|| !e.detail.enrollmentUrl
+			) {
+				return;
+			}
+
+			if (e.detail.status.completed) {
+				var index = this._enrollments.indexOf(e.detail.enrollmentUrl);
+				if (index !== -1) {
+					this.splice('_enrollments', index, 1);
+				}
+			} else if(e.detail.status.completed === false && (this._enrollments.indexOf(e.detail.enrollmentUrl))) {
+				var index = this._orgUnitIdMap.indexOf(e.detail.enrollmentUrl);
+				if (index !== -1) {
+					this.push('_enrollments', e.detail.enrollmentUrl);
+				}
+			}
 		},
 		_onChangeImageLowerThreshold: function() {
 			this.$$('d2l-basic-image-selector').loadMore(this.$['image-selector-threshold']);
