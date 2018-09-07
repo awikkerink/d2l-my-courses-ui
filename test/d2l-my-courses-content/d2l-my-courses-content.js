@@ -238,6 +238,8 @@ describe('d2l-my-courses-content', () => {
 			{ eventName: 'course-tile-organization', handler: '_onCourseTileOrganization' },
 			{ eventName: 'course-image-loaded', handler: '_onCourseImageLoaded' },
 			{ eventName: 'initially-visible-course-tile', handler: '_onInitiallyVisibleCourseTile' },
+			{ eventName: 'd2l-enrollment-card-fetched', handler: '_onD2lEnrollmentCardFetched' },
+			{ eventName: 'd2l-enrollment-card-status', handler: '_onD2lEnrollmentCardStatus' },
 		].forEach(testCase => {
 
 			it('should listen for ' + testCase.eventName + ' events', done => {
