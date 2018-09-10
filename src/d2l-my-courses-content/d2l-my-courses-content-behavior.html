@@ -252,7 +252,7 @@
 				if (index !== -1) {
 					this.splice('_enrollments', index, 1);
 				}
-			} else if (e.detail.status.completed === false && (this._enrollments.indexOf(e.detail.enrollmentUrl))) {
+			} else if (e.detail.status.completed === false && (this._enrollments.indexOf(e.detail.enrollmentUrl) === -1)) {
 				if (this._orgUnitIdMap.indexOf(e.detail.enrollmentUrl) !== -1) {
 					this.push('_enrollments', e.detail.enrollmentUrl);
 				}
