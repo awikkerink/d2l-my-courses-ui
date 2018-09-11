@@ -115,7 +115,8 @@
 			'initially-visible-course-tile': '_onInitiallyVisibleCourseTile',
 			'started-inactive': '_onStartedInactiveAlert',
 			'd2l-enrollment-card-fetched': '_onD2lEnrollmentCardFetched',
-			'd2l-enrollment-card-status': '_onD2lEnrollmentCardStatus'
+			'd2l-enrollment-card-status': '_onD2lEnrollmentCardStatus',
+			'd2l-enrollment-new': '_onD2lEnrollmentNew'
 		},
 		attached: function() {
 			this.performanceMark('d2l.my-courses.attached');
@@ -257,6 +258,14 @@
 					this.push('_enrollments', e.detail.enrollmentUrl);
 				}
 			}
+		},
+		_onD2lEnrollmentNew: function() {
+			var message = 'newEnrollment';
+			if (this._hasAlert('d2l-enrollment-new')) {
+				this._removeAlert('d2l-enrollment-new');
+				message = 'newEnrollmentMultiple';
+			}
+			this._addAlert('call-to-action', 'd2l-enrollment-new', this.localize(message));
 		},
 		_onChangeImageLowerThreshold: function() {
 			this.$$('d2l-basic-image-selector').loadMore(this.$['image-selector-threshold']);
