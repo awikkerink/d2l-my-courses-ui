@@ -120,7 +120,7 @@ describe('d2l-all-courses-segregated-content', function() {
 			{ isSearched: true, totalFilterCount: 6, hasPinnedEnrollments: true, _noPinnedCoursesInSearch: false, _noPinnedCoursesInSelection: false }
 		].forEach(testCase => {
 			it(`should set _noPinnedCoursesInSearch to ${testCase._noPinnedCoursesInSearch} and _noPinnedCoursesInSelection to ${testCase._noPinnedCoursesInSelection} when hasPinnedEnrollments changes to ${testCase.hasPinnedEnrollments}, isSearched is ${testCase.isSearched} and totalFilterCount is ${testCase.totalFilterCount}`, () => {
-				widget._alerts = [];
+				widget._clearAlerts();
 				widget.isSearched = testCase.isSearched;
 				widget.totalFilterCount = testCase.totalFilterCount;
 				widget._updateEnrollmentAlerts(testCase.hasPinnedEnrollments, true);
@@ -136,7 +136,7 @@ describe('d2l-all-courses-segregated-content', function() {
 			{ showAlert: false, hasPinnedEnrollments: false, isSearched: false, isFiltered: true }
 		].forEach(testCase => {
 			it(`should include(${testCase.showAlert}) No Pinned Courses alert when hasPinnedEnrollments(${testCase.hasPinnedEnrollments}), searched(${testCase.isSearched}) and filtered(${testCase.isFiltered})`, () => {
-				widget._alerts = [];
+				widget._clearAlerts();
 				widget.isSearched = testCase.isSearched;
 				widget.totalFilterCount = testCase.isFiltered ? 3 : 0;
 				widget._updateEnrollmentAlerts(testCase.hasPinnedEnrollments, true);
@@ -157,7 +157,7 @@ describe('d2l-all-courses-segregated-content', function() {
 			{ isSearched: true, totalFilterCount: 6, hasUnpinnedEnrollments: true, _noUnpinnedCoursesInSearch: false, _noUnpinnedCoursesInSelection: false }
 		].forEach(testCase => {
 			it(`should set _noUnpinnedCoursesInSearch to ${testCase._noUnpinnedCoursesInSearch} and _noUnpinnedCoursesInSelection to ${testCase._noUnpinnedCoursesInSelection} when hasUnpinnedEnrollments changes to ${testCase.hasUnpinnedEnrollments}, isSearched is ${testCase.isSearched} and totalFilterCount is ${testCase.totalFilterCount}`, () => {
-				widget._alerts = [];
+				widget._clearAlerts();
 				widget.isSearched = testCase.isSearched;
 				widget.totalFilterCount = testCase.totalFilterCount;
 				widget._updateEnrollmentAlerts(true, testCase.hasUnpinnedEnrollments);
@@ -246,7 +246,7 @@ describe('d2l-all-courses-segregated-content', function() {
 			{ target: '_noUnpinnedCoursesInRole', filter: 'roles' }
 		].forEach(testCase => {
 			it(`should set ${testCase.target} when there are no enrollments and one ${testCase.filter} is filtered`, () => {
-				widget._alerts = [];
+				widget._clearAlerts();
 				widget.isSearched = false;
 				widget.totalFilterCount = 1;
 				widget.filterCounts = {};
@@ -265,7 +265,7 @@ describe('d2l-all-courses-segregated-content', function() {
 			{ target: '_noUnpinnedCoursesInRole', filter: 'roles' }
 		].forEach(testCase => {
 			it(`should set ${testCase.target} when there are no enrollments and one ${testCase.filter} is filtered`, () => {
-				widget._alerts = [];
+				widget._clearAlerts();
 				widget.isSearched = false;
 				widget.totalFilterCount = 1;
 				widget.filterCounts = {};
