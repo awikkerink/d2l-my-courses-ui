@@ -13,35 +13,49 @@
 	D2L.MyCourses.AlertBehavior = {
 		properties: {
 			// Array containing alert objects for display
+			_alertsView: {
+				type: Array
+			},
 			_alerts: {
-				type: Array,
-				value: function() { return []; }
+				type: Object,
+				value: function() { return {}; }
 			}
+		},
+		_populateAlertsView: function(alert) {
+			this._alertsView = Object.keys(alert).map(function(key) {
+				if (!alert[key]) {
+					return null;
+				}
+				return {
+					alertType: alert[key].alertType,
+					alertName: key,
+					alertMessage: alert[key].alertMessage
+				};
+			}.bind(this)).filter(function(element) {
+				return element;
+			});
 		},
 		_addAlert: function(type, name, message) {
 			if (this._alerts) {
-				this.push('_alerts', {
+				this._alerts[name] = {
 					alertType: type,
-					alertName: name,
 					alertMessage: message
-				});
+				};
+				this._populateAlertsView(this._alerts);
 			}
 		},
 		_hasAlert: function(name) {
-			if (!this._alerts || this._alerts.length <= 0) {
-				return false;
-			}
-			return this._alerts.some(function(alert) {
-				return alert.alertName === name;
-			});
+			return !!this._alerts && !!this._alerts[name];
 		},
 		_removeAlert: function(name) {
-			if (this._alerts && this._alerts.length > 0 && this._hasAlert(name)) {
-				this.splice('_alerts', this._alerts.map(function(alert) { return alert.name; }).indexOf(name), 1);
+			if (this._alerts) {
+				this._alerts[name] = null;
+				this._populateAlertsView(this._alerts);
 			}
 		},
 		_clearAlerts: function() {
-			this._alerts = [];
+			this._alertsView = [];
+			this._alerts = {};
 		}
 	};
 </script>

@@ -72,7 +72,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 				[[localize('onlyPastCoursesMessage')]]
 			</d2l-alert>
 
-			<template is="dom-repeat" items="[[_alerts]]">
+			<template is="dom-repeat" items="[[_alertsView]]">
 				<d2l-alert type="[[item.alertType]]">
 					[[item.alertMessage]]
 				</d2l-alert>

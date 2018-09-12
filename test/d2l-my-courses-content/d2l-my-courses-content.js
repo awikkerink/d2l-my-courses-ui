@@ -151,7 +151,7 @@ describe('d2l-my-courses-content', () => {
 
 	it('should properly implement d2l-my-courses-content-behavior', () => {
 		expect(component).to.exist;
-		expect(component._alerts).to.be.an.instanceof(Array);
+		expect(component._alertsView).to.be.an.instanceof(Array);
 		expect(component._existingEnrollmentsMap).to.be.an('object');
 		expect(component._hasEnrollments).to.exist;
 		expect(component._hasMoreEnrollments).to.exist;
@@ -812,7 +812,7 @@ describe('d2l-my-courses-content', () => {
 			return component._fetchRoot().then(() => {
 				expect(component._showContent).to.be.true;
 				expect(component._hasEnrollments).to.be.false;
-				expect(component._alerts).to.include({
+				expect(component._alertsView).to.include({
 					alertName: 'noCourses',
 					alertType: 'call-to-action',
 					alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.'
@@ -836,22 +836,22 @@ describe('d2l-my-courses-content', () => {
 
 			return component._fetchRoot().then(() => {
 				expect(component._hasEnrollments).to.be.false;
-				expect(component._alerts).to.include({
+				expect(component._alertsView).to.include({
 					alertName: 'noCourses',
 					alertType: 'call-to-action',
 					alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.'
 				});
 				component._enrollments = ['/enrollments/users/169/organizations/1'];
-				expect(component._alerts).to.be.empty;
+				expect(component._alertsView).to.be.empty;
 			});
 		});
 
 		it('should remove all existing alerts when enrollment alerts are updated', () => {
 			component._addAlert('error', 'testError', 'this is a test');
 			component._addAlert('warning', 'testWarning', 'this is another test');
-			expect(component._alerts).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+			expect(component._alertsView).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
 			component._enrollmentsChanged([1]);
-			expect(component._alerts).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+			expect(component._alertsView).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
 		});
 
 	});
@@ -875,13 +875,13 @@ describe('d2l-my-courses-content', () => {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			component._onSetCourseImage(setCourseImageEvent);
 			clock.tick(1001);
-			expect(component._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(component._alertsView).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		it('should not add a setCourseImageFailure warning alert when a request to set the image succeeds', () => {
 			var setCourseImageEvent = { detail: { status: 'success'} };
 			component._onSetCourseImage(setCourseImageEvent);
-			expect(component._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(component._alertsView).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', () => {
@@ -889,10 +889,10 @@ describe('d2l-my-courses-content', () => {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			component._onSetCourseImage(setCourseImageEvent);
 			clock.tick(1001);
-			expect(component._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(component._alertsView).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 			setCourseImageEvent = { detail: { status: 'set'} };
 			component._onSetCourseImage(setCourseImageEvent);
-			expect(component._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(component._alertsView).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		it('should show the number of enrollments when there are no new pages of enrollments with the View All Courses link', () => {

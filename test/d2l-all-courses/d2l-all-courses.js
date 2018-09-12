@@ -176,9 +176,9 @@ describe('d2l-all-courses', function() {
 
 		it('should remove a setCourseImageFailure alert when the overlay is opened', function() {
 			widget._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
-			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+			expect(widget._alertsView).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 			widget.$$('d2l-simple-overlay')._renderOpened();
-			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+			expect(widget._alertsView).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 		});
 
 		it('should remove and course image failure alerts before adding and new ones', function() {
@@ -192,13 +192,13 @@ describe('d2l-all-courses', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget.setCourseImage(setCourseImageEvent);
 			clock.tick(1001);
-			expect(widget._alerts).to.include(setCourseImageFailureAlert);
+			expect(widget._alertsView).to.include(setCourseImageFailureAlert);
 		});
 
 		it('should not add a setCourseImageFailure warning alert when a request to set the image succeeds', function() {
 			var setCourseImageEvent = { detail: { status: 'success'} };
 			widget.setCourseImage(setCourseImageEvent);
-			expect(widget._alerts).not.to.include(setCourseImageFailureAlert);
+			expect(widget._alertsView).not.to.include(setCourseImageFailureAlert);
 		});
 
 		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
@@ -206,10 +206,10 @@ describe('d2l-all-courses', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget.setCourseImage(setCourseImageEvent);
 			clock.tick(1001);
-			expect(widget._alerts).to.include(setCourseImageFailureAlert);
+			expect(widget._alertsView).to.include(setCourseImageFailureAlert);
 			setCourseImageEvent = { detail: { status: 'set'} };
 			widget.setCourseImage(setCourseImageEvent);
-			expect(widget._alerts).not.to.include(setCourseImageFailureAlert);
+			expect(widget._alertsView).not.to.include(setCourseImageFailureAlert);
 		});
 	});
 
