@@ -98,7 +98,7 @@ describe('d2l-all-courses-segregated-content', function() {
 			widget._filteredPinnedEnrollments = [];
 			widget._filteredUnpinnedEnrollments = [unpinnedEnrollmentEntity];
 			expect(widget._hasFilteredPinnedEnrollments).to.equal(false);
-			expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
+			expect(widget._alertsView).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
 			var updateEnrollmentAlertsSpy = sandbox.spy(widget, '_updateEnrollmentAlerts');
 			widget._hasFilteredPinnedEnrollments = true;
 			expect(updateEnrollmentAlertsSpy.called);
@@ -107,9 +107,9 @@ describe('d2l-all-courses-segregated-content', function() {
 		it('should remove all existing alerts when enrollment alerts are updated', function() {
 			widget._addAlert('error', 'testError', 'this is a test');
 			widget._addAlert('warning', 'testWarning', 'this is another test');
-			expect(widget._alerts).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+			expect(widget._alertsView).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
 			widget._updateEnrollmentAlerts(true);
-			expect(widget._alerts).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+			expect(widget._alertsView).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
 		});
 
 		[
@@ -142,9 +142,9 @@ describe('d2l-all-courses-segregated-content', function() {
 				widget._updateEnrollmentAlerts(testCase.hasPinnedEnrollments, true);
 				var noPinnedCoursesAlert = { alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' };
 				if (testCase.showAlert) {
-					expect(widget._alerts).to.include(noPinnedCoursesAlert);
+					expect(widget._alertsView).to.include(noPinnedCoursesAlert);
 				} else {
-					expect(widget._alerts).to.not.include(noPinnedCoursesAlert);
+					expect(widget._alertsView).to.not.include(noPinnedCoursesAlert);
 				}
 			});
 		});

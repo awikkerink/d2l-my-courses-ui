@@ -61,7 +61,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is OFF
 		</div>
 
 		<div hidden$="[[!_showContent]]" class="my-courses-content">
-			<template is="dom-repeat" items="[[_alerts]]">
+			<template is="dom-repeat" items="[[_alertsView]]">
 				<d2l-alert type="[[item.alertType]]">
 					{{item.alertMessage}}
 				</d2l-alert>

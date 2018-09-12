@@ -13,49 +13,49 @@
 	D2L.MyCourses.AlertBehavior = {
 		properties: {
 			// Array containing alert objects for display
-			_alerts: {
+			_alertsView: {
 				type: Array
 			},
-			_alertContainer: {
+			_alerts: {
 				type: Object,
 				value: function() { return {}; }
 			}
 		},
-		_alertToArray: function(alertContainer) {
-			this._alerts = Object.keys(alertContainer).map(function(key) {
-				if (!alertContainer[key]) {
+		_populateAlertsView: function(alert) {
+			this._alertsView = Object.keys(alert).map(function(key) {
+				if (!alert[key]) {
 					return null;
 				}
 				return {
-					alertType: alertContainer[key].alertType,
+					alertType: alert[key].alertType,
 					alertName: key,
-					alertMessage: alertContainer[key].alertMessage
+					alertMessage: alert[key].alertMessage
 				};
 			}.bind(this)).filter(function(element) {
 				return element;
 			});
 		},
 		_addAlert: function(type, name, message) {
-			if (this._alertContainer) {
-				this._alertContainer[name] = {
+			if (this._alerts) {
+				this._alerts[name] = {
 					alertType: type,
 					alertMessage: message
 				};
-				this._alertToArray(this._alertContainer);
+				this._populateAlertsView(this._alerts);
 			}
 		},
 		_hasAlert: function(name) {
-			return !!this._alertContainer && !!this._alertContainer[name];
+			return !!this._alerts && !!this._alerts[name];
 		},
 		_removeAlert: function(name) {
-			if (this._alertContainer) {
-				this._alertContainer[name] = null;
-				this._alertToArray(this._alertContainer);
+			if (this._alerts) {
+				this._alerts[name] = null;
+				this._populateAlertsView(this._alerts);
 			}
 		},
 		_clearAlerts: function() {
-			this._alerts = [];
-			this._alertContainer = {};
+			this._alertsView = [];
+			this._alerts = {};
 		}
 	};
 </script>

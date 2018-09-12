@@ -316,7 +316,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(false);
-				expect(widget._alerts).to.include({ alertName: 'noCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.' });
+				expect(widget._alertsView).to.include({ alertName: 'noCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.' });
 			});
 		});
 
@@ -328,7 +328,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(true);
-				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. View All Courses to browse all available courses.' });
+				expect(widget._alertsView).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. View All Courses to browse all available courses.' });
 			});
 		});
 
@@ -340,7 +340,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(true);
-				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. View All Courses to browse all available courses.' });
+				expect(widget._alertsView).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. View All Courses to browse all available courses.' });
 				var enrollmentsLengthChangedSpy = sandbox.spy(widget, '_enrollmentsChanged');
 				widget._hasPinnedEnrollments = true;
 				expect(enrollmentsLengthChangedSpy.called);
@@ -350,9 +350,9 @@ describe('d2l-my-courses-content-animated', function() {
 		it('should remove all existing alerts when enrollment alerts are updated', function() {
 			widget._addAlert('error', 'testError', 'this is a test');
 			widget._addAlert('warning', 'testWarning', 'this is another test');
-			expect(widget._alerts).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+			expect(widget._alertsView).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
 			widget._enrollmentsChanged(true, true);
-			expect(widget._alerts).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+			expect(widget._alertsView).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
 		});
 	});
 
@@ -385,13 +385,13 @@ describe('d2l-my-courses-content-animated', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget._onSetCourseImage(setCourseImageEvent);
 			clock.tick(1001);
-			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(widget._alertsView).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		it('should not add a setCourseImageFailure warning alert when a request to set the image succeeds', function() {
 			var setCourseImageEvent = { detail: { status: 'success'} };
 			widget._onSetCourseImage(setCourseImageEvent);
-			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(widget._alertsView).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
@@ -399,10 +399,10 @@ describe('d2l-my-courses-content-animated', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget._onSetCourseImage(setCourseImageEvent);
 			clock.tick(1001);
-			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(widget._alertsView).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 			setCourseImageEvent = { detail: { status: 'set'} };
 			widget._onSetCourseImage(setCourseImageEvent);
-			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			expect(widget._alertsView).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
 		describe('course image upload', function() {
@@ -618,10 +618,10 @@ describe('d2l-my-courses-content-animated', function() {
 			widget._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
 			widget._openAllCoursesView(new Event('foo'));
 			clock.tick(1001);
-			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+			expect(widget._alertsView).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 
 			widget.fire('d2l-simple-overlay-closed');
-			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+			expect(widget._alertsView).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 		});
 	});
 
