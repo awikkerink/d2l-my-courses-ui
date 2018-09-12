@@ -247,13 +247,14 @@
 			) {
 				return;
 			}
+			var hide = (e.detail.status.completed || e.detail.status.closed);
 
-			if (e.detail.status.completed) {
+			if (hide) {
 				var index = this._enrollments.indexOf(e.detail.enrollmentUrl);
 				if (index !== -1) {
 					this.splice('_enrollments', index, 1);
 				}
-			} else if (e.detail.status.completed === false && (this._enrollments.indexOf(e.detail.enrollmentUrl) === -1)) {
+			} else if (!hide && (this._enrollments.indexOf(e.detail.enrollmentUrl) === -1)) {
 				if (this._orgUnitIdMap.indexOf(e.detail.enrollmentUrl) !== -1) {
 					this.push('_enrollments', e.detail.enrollmentUrl);
 				}
