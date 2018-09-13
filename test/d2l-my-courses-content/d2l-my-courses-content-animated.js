@@ -316,7 +316,7 @@ describe('d2l-my-courses-content-animated', function() {
 
 			return widget._fetchRoot().then(function() {
 				expect(widget._hasEnrollments).to.equal(false);
-				expect(widget._alertsView).to.include({ alertName: 'noCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.' });
+				expect(widget._alertsView).to.include({ alertName: 'noCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any courses to display.' });
 			});
 		});
 

@@ -815,7 +815,7 @@ describe('d2l-my-courses-content', () => {
 				expect(component._alertsView).to.include({
 					alertName: 'noCourses',
 					alertType: 'call-to-action',
-					alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.'
+					alertMessage: 'You don\'t have any courses to display.'
 				});
 			});
 		});
@@ -839,7 +839,7 @@ describe('d2l-my-courses-content', () => {
 				expect(component._alertsView).to.include({
 					alertName: 'noCourses',
 					alertType: 'call-to-action',
-					alertMessage: 'You don\'t have any courses to display. If you believe this is an error, please contact your administrator.'
+					alertMessage: 'You don\'t have any courses to display.'
 				});
 				component._enrollments = ['/enrollments/users/169/organizations/1'];
 				expect(component._alertsView).to.be.empty;
