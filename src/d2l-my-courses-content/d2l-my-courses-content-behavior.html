@@ -79,6 +79,10 @@
 				type: Object,
 				value: function() { return {}; }
 			},
+			_numberOfEnrollment: {
+				type: Number,
+				value: 0
+			},
 			_lastPinnedIndex: {
 				type: Number,
 				value: 0
@@ -101,7 +105,7 @@
 			// Text to render for "View All Courses" link (includes enrollment count approximation)
 			_viewAllCoursesText: {
 				type: String,
-				computed: '_getViewAllCoursesText(_hasMoreEnrollments, _enrollments.length)'
+				computed: '_getViewAllCoursesText(_hasMoreEnrollments, _numberOfEnrollment)'
 			}
 		},
 		listeners: {
@@ -189,8 +193,9 @@
 		_enrollmentsChanged: function(enrollments) {
 			this._hasEnrollments = enrollments.length > 0;
 
-			this._clearAlerts();
+			this._removeAlert('noCourses');
 			if (!this._hasEnrollments) {
+				this._clearAlerts();
 				this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
 			}
 		},
@@ -237,7 +242,9 @@
 			}
 
 			var orgUnitId = this._getOrgUnitIdFromHref(e.detail.organizationUrl);
-
+			if (!this._orgUnitIdMap[orgUnitId]) {
+				this._numberOfEnrollment++;
+			}
 			this._orgUnitIdMap[orgUnitId] = e.detail.enrollmentUrl;
 		},
 		_onD2lEnrollmentCardStatus: function(e) {
@@ -554,10 +561,12 @@
 
 			// With individual fetching of courses as they get pinned, we can end
 			// up with "21+", "22+", etc., so round down to nearest 5 for >20 courses
+			var maxCount = 99;
 			var count = enrollmentsLength < 20
 				? enrollmentsLength
 				: String(enrollmentsLength - (enrollmentsLength % 5));
-			if (hasMoreEnrollments) count += '+';
+			if (count > maxCount) count = maxCount + '+';
+			if (hasMoreEnrollments && count !== maxCount + '+') count += '+';
 
 			return enrollmentsLength > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
 		},
