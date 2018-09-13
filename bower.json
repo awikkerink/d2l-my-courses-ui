@@ -27,7 +27,7 @@
     "wct.conf.json"
   ],
   "dependencies": {
-    "1.x-hybrid-components": "BrightspaceHypermediaComponents/1.x-hybrid-components#^0.0.4",
+    "1.x-hybrid-components": "BrightspaceHypermediaComponents/1.x-hybrid-components#^0.0.5",
     "d2l-alert": "^3.1.0",
     "d2l-colors": "^3.1.2",
     "d2l-course-image": "Brightspace/course-image#^2.1.4",
@@ -48,7 +48,6 @@
     "d2l-search-widget": "git://github.com/Brightspace/d2l-search-widget-ui.git#^3.1.0",
     "d2l-simple-overlay": "git://github.com/Brightspace/simple-overlay#^2.2.0",
     "d2l-tabs": "^0.4.1",
-    "d2l-tile": "^4.1.4",
     "d2l-typography": "^6.1.2",
     "iron-a11y-announcer": "^2.0.0",
     "iron-a11y-keys": "^2.0.0",
