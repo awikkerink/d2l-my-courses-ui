@@ -846,14 +846,6 @@ describe('d2l-my-courses-content', () => {
 			});
 		});
 
-		it('should remove all existing alerts when enrollment alerts are updated', () => {
-			component._addAlert('error', 'testError', 'this is a test');
-			component._addAlert('warning', 'testWarning', 'this is another test');
-			expect(component._alertsView).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
-			component._enrollmentsChanged([1]);
-			expect(component._alertsView).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
-		});
-
 	});
 
 	describe('With enrollments', () => {
