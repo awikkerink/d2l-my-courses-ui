@@ -846,14 +846,6 @@ describe('d2l-my-courses-content', () => {
 			});
 		});
 
-		it('should remove all existing alerts when enrollment alerts are updated', () => {
-			component._addAlert('error', 'testError', 'this is a test');
-			component._addAlert('warning', 'testWarning', 'this is another test');
-			expect(component._alertsView).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
-			component._enrollmentsChanged([1]);
-			expect(component._alertsView).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
-		});
-
 	});
 
 	describe('With enrollments', () => {
@@ -897,19 +889,19 @@ describe('d2l-my-courses-content', () => {
 
 		it('should show the number of enrollments when there are no new pages of enrollments with the View All Courses link', () => {
 			component._hasMoreEnrollments = false;
-			component._enrollments = new Array(6);
+			component._numberOfEnrollment = 6;
 			expect(component._viewAllCoursesText).to.equal('View All Courses (6)');
 		});
 
 		it('should show include "+" in the View All Courses link when there are more courses', () => {
 			component._hasMoreEnrollments = true;
-			component._enrollments = new Array(6);
+			component._numberOfEnrollment = 6;
 			expect(component._viewAllCoursesText).to.equal('View All Courses (6+)');
 		});
 
 		it('should round the number of courses in the View All Courses link when there are many courses', () => {
 			component._hasMoreEnrollments = true;
-			component._enrollments = new Array(23);
+			component._numberOfEnrollment = 23;
 			expect(component._viewAllCoursesText).to.equal('View All Courses (20+)');
 		});
 
