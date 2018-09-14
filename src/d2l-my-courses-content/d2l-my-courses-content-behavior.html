@@ -573,8 +573,12 @@
 			var count = enrollmentsLength < 20
 				? enrollmentsLength
 				: String(enrollmentsLength - (enrollmentsLength % 5));
-			if (count > maxCount) count = maxCount + '+';
-			if (hasMoreEnrollments && count !== maxCount + '+') count += '+';
+			if (count > maxCount) {
+				count = maxCount + '+';
+			}
+			if (hasMoreEnrollments && count !== maxCount + '+') {
+				count += '+';
+			}
 
 			return enrollmentsLength > 0 ? viewAllCourses + ' (' + count + ')' : viewAllCourses;
 		},
