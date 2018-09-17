@@ -62,7 +62,9 @@
 				return;
 			}
 
-			var courseTileDivs = Polymer.dom(this.root).querySelectorAll('.course-tile-grid > div');
+			var courseTileDivs = this.useEnrollmentCards
+				? Polymer.dom(this.root).querySelectorAll('.course-tile-grid > d2l-enrollment-card')
+				: Polymer.dom(this.root).querySelectorAll('.course-tile-grid > div');
 			ie11retryCount = ie11retryCount || 0;
 			if (
 				ie11retryCount < 20
@@ -74,11 +76,16 @@
 				return;
 			}
 
-			for (var i = 0; i < courseTileDivs.length; i++) {
+			for (var i = 0, position = 0; i < courseTileDivs.length; i++, position++) {
 				var div = courseTileDivs[i];
+				if ((div.hasAttribute('completed') || div.hasAttribute('closed')) && !div.hasAttribute('pinned')) {
+					position--;
+					continue;
+				}
+
 				// The (* 2 - 1) accounts for the grid-gap-esque columns
-				var column = (i % numColumns + 1) * 2 - 1;
-				var row = Math.floor(i / numColumns) + 1;
+				var column = (position % numColumns + 1) * 2 - 1;
+				var row = Math.floor(position / numColumns) + 1;
 				div.style['-ms-grid-column'] = column;
 				div.style['-ms-grid-row'] = row;
 			}
