@@ -117,6 +117,8 @@ describe('d2l-my-courses-content', () => {
 
 		fetchStub = sandbox.stub(window.d2lfetch, 'fetch');
 		SetupFetchStub(/\/enrollments$/, enrollmentsRootEntity);
+		SetupFetchStub(/\/enrollments\/users\/169\/organizations\/1/, enrollmentEntity);
+		SetupFetchStub(/\/enrollments\/users\/169\/organizations\/2/, enrollmentEntity);
 		SetupFetchStub(/\/organizations\/1$/, organizationEntity);
 		SetupFetchStub(/\/organizations\/2$/, organizationEntity);
 		SetupFetchStub(/\/organizations\/3$/, organizationEntity);
@@ -842,6 +844,7 @@ describe('d2l-my-courses-content', () => {
 					alertMessage: 'You don\'t have any courses to display.'
 				});
 				component._enrollments = ['/enrollments/users/169/organizations/1'];
+				component._numberOfEnrollments = 1;
 				expect(component._alertsView).to.be.empty;
 			});
 		});
@@ -856,10 +859,11 @@ describe('d2l-my-courses-content', () => {
 			});
 		});
 
-		it('should correctly evaluate whether it has enrollments', () => {
-			return component._fetchRoot().then(() => {
+		it('should correctly evaluate whether it has enrollments', done => {
+			setTimeout(() => {
 				expect(component._hasEnrollments).to.be.true;
-			});
+				done();
+			}, 2000);
 		});
 
 		it('should add a setCourseImageFailure warning alert when a request to set the image fails', () => {

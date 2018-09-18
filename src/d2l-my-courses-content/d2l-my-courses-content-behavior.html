@@ -191,6 +191,7 @@
 		_enrollmentsSearchUrl: null,
 
 		_enrollmentsChanged: function(viewAbleLength, totalLength) {
+			totalLength = this.useEnrollmentCards ? totalLength : viewAbleLength;
 			this._hasEnrollments = totalLength > 0;
 
 			this._removeAlert('noCourses');
