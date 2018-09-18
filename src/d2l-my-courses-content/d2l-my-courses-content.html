@@ -75,7 +75,7 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 			</d2l-alert>
 
 			<template is="dom-repeat" items="[[_alertsView]]">
-				<d2l-alert type="[[item.alertType]]" hidden$="[[!_enrollments.length]]">
+				<d2l-alert type="[[item.alertType]]">
 					[[item.alertMessage]]
 				</d2l-alert>
 			</template>
