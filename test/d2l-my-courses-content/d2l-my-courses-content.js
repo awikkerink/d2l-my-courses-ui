@@ -800,6 +800,7 @@ describe('d2l-my-courses-content', () => {
 		it('should display the appropriate alert when there are no enrollments', () => {
 			fetchStub.restore();
 			component._enrollments = [];
+			component._numberOfEnrollments = 0;
 
 			SetupFetchStub(/\/enrollments$/, enrollmentsRootEntity);
 			SetupFetchStub(/\/enrollments\/users\/169.*&.*$/, window.D2L.Hypermedia.Siren.Parse({
@@ -825,6 +826,7 @@ describe('d2l-my-courses-content', () => {
 		it('should update enrollment alerts when enrollment information is updated', () => {
 			fetchStub.restore();
 			component._enrollments = [];
+			component._numberOfEnrollments = 0;
 
 			SetupFetchStub(/\/enrollments$/, enrollmentsRootEntity);
 			SetupFetchStub(/\/enrollments\/users\/169.*&.*$/, window.D2L.Hypermedia.Siren.Parse({
