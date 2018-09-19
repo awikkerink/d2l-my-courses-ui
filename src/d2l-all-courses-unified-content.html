@@ -39,12 +39,10 @@ This is only used if the `US90527-my-courses-updates` LD flag is ON
 		<div class="course-tile-grid">
 			<template is="dom-if" if="[[useEnrollmentCards]]">
 				<template is="dom-repeat" items="[[filteredEnrollments]]">
-					<div>
-						<d2l-enrollment-card
-							href="[[item]]"
-							presentation-href=[[presentationUrl]]>
-						</d2l-enrollment-card>
-					</div>
+					<d2l-enrollment-card
+						href="[[item]]"
+						presentation-href=[[presentationUrl]]>
+					</d2l-enrollment-card>
 				</template>
 			</template>
 			<template is="dom-if" if="[[!useEnrollmentCards]]">
