@@ -177,7 +177,7 @@ describe('d2l-my-courses-content', () => {
 					var courseTileGrid = component.$$('.course-tile-grid');
 					expect(courseTileGrid.classList.toString()).to.contain('columns-');
 					done();
-				}, 100);
+				}, 500);
 			};
 
 			window.addEventListener('resize', listener);
