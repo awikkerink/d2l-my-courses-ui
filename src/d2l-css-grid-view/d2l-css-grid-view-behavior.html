@@ -78,7 +78,7 @@
 
 			for (var i = 0, position = 0; i < courseTileDivs.length; i++, position++) {
 				var div = courseTileDivs[i];
-				if ((div.hasAttribute('completed') || div.hasAttribute('closed')) && !div.hasAttribute('pinned')) {
+				if (this.__hideElement(div)) {
 					position--;
 					continue;
 				}
@@ -89,6 +89,12 @@
 				div.style['-ms-grid-column'] = column;
 				div.style['-ms-grid-row'] = row;
 			}
+		},
+
+		__hideElement: function(div) {
+			return this.is !== 'd2l-all-courses-unified-content'
+				&& (div.hasAttribute('completed') || div.hasAttribute('closed'))
+				&& !div.hasAttribute('pinned');
 		}
 	};
 </script>
